@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interview Mentor - Single Layer Cards</title>
+  <style>
+    :root {
+      --ink: #1f1f1f;
+      --ink-soft: #5f5f5f;
+      --paper: #f7f5f0;
+      --paper-2: #fcfbf8;
+      --line: #d8d4ca;
+      --line-soft: #e8e4dc;
+      --accent: #4f7b62;
+      --accent-soft: #e9f1ec;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Avenir Next", "SF Pro Text", "PingFang SC", "Noto Sans SC", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(36rem 26rem at 10% 15%, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0) 65%),
+        radial-gradient(28rem 22rem at 88% 80%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 68%),
+        linear-gradient(165deg, var(--paper-2) 0%, var(--paper) 100%);
+    }
+    .page { width: min(1120px, calc(100vw - 44px)); margin: 28px auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: baseline;
+      border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 20px;
+    }
+    .brand { font-family: "Iowan Old Style", "Palatino", serif; font-size: 34px; }
+    .meta { font-size: 12px; text-transform: uppercase; letter-spacing: 0.09em; color: #777; }
+
+    .layout { display: grid; grid-template-columns: 1.05fr 1fr; gap: 16px; }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.76);
+      padding: 18px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-family: "Iowan Old Style", "Palatino", serif;
+      font-size: 30px;
+      font-weight: 500;
+      line-height: 1.28;
+    }
+    p { margin: 0; color: var(--ink-soft); line-height: 1.75; font-size: 15px; }
+
+    .btn-row { display: flex; gap: 8px; margin-top: 14px; }
+    .btn {
+      border-radius: 999px; padding: 9px 14px; font-size: 13px; font-weight: 600;
+      border: 1px solid #c9c5bb; background: #faf9f6; color: #3d3d3d;
+    }
+    .btn-primary { border-color: #9fbea9; background: var(--accent-soft); color: #2f5842; }
+
+    .stats {
+      display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px;
+      margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line-soft);
+    }
+    .stat { padding-right: 6px; }
+    .stat:not(:last-child) { border-right: 1px solid var(--line-soft); }
+    .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #808080; margin-bottom: 6px; }
+    .v { font-size: 22px; font-weight: 640; }
+
+    .section { padding: 10px 0; }
+    .section + .section { border-top: 1px solid var(--line-soft); }
+    h2 { margin: 0 0 8px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #767676; }
+    ul { margin: 0; padding-left: 18px; color: #4f4f4f; line-height: 1.85; font-size: 14px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    .chip { font-size: 12px; color: #555; border-bottom: 1px solid #cfcabf; padding-bottom: 2px; }
+
+    .qrow {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 10px 0; border-bottom: 1px dashed #d9d4ca; font-size: 14px; color: #444;
+    }
+    .qrow:last-of-type { border-bottom: none; }
+    .tag { white-space: nowrap; font-size: 12px; color: var(--accent); font-weight: 650; }
+
+    @media (max-width: 940px) {
+      .page { width: calc(100vw - 20px); margin: 12px auto; }
+      .layout { grid-template-columns: 1fr; }
+      .brand { font-size: 27px; }
+      h1 { font-size: 24px; }
+      .stats { grid-template-columns: 1fr; }
+      .stat { border-right: none !important; border-bottom: 1px solid var(--line-soft); padding-bottom: 8px; }
+      .stat:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">Interview Mentor</div>
+      <div class="meta">Round 2 · Project Deep Dive</div>
+    </header>
+
+    <section class="layout">
+      <article class="panel">
+        <h1>Tell me about a project where you handled trade-offs under pressure.</h1>
+        <p>先讲关键决策，再讲为什么这样做。你不用完美，只要清晰、有证据、可理解。</p>
+        <div class="btn-row">
+          <button class="btn btn-primary">Record Answer</button>
+          <button class="btn">Skip</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Progress</div><div class="v">2 / 5</div></div>
+          <div class="stat"><div class="k">Time</div><div class="v">06:42</div></div>
+          <div class="stat"><div class="k">Focus</div><div class="v">Steady</div></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section">
+          <h2>Recruiter Lens</h2>
+          <ul>
+            <li>叙述顺序清晰，能听懂你在做什么。</li>
+            <li>结果有提及，但可量化证据不足。</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h2>Coach Lens</h2>
+          <ul>
+            <li>下一轮先给结论句：你解决了什么关键冲突。</li>
+            <li>补一个具体数字，强化岗位匹配度。</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h2>Personal Question Bank</h2>
+          <div class="chips">
+            <span class="chip">General</span>
+            <span class="chip">Project</span>
+            <span class="chip">Behavioral</span>
+            <span class="chip">Case</span>
+          </div>
+          <div class="qrow"><span>Tell me about your biggest project impact</span><span class="tag">Polish Ready</span></div>
+          <div class="qrow"><span>What is your weakness?</span><span class="tag">Needs Metric</span></div>
+          <div class="qrow"><span>Why this role?</span><span class="tag">Re-record</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

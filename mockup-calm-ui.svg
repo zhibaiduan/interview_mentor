@@ -1,0 +1,50 @@
+<svg width="1440" height="980" viewBox="0 0 1440 980" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="980" fill="#F7F6F2"/>
+  <rect x="60" y="60" width="1320" height="860" rx="28" fill="#FCFBF8" stroke="#DFDDD6" stroke-width="2"/>
+  <rect x="84" y="84" width="1272" height="68" rx="16" fill="#F3F1EA" stroke="#DDD9CF"/>
+  <text x="108" y="127" fill="#3E4A45" font-size="34" font-family="Georgia">Interview Mentor</text>
+  <rect x="1166" y="98" width="170" height="40" rx="14" fill="#DCE8DD" stroke="#C2D3C3"/>
+  <text x="1208" y="124" fill="#2F5B3A" font-size="16" font-family="Arial">Start Round</text>
+
+  <rect x="100" y="180" width="520" height="240" rx="20" fill="#FFFFFF" stroke="#E3E0D8" stroke-width="2"/>
+  <text x="124" y="220" fill="#2F3A36" font-size="32" font-family="Georgia">Today's Round (5 Questions)</text>
+  <text x="124" y="272" fill="#52605A" font-size="20" font-family="Arial">Q2. Tell me about a project where you handled trade-offs</text>
+  <text x="124" y="300" fill="#52605A" font-size="20" font-family="Arial">under pressure.</text>
+  <rect x="124" y="330" width="196" height="46" rx="12" fill="#EAF2EA" stroke="#D1E0D1"/>
+  <text x="172" y="359" fill="#2F5B3A" font-size="16" font-family="Arial">Record Answer</text>
+  <rect x="336" y="330" width="124" height="46" rx="12" fill="#F4F2EC" stroke="#DFDACF"/>
+  <text x="380" y="359" fill="#6A6A63" font-size="16" font-family="Arial">Skip</text>
+
+  <rect x="100" y="444" width="520" height="166" rx="20" fill="#FEFDFB" stroke="#E3E0D8" stroke-width="2"/>
+  <text x="124" y="486" fill="#3D4A46" font-size="32" font-family="Georgia">Pause &amp; Breathe</text>
+  <text x="124" y="528" fill="#64706A" font-size="20" font-family="Arial">You're doing well. One thoughtful answer is better</text>
+  <text x="124" y="556" fill="#64706A" font-size="20" font-family="Arial">than three rushed ones.</text>
+
+  <rect x="656" y="180" width="684" height="300" rx="20" fill="#FFFFFF" stroke="#E3E0D8" stroke-width="2"/>
+  <text x="680" y="220" fill="#2F3A36" font-size="32" font-family="Georgia">Round Feedback</text>
+  <text x="680" y="272" fill="#6B766F" font-size="16" font-family="Arial">Recruiter Lens</text>
+  <text x="680" y="300" fill="#4C5752" font-size="20" font-family="Arial">Clear structure, needs stronger impact metric.</text>
+  <text x="680" y="352" fill="#6B766F" font-size="16" font-family="Arial">Coach Lens</text>
+  <text x="680" y="380" fill="#4C5752" font-size="20" font-family="Arial">Use STAR: Situation in 1 line, Action in 3 lines.</text>
+  <text x="680" y="432" fill="#6B766F" font-size="16" font-family="Arial">Your Next Step</text>
+  <text x="680" y="460" fill="#4C5752" font-size="20" font-family="Arial">Re-record Q2 with one concrete number.</text>
+
+  <rect x="656" y="504" width="684" height="310" rx="20" fill="#FFFEFC" stroke="#E3E0D8" stroke-width="2"/>
+  <text x="680" y="544" fill="#2F3A36" font-size="32" font-family="Georgia">Personal Question Bank</text>
+
+  <rect x="680" y="570" width="86" height="32" rx="14" fill="#F2F0E9" stroke="#DDD8CC"/>
+  <text x="700" y="591" fill="#5D655F" font-size="14" font-family="Arial">General</text>
+  <rect x="776" y="570" width="82" height="32" rx="14" fill="#F2F0E9" stroke="#DDD8CC"/>
+  <text x="798" y="591" fill="#5D655F" font-size="14" font-family="Arial">Project</text>
+  <rect x="868" y="570" width="98" height="32" rx="14" fill="#F2F0E9" stroke="#DDD8CC"/>
+  <text x="888" y="591" fill="#5D655F" font-size="14" font-family="Arial">Behavioral</text>
+  <rect x="976" y="570" width="64" height="32" rx="14" fill="#F2F0E9" stroke="#DDD8CC"/>
+  <text x="996" y="591" fill="#5D655F" font-size="14" font-family="Arial">Case</text>
+
+  <rect x="680" y="624" width="636" height="46" rx="10" fill="#FAF9F5" stroke="#E8E4DA"/>
+  <text x="696" y="652" fill="#59635D" font-size="15" font-family="Arial">"Tell me about your biggest project impact" · Last practiced: 2d ago</text>
+  <rect x="680" y="680" width="636" height="46" rx="10" fill="#FAF9F5" stroke="#E8E4DA"/>
+  <text x="696" y="708" fill="#59635D" font-size="15" font-family="Arial">"What is your weakness?" · Polish ready</text>
+  <rect x="680" y="736" width="636" height="46" rx="10" fill="#FAF9F5" stroke="#E8E4DA"/>
+  <text x="696" y="764" fill="#59635D" font-size="15" font-family="Arial">"Why this role?" · Needs re-record</text>
+</svg>

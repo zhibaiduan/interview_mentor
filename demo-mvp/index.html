@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interview Mentor - Immersive Call Demo</title>
+  <style>
+    :root{--ink:#1f1f1f;--muted:#6b6b6b;--paper:#f7f5f0;--paper2:#fcfbf8;--line:#d8d4ca;--lineSoft:#e8e4dc;--accent:#4f7b62;--accentSoft:#e9f1ec;--danger:#8a4b4b}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Avenir Next","SF Pro Text","PingFang SC",sans-serif;color:var(--ink);background:radial-gradient(32rem 24rem at 12% 12%,rgba(255,255,255,.72),transparent 65%),linear-gradient(165deg,var(--paper2),var(--paper));min-height:100vh}
+    .page{width:min(1180px,calc(100vw - 24px));margin:18px auto 28px}
+    .top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+    .brand{font-family:"Iowan Old Style","Palatino",serif;font-size:31px}.meta{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#777}
+
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:14px}
+    .panel{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.82);padding:16px;margin-bottom:12px}
+    .panel:last-child{margin-bottom:0}
+    h1{font-family:"Iowan Old Style","Palatino",serif;font-size:29px;line-height:1.26;margin:0 0 10px;font-weight:500}
+    h2{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#666}
+    p{margin:0;color:#5f5f5f;line-height:1.7}
+    .label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#777;margin:0 0 6px}
+    textarea{width:100%;min-height:98px;border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:#fff;font:inherit;margin-bottom:10px}
+    .btns{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:1px solid #c9c5bb;border-radius:999px;padding:9px 14px;background:#faf9f6;color:#3d3d3d;font-size:13px;font-weight:600;cursor:pointer}
+    .btn.primary{border-color:#9fbea9;background:var(--accentSoft);color:#2f5842}.btn.danger{border-color:#cfb1b1;background:#f8eded;color:var(--danger)}
+
+    .phone{border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px}
+    .head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .avatar{width:58px;height:58px;border-radius:50%;background:#f4f2ec;border:1px solid var(--line);display:grid;place-items:center;color:#666;font-weight:700}
+    .name{font-size:20px;font-family:"Iowan Old Style","Palatino",serif}
+    .sub{font-size:13px;color:#7b7b7b}
+    .state{margin:8px 0 12px;font-size:14px;color:#474747;display:flex;align-items:center;gap:8px}
+    .dot{width:10px;height:10px;border-radius:50%;background:#bdbdbd}.dot.on{background:var(--accent);box-shadow:0 0 0 8px rgba(79,123,98,.14)}
+
+    .call-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .kbd{display:inline-block;border:1px solid #d2cdc1;border-bottom-width:2px;border-radius:7px;padding:1px 6px;background:#f8f6f2;font-size:11px;color:#666}
+    .transcript-live{border:1px dashed var(--lineSoft);border-radius:10px;padding:10px;background:#fcfcfa;margin-bottom:10px}
+    .transcript-live .t-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#777;margin-bottom:4px}
+    .transcript-live .t-text{font-size:14px;line-height:1.6;color:#3f3f3f;min-height:20px}
+    .transcript-live .t-text.dim{color:#8c8c8c}
+
+    .log{max-height:360px;overflow:auto;border-top:1px solid var(--lineSoft);padding-top:10px}
+    .msg{padding:9px 0;border-bottom:1px dashed var(--lineSoft)}
+    .msg:last-child{border-bottom:none}
+    .who{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#7c7c7c;margin-bottom:4px}
+    .text{font-size:14px;line-height:1.6;color:#404040}
+    .thinking{font-size:13px;color:#777;font-style:italic}
+
+    .side .row{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px dashed var(--lineSoft);font-size:13px}
+    .tag{color:var(--accent);font-weight:650}
+    .hidden{display:none}
+
+    @media (max-width:980px){.layout{grid-template-columns:1fr}.page{width:calc(100vw - 14px)}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="top"><div class="brand">Interview Mentor</div><div class="meta" id="meta">Setup</div></header>
+
+  <section class="layout">
+    <div>
+      <article id="setup" class="panel">
+        <h1>Set up and receive a real-time interview call.</h1>
+        <div class="label">Resume</div>
+        <textarea id="resume" placeholder="Paste your resume..."></textarea>
+        <div class="label">Job Description</div>
+        <textarea id="jd" placeholder="Paste target JD..."></textarea>
+        <div class="btns">
+          <button class="btn" onclick="fillSample()">Use Sample</button>
+          <button class="btn primary" onclick="confirmSetup()">Confirm & Wait for Call</button>
+        </div>
+        <p id="setupMsg" style="margin-top:10px;font-size:13px;color:#777"></p>
+      </article>
+
+      <article id="incoming" class="panel hidden">
+        <h2>Incoming Call</h2>
+        <div class="phone">
+          <div class="head"><div class="avatar">IM</div><div><div class="name">Interview Mentor</div><div class="sub">calling you now...</div></div></div>
+          <div class="state"><span id="ringDot" class="dot on"></span><span id="ringTxt">Ringing...</span></div>
+          <div class="btns"><button class="btn danger" onclick="declineCall()">Decline</button><button class="btn primary" onclick="acceptCall()">Accept</button></div>
+        </div>
+      </article>
+
+      <article id="live" class="panel hidden">
+        <h2>Live Interview Call</h2>
+        <div class="phone">
+          <div class="head"><div class="avatar">IM</div><div><div class="name">Interview Mentor</div><div class="sub">voice interview in progress · ~5 turns</div></div></div>
+          <div class="state"><span id="liveDot" class="dot"></span><span id="liveState">Connecting...</span></div>
+
+          <div class="call-actions">
+            <button id="holdBtn" class="btn primary" onmousedown="startUserTurn()" onmouseup="endUserTurn()" ontouchstart="startUserTurn()" ontouchend="endUserTurn()">Hold to Talk</button>
+            <button class="btn danger" onclick="hangup()">Hang Up</button>
+            <span class="small">Keyboard: hold <span class="kbd">Space</span> to talk, release to send</span>
+          </div>
+
+          <div class="transcript-live">
+            <div class="t-title">Live Transcript</div>
+            <div id="liveTranscript" class="t-text dim">Waiting for your answer...</div>
+          </div>
+
+          <div class="log" id="log"></div>
+        </div>
+      </article>
+    </div>
+
+    <aside class="side">
+      <article class="panel">
+        <h2>Profile & Files</h2>
+        <div id="files">
+          <div class="row"><span>Resume</span><span class="tag">Not Added</span></div>
+          <div class="row"><span>Target JD</span><span class="tag">Not Added</span></div>
+          <div class="row"><span>Role</span><span class="tag">—</span></div>
+        </div>
+      </article>
+      <article class="panel">
+        <h2>Call History</h2>
+        <div id="history"><div class="row"><span>No calls yet</span><span>—</span></div></div>
+      </article>
+    </aside>
+  </section>
+</main>
+
+<script>
+let inCall=false;
+let role='Software Engineer';
+let qIndex=0, turnCount=0;
+let currentQuestion='';
+let micStream=null, mediaRecorder=null, audioChunks=[];
+let speechRec=null, hasSpeechRec=false;
+let isRecording=false;
+let thinkingNode=null;
+let dialCtx=null;
+const MAX_TURNS=5;
+
+const seedQuestions=[
+  'Please introduce your most relevant project in sixty seconds.',
+  'What key trade-off did you make and why?',
+  'What was your direct ownership and measurable impact?',
+  'Tell me about a failure in that project and what changed after that.',
+  'Why are you a strong fit for this role?'
+];
+
+const el=id=>document.getElementById(id);
+function show(id){['setup','incoming','live'].forEach(s=>el(s).classList.toggle('hidden',s!==id));el('meta').textContent=id==='setup'?'Setup':id==='incoming'?'Incoming Call':'Live Call'}
+function setLiveState(txt,on){el('liveState').textContent=txt;el('liveDot').classList.toggle('on',on)}
+function setLiveTranscript(txt,dim=false){const n=el('liveTranscript');n.textContent=txt;n.classList.toggle('dim',dim)}
+function appendMsg(who,text){const log=el('log');const n=document.createElement('div');n.className='msg';n.innerHTML=`<div class="who">${who}</div><div class="text">${text}</div>`;log.prepend(n)}
+function setThinking(on,text='Interviewer is thinking...'){const log=el('log');if(on){if(thinkingNode)return;thinkingNode=document.createElement('div');thinkingNode.className='msg';thinkingNode.innerHTML=`<div class="who">System</div><div class="thinking">${text}</div>`;log.prepend(thinkingNode)}else if(thinkingNode){thinkingNode.remove();thinkingNode=null}}
+
+function fillSample(){el('resume').value='Software Engineer, 3 years. Improved conversion by 12%.';el('jd').value='Company: Stripe\nRole: Software Engineer II\nNeed ownership, collaboration, and communication.'}
+function parseRole(jd){const m=jd.match(/Role\s*[:：]\s*([^\n]+)/i);if(m)return m[1].trim();if(/product manager|pm/i.test(jd))return 'Product Manager';if(/data scientist|data analyst/i.test(jd))return 'Data';return 'Software Engineer'}
+
+async function confirmSetup(){
+  const resume=el('resume').value.trim();
+  const jd=el('jd').value.trim();
+  if(!resume||!jd){ alert('Please fill resume and JD.'); return; }
+  role=parseRole(jd);
+  el('setupMsg').textContent='Ready. Waiting for incoming call...';
+  el('files').innerHTML=`<div class="row"><span>Resume</span><span class="tag">Added</span></div><div class="row"><span>Target JD</span><span class="tag">Added</span></div><div class="row"><span>Role</span><span class="tag">${role}</span></div>`;
+  show('incoming');
+  startRinging();
+}
+
+function startRinging(){
+  try{
+    dialCtx=new (window.AudioContext||window.webkitAudioContext)();
+    let count=0;
+    const iv=setInterval(()=>{
+      if(el('incoming').classList.contains('hidden')) return clearInterval(iv);
+      const o=dialCtx.createOscillator(), g=dialCtx.createGain();
+      o.type='sine'; o.frequency.value=440; g.gain.value=0.03;
+      o.connect(g); g.connect(dialCtx.destination); o.start();
+      setTimeout(()=>o.stop(),260);
+      count++; if(count>=12) clearInterval(iv);
+    },420);
+  }catch(e){}
+}
+
+function declineCall(){
+  try{if(dialCtx)dialCtx.close()}catch(e){}
+  show('setup');
+  el('setupMsg').textContent='Call declined.';
+}
+
+async function ensureAudio(){
+  if(!micStream){
+    micStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  }
+}
+
+function initSpeechRecognition(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ hasSpeechRec=false; return; }
+  hasSpeechRec=true;
+  speechRec = new SR();
+  speechRec.lang='en-US';
+  speechRec.interimResults=true;
+  speechRec.continuous=true;
+  speechRec.onresult=(e)=>{
+    let finalText='';
+    let interim='';
+    for(let i=0;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) finalText += t + ' ';
+      else interim += t;
+    }
+    const text=(finalText + interim).trim();
+    if(text) setLiveTranscript(text, false);
+  };
+}
+
+async function acceptCall(){
+  try{if(dialCtx)dialCtx.close()}catch(e){}
+  try{ await ensureAudio(); }catch(e){ alert('Microphone permission is required to run the call flow.'); return; }
+  initSpeechRecognition();
+
+  show('live');
+  inCall=true; qIndex=0; turnCount=0; el('log').innerHTML='';
+  setLiveState('Interviewer speaking...',true);
+  currentQuestion = seedQuestions[qIndex];
+  appendMsg('Interviewer', currentQuestion);
+  await speakNatural(currentQuestion);
+  setLiveTranscript('Hold Space and speak your answer...', true);
+  setLiveState('Hold Space to talk',true);
+}
+
+function startUserTurn(){
+  if(!inCall || isRecording) return;
+  if(!micStream){ setLiveState('Microphone not ready.', false); return; }
+  audioChunks=[];
+  setThinking(false);
+  setLiveTranscript('Listening...', true);
+  setLiveState('Listening... release to submit', true);
+
+  mediaRecorder = new MediaRecorder(micStream, { mimeType: 'audio/webm' });
+  mediaRecorder.ondataavailable = (e)=>{ if(e.data && e.data.size>0) audioChunks.push(e.data); };
+  mediaRecorder.onstop = processRecordedAnswer;
+  mediaRecorder.start();
+  isRecording=true;
+
+  if(hasSpeechRec && speechRec){
+    try{ speechRec.start(); }catch(_){ }
+  }
+}
+
+function endUserTurn(){
+  if(!inCall || !isRecording) return;
+  setLiveState('Processing your answer...', true);
+  if(hasSpeechRec && speechRec){ try{ speechRec.stop(); }catch(_){} }
+  try{ mediaRecorder.stop(); }catch(_){}
+  isRecording=false;
+}
+
+async function blobToDataURL(blob){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(r.result);
+    r.onerror=reject;
+    r.readAsDataURL(blob);
+  });
+}
+
+async function transcribeBlob(blob){
+  const dataUrl = await blobToDataURL(blob);
+  const r = await fetch('/api/stt', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ audioBase64: dataUrl, mimeType: blob.type || 'audio/webm' })
+  });
+  const d = await r.json();
+  if(!r.ok) throw new Error(d.detail || d.error || 'stt_failed');
+  return (d.text || '').trim();
+}
+
+async function processRecordedAnswer(){
+  if(!inCall) return;
+  const blob = new Blob(audioChunks, { type: 'audio/webm' });
+  if(!blob.size){
+    setLiveTranscript('No speech captured. Hold Space and try again.', true);
+    setLiveState('No speech captured.', false);
+    return;
+  }
+
+  try{
+    setThinking(true, 'Transcribing your answer...');
+    const transcript = await transcribeBlob(blob);
+    setThinking(false);
+    if(!transcript){
+      setLiveTranscript('No transcript returned. Please try again.', true);
+      setLiveState('Try again', false);
+      return;
+    }
+
+    setLiveTranscript(transcript, false);
+    appendMsg('You', transcript);
+
+    setThinking(true, 'Interviewer is analyzing your answer...');
+    setLiveState('Interviewer is responding...', true);
+    const reply = await getAIReply(transcript, currentQuestion);
+    setThinking(false);
+    if(!inCall) return;
+
+    const action = reply.nextAction || 'follow_up';
+    let spoken = reply.followUp || 'Thanks. Could you add one concrete metric?';
+
+    if(action === 'next_question'){
+      qIndex = Math.min(qIndex + 1, seedQuestions.length - 1);
+      currentQuestion = seedQuestions[qIndex];
+      // Let model transition naturally; fallback to next seed question if too short.
+      if(!spoken || spoken.length < 8) spoken = currentQuestion;
+    } else if(action === 'follow_up'){
+      // keep current question theme
+      currentQuestion = spoken;
+    }
+
+    appendMsg('Interviewer', spoken);
+    await speakNatural(spoken);
+
+    turnCount += 1;
+    if(action === 'end_round' || turnCount >= MAX_TURNS){
+      await endBySystem();
+      return;
+    }
+
+    setLiveTranscript('Hold Space and answer...', true);
+    setLiveState('Hold Space to answer next turn', true);
+  }catch(e){
+    setThinking(false);
+    setLiveTranscript('Failed to process audio. Please try again.', true);
+    setLiveState('Network or API error. Retry.', false);
+    appendMsg('System', `Error: ${e.message}`);
+  }
+}
+
+async function getAIReply(userAnswer, question){
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role,question,userAnswer})});
+    const d=await r.json();
+    if(!r.ok) return {followUp:'Thanks. Could you clarify your ownership and impact with one number?', nextAction:'follow_up'};
+    return d;
+  }catch(e){
+    return {followUp:'Thanks. Could you clarify your ownership and impact with one number?', nextAction:'follow_up'};
+  }
+}
+
+async function speakNatural(text){
+  try{
+    const r=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(!r.ok) throw new Error('tts failed');
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    await new Promise((resolve)=>{
+      const a=new Audio(url);
+      a.onended=()=>{URL.revokeObjectURL(url);resolve();};
+      a.onerror=()=>{URL.revokeObjectURL(url);resolve();};
+      a.play().catch(()=>resolve());
+    });
+  }catch(e){
+    await new Promise((resolve)=>{
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang='en-US'; u.rate=.95; u.onend=()=>resolve();
+      speechSynthesis.speak(u);
+    });
+  }
+}
+
+async function endBySystem(){
+  setLiveState('Interview complete.',false);
+  appendMsg('System','Round complete. Next: feedback page.');
+  await speakNatural('This round is complete. Great job today. We will now move to your feedback.');
+  addHistory('Auto completed (5 turns)');
+  cleanup();
+}
+
+function hangup(){
+  if(!inCall) return;
+  setLiveState('Call ended.',false);
+  addHistory('Ended by user');
+  cleanup();
+}
+
+function cleanup(){
+  inCall=false;
+  isRecording=false;
+  setThinking(false);
+  if(hasSpeechRec && speechRec){ try{ speechRec.stop(); }catch(_){} }
+  speechSynthesis.cancel();
+}
+
+function addHistory(msg){
+  const h=el('history');
+  const row=document.createElement('div');
+  row.className='row';
+  row.innerHTML=`<span>${msg}</span><span class="tag">${new Date().toLocaleTimeString()}</span>`;
+  h.prepend(row);
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.code !== 'Space') return;
+  if (!inCall) return;
+  if (e.repeat) return;
+  e.preventDefault();
+  startUserTurn();
+});
+window.addEventListener('keyup', (e) => {
+  if (e.code !== 'Space') return;
+  if (!inCall) return;
+  e.preventDefault();
+  endUserTurn();
+});
+</script>
+</body>
+</html>
