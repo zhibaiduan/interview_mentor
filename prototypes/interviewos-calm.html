@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>InterviewOS — Practice with intention</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --warm-white:  #faf7f2;
+  --warm-white2: #f3efe8;
+  --warm-white3: #ece7de;
+  --ink:         #2a2520;
+  --ink-2:       #5a524a;
+  --ink-3:       #9a9088;
+  --ink-4:       #c0b8b0;
+  --room-bg:     #26221e;
+  --room-bg2:    #312d28;
+  --room-line:   rgba(250,247,242,.07);
+  --room-text:   rgba(250,247,242,.88);
+  --room-muted:  rgba(250,247,242,.4);
+  --room-hint:   rgba(250,247,242,.22);
+  --green-bg:    #e6f0e9;
+  --green-border:#bdd6c4;
+  --green-text:  #3a6b48;
+  --green-label: #5a8a68;
+  --amber-bg:    #f5ede0;
+  --amber-text:  #8a6030;
+  --red-bg:      #f5e8e6;
+  --red-text:    #8a3828;
+  --line:        rgba(42,37,32,.08);
+  --line-2:      rgba(42,37,32,.12);
+  --r:           8px;
+  --font-serif:  'Lora', Georgia, serif;
+  --font-sans:   'DM Sans', sans-serif;
+  --font-mono:   'DM Mono', monospace;
+}
+html { font-size: 16px; }
+body { font-family: var(--font-sans); background: var(--warm-white); color: var(--ink); min-height: 100vh; overflow-x: hidden; }
+
+/* ── Pages ── */
+.page { display: none; min-height: 100vh; flex-direction: column; }
+.page.active { display: flex; animation: arrive .3s ease; }
+@keyframes arrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+
+/* ── Nav ── */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 44px; border-bottom: 1px solid var(--line);
+  background: var(--warm-white); position: sticky; top: 0; z-index: 100;
+}
+.nav-logo {
+  font-family: var(--font-serif); font-size: 16px; font-weight: 500;
+  color: var(--ink); cursor: pointer; letter-spacing: .01em;
+}
+.nav-logo span { color: var(--ink-4); font-weight: 400; }
+.nav-actions { display: flex; gap: 8px; align-items: center; }
+.nav-pill {
+  font-family: var(--font-mono); font-size: 11px;
+  padding: 5px 13px; border-radius: 20px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink-3);
+  cursor: pointer; transition: all .18s;
+}
+.nav-pill:hover { background: var(--ink); color: var(--warm-white); border-color: var(--ink); }
+.nav-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--warm-white3); color: var(--ink-2);
+  font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 1px solid var(--line-2); transition: all .18s;
+}
+.nav-avatar:hover { background: var(--ink); color: var(--warm-white); border-color: var(--ink); }
+
+/* ── Buttons ── */
+.btn {
+  font-family: var(--font-sans); font-size: 14px; font-weight: 500;
+  padding: 11px 24px; border-radius: var(--r);
+  border: 1.5px solid var(--ink); background: var(--ink); color: var(--warm-white);
+  cursor: pointer; transition: all .18s; display: inline-flex; align-items: center; gap: 7px;
+  letter-spacing: .01em;
+}
+.btn:hover { background: transparent; color: var(--ink); }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--warm-white); }
+.btn.sm { font-size: 12px; padding: 7px 16px; border-radius: 6px; }
+.btn.success { border-color: var(--green-text); background: var(--green-text); color: #fff; }
+.btn.success:hover { background: transparent; color: var(--green-text); }
+.btn.full { width: 100%; justify-content: center; }
+
+/* ── Form inputs ── */
+.field-label { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); margin-bottom: 6px; display: block; letter-spacing: .04em; }
+.field {
+  font-family: var(--font-sans); font-size: 14px; font-weight: 300;
+  padding: 11px 14px; border-radius: var(--r);
+  border: 1px solid var(--warm-white3); background: var(--warm-white2); color: var(--ink);
+  outline: none; transition: border-color .18s; width: 100%;
+}
+.field:focus { border-color: var(--ink-3); }
+.field::placeholder { color: var(--ink-4); }
+
+/* ── Shared section head ── */
+.s-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.s-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); }
+
+/* ══════════════════════════════
+   LOGIN
+══════════════════════════════ */
+#page-login {
+  background: var(--room-bg);
+  align-items: center; justify-content: center;
+  position: relative;
+}
+.login-texture {
+  position: fixed; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(250,247,242,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(250,247,242,.03) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.login-card {
+  position: relative; z-index: 2;
+  background: var(--warm-white); border-radius: 14px;
+  padding: 52px 48px; width: 100%; max-width: 400px;
+  border: 1px solid rgba(250,247,242,.08);
+}
+.login-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 16px; }
+.login-title { font-family: var(--font-serif); font-size: 34px; line-height: 1.1; color: var(--ink); margin-bottom: 8px; }
+.login-title em { font-style: italic; color: var(--ink-3); }
+.login-sub { font-size: 14px; font-weight: 300; color: var(--ink-3); margin-bottom: 32px; line-height: 1.65; }
+.field-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.login-or { display: flex; align-items: center; gap: 12px; margin: 18px 0; }
+.login-or::before, .login-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.login-or span { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); }
+.login-switch { font-size: 13px; font-weight: 300; color: var(--ink-3); text-align: center; margin-top: 18px; }
+.login-switch a { color: var(--ink); cursor: pointer; font-weight: 400; }
+
+/* ══════════════════════════════
+   DASHBOARD — EMPTY
+══════════════════════════════ */
+#page-dash-empty .main { padding: 72px 44px 56px; max-width: 880px; margin: 0 auto; width: 100%; }
+.empty-hero { text-align: center; margin-bottom: 56px; }
+.empty-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 16px; }
+.empty-title { font-family: var(--font-serif); font-size: 48px; line-height: 1.08; color: var(--ink); margin-bottom: 16px; }
+.empty-title em { font-style: italic; color: var(--ink-3); }
+.empty-sub { font-size: 15px; font-weight: 300; color: var(--ink-3); line-height: 1.7; max-width: 400px; margin: 0 auto 28px; }
+
+.steps-strip {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px; background: var(--line); border-radius: 11px; overflow: hidden;
+  margin-bottom: 20px;
+}
+.step-cell { background: var(--warm-white2); padding: 24px 22px; }
+.step-n { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); margin-bottom: 10px; }
+.step-title { font-family: var(--font-serif); font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+.step-desc { font-size: 12px; font-weight: 300; color: var(--ink-3); line-height: 1.6; }
+
+.quick-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 52px; }
+.quick-card {
+  background: var(--warm-white2); border: 1px solid var(--line); border-radius: 11px;
+  padding: 20px 22px; cursor: pointer; transition: all .2s;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.quick-card:hover { border-color: var(--ink-3); background: var(--warm-white); transform: translateY(-1px); }
+.quick-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--warm-white); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.quick-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+.quick-desc { font-size: 12px; font-weight: 300; color: var(--ink-3); line-height: 1.55; }
+
+.proof-row { display: flex; align-items: center; justify-content: center; gap: 36px; padding-top: 32px; border-top: 1px solid var(--line); }
+.proof-item { text-align: center; }
+.proof-n { font-family: var(--font-serif); font-size: 28px; display: block; color: var(--ink); }
+.proof-l { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); letter-spacing: .08em; text-transform: uppercase; }
+.proof-sep { width: 1px; height: 32px; background: var(--line-2); }
+
+/* ══════════════════════════════
+   DASHBOARD — WITH DATA
+══════════════════════════════ */
+#page-dashboard .main { padding: 52px 44px; max-width: 960px; margin: 0 auto; width: 100%; }
+.dash-hero { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 24px; padding-bottom: 40px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+.dash-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
+.dash-title { font-family: var(--font-serif); font-size: 40px; line-height: 1.1; margin-bottom: 12px; }
+.dash-title em { font-style: italic; color: var(--ink-3); }
+.dash-sub { font-size: 14px; font-weight: 300; color: var(--ink-3); line-height: 1.65; max-width: 480px; }
+.dash-right { text-align: right; }
+.dash-stat-n { font-family: var(--font-serif); font-size: 52px; line-height: 1; color: var(--ink); }
+.dash-stat-l { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); margin-bottom: 14px; }
+
+.mode-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 44px; }
+.mode-card {
+  background: var(--warm-white2); border: 1px solid var(--line); border-radius: 11px;
+  padding: 24px 22px; cursor: pointer; transition: all .2s;
+}
+.mode-card:hover { border-color: var(--ink-3); background: var(--warm-white); transform: translateY(-1px); }
+.mode-card-label { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); margin-bottom: 10px; letter-spacing: .06em; }
+.mode-card-title { font-family: var(--font-serif); font-size: 16px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+.mode-card-desc { font-size: 12px; font-weight: 300; color: var(--ink-3); line-height: 1.55; }
+.mode-card-tag { display: inline-block; margin-top: 12px; font-family: var(--font-mono); font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--warm-white3); color: var(--ink-4); }
+.mode-card-tag.hi { background: var(--ink); color: var(--warm-white); }
+
+.history-stack { display: flex; flex-direction: column; gap: 8px; }
+.h-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: 9px;
+  background: var(--warm-white2); border: 1px solid var(--line);
+  cursor: pointer; transition: all .18s;
+}
+.h-item:hover { border-color: var(--ink-3); background: var(--warm-white); }
+.h-badge { font-family: var(--font-mono); font-size: 10px; padding: 3px 9px; border-radius: 4px; min-width: 64px; text-align: center; flex-shrink: 0; }
+.h-badge.pass { background: var(--green-bg); color: var(--green-text); }
+.h-badge.mid  { background: var(--amber-bg); color: var(--amber-text); }
+.h-badge.fail { background: var(--red-bg); color: var(--red-text); }
+.h-info { flex: 1; }
+.h-role { font-size: 14px; font-weight: 500; color: var(--ink); }
+.h-meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); margin-top: 3px; }
+.h-score { font-family: var(--font-serif); font-size: 20px; color: var(--ink); }
+.h-arrow { color: var(--ink-4); font-size: 16px; }
+
+/* ══════════════════════════════
+   PROFILE
+══════════════════════════════ */
+#page-profile .main { padding: 52px 44px; max-width: 720px; margin: 0 auto; width: 100%; }
+.profile-title { font-family: var(--font-serif); font-size: 36px; margin-bottom: 6px; }
+.profile-sub { font-size: 14px; font-weight: 300; color: var(--ink-3); margin-bottom: 44px; }
+
+.asset-block { margin-bottom: 36px; }
+.asset-block-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.asset-block-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); }
+
+.resume-item {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 16px; border-radius: 8px;
+  background: var(--warm-white2); border: 1px solid var(--line);
+  margin-bottom: 7px; transition: border-color .18s;
+}
+.resume-item.default { border-color: var(--ink-3); }
+.resume-file-icon { font-size: 18px; flex-shrink: 0; }
+.resume-name { font-size: 14px; font-weight: 400; flex: 1; color: var(--ink); }
+.resume-meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); }
+.default-tag { font-family: var(--font-mono); font-size: 9px; padding: 2px 7px; border-radius: 3px; background: var(--ink); color: var(--warm-white); margin-right: 4px; }
+.icon-btn { width: 28px; height: 28px; border-radius: 5px; border: 1px solid var(--line); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; transition: all .15s; color: var(--ink-4); }
+.icon-btn:hover { background: var(--warm-white3); color: var(--ink); border-color: var(--ink-3); }
+
+.upload-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px; border-radius: 8px;
+  border: 1.5px dashed var(--warm-white3); background: var(--warm-white2);
+  cursor: pointer; transition: all .18s; margin-top: 2px;
+}
+.upload-row:hover { border-color: var(--ink-3); background: var(--warm-white); }
+.upload-row-label { font-size: 13px; font-weight: 400; color: var(--ink-3); }
+.upload-row-hint { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); margin-left: auto; }
+
+.linkedin-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: var(--warm-white2); border: 1px solid var(--line); border-radius: 8px; }
+.linkedin-url { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); flex: 1; }
+.linked-tag { font-family: var(--font-mono); font-size: 10px; padding: 3px 8px; border-radius: 4px; background: var(--green-bg); color: var(--green-label); }
+
+.jd-item { display: flex; align-items: flex-start; gap: 12px; padding: 13px 16px; background: var(--warm-white2); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 7px; }
+.jd-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.jd-name { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.jd-snippet { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); line-height: 1.5; }
+.jd-actions { display: flex; gap: 5px; margin-left: auto; }
+
+/* ══════════════════════════════
+   SETUP WIZARD
+══════════════════════════════ */
+#page-setup .main { padding: 52px 44px; max-width: 680px; margin: 0 auto; width: 100%; }
+.wiz-steps { display: flex; margin-bottom: 44px; border-bottom: 1px solid var(--line); }
+.wiz-step { display: flex; align-items: center; gap: 9px; padding: 0 0 16px; margin-right: 28px; border-bottom: 2px solid transparent; cursor: pointer; color: var(--ink-4); transition: all .18s; }
+.wiz-step.active { border-bottom-color: var(--ink); color: var(--ink); }
+.wiz-step.done { color: var(--green-text); }
+.wiz-step-n { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 10px; font-weight: 500; flex-shrink: 0; }
+.wiz-step.done .wiz-step-n { background: var(--green-text); border-color: var(--green-text); color: #fff; }
+.wiz-step-label { font-size: 13px; font-weight: 400; }
+
+.wpanel { display: none; animation: arrive .22s ease; }
+.wpanel.active { display: block; }
+.wiz-title { font-family: var(--font-serif); font-size: 30px; font-weight: 500; margin-bottom: 6px; }
+.wiz-sub { font-size: 14px; font-weight: 300; color: var(--ink-3); margin-bottom: 28px; line-height: 1.65; }
+
+.pick-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+.pick-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 15px; border-radius: 8px;
+  border: 1.5px solid var(--line); background: var(--warm-white2);
+  cursor: pointer; transition: all .16s;
+}
+.pick-item:hover { border-color: var(--ink-3); }
+.pick-item.on { border-color: var(--ink); background: var(--warm-white); }
+.pick-radio { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--ink-4); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .16s; }
+.pick-item.on .pick-radio { background: var(--ink); border-color: var(--ink); }
+.pick-item.on .pick-radio::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--warm-white); }
+.pick-label { font-size: 14px; font-weight: 400; flex: 1; color: var(--ink); }
+.pick-meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); }
+
+.jd-pick-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 15px; border-radius: 8px;
+  border: 1.5px solid var(--line); background: var(--warm-white2);
+  cursor: pointer; transition: all .16s; margin-bottom: 7px;
+}
+.jd-pick-item:hover { border-color: var(--ink-3); }
+.jd-pick-item.on { border-color: var(--ink); background: var(--warm-white); }
+
+.or-line { display: flex; align-items: center; gap: 12px; margin: 14px 0; }
+.or-line::before, .or-line::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.or-line span { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); }
+
+.jd-area { width: 100%; min-height: 160px; font-family: var(--font-mono); font-size: 12px; line-height: 1.7; padding: 13px 15px; border-radius: var(--r); border: 1px solid var(--warm-white3); background: var(--warm-white2); color: var(--ink); outline: none; resize: vertical; transition: border-color .18s; }
+.jd-area:focus { border-color: var(--ink-3); }
+.save-check { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; font-weight: 300; color: var(--ink-3); }
+.save-check input { accent-color: var(--ink); cursor: pointer; }
+.save-name { margin-left: 4px; flex: 1; }
+
+.mode-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 20px; }
+.mode-opt { padding: 24px 20px; border-radius: 10px; border: 2px solid var(--line); cursor: pointer; transition: all .18s; background: var(--warm-white2); }
+.mode-opt:hover { border-color: var(--ink-3); }
+.mode-opt.on { border-color: var(--ink); background: var(--ink); color: var(--warm-white); }
+.mode-opt-icon { font-size: 22px; margin-bottom: 12px; }
+.mode-opt-title { font-family: var(--font-serif); font-size: 16px; font-weight: 500; margin-bottom: 7px; }
+.mode-opt-desc { font-size: 12px; font-weight: 300; line-height: 1.6; opacity: .7; }
+.drill-chips { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 14px; }
+.drill-chip { padding: 10px; border-radius: 6px; border: 1px solid var(--line); cursor: pointer; transition: all .16s; font-size: 12px; font-weight: 400; text-align: center; background: var(--warm-white2); color: var(--ink); }
+.drill-chip:hover { border-color: var(--ink-3); }
+.drill-chip.on { border-color: var(--ink); background: var(--ink); color: var(--warm-white); }
+.lang-row { display: flex; gap: 8px; margin-top: 18px; }
+.lang-chip { padding: 8px 16px; border-radius: 6px; border: 1.5px solid var(--line); cursor: pointer; transition: all .16s; font-size: 13px; font-weight: 400; background: var(--warm-white2); color: var(--ink); }
+.lang-chip:hover { border-color: var(--ink-3); }
+.lang-chip.on { border-color: var(--ink); background: var(--ink); color: var(--warm-white); }
+
+.wiz-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 22px; border-top: 1px solid var(--line); }
+
+/* ══════════════════════════════
+   INTERVIEW ROOM
+══════════════════════════════ */
+#page-interview { background: var(--room-bg); color: var(--room-text); }
+#page-interview .nav { background: var(--room-bg); border-bottom-color: var(--room-line); }
+#page-interview .nav-logo { color: var(--room-text); }
+#page-interview .nav-logo span { color: var(--room-hint); }
+#page-interview .nav-pill { border-color: rgba(250,247,242,.12); color: var(--room-muted); }
+#page-interview .nav-pill:hover { background: rgba(250,247,242,.1); color: var(--room-text); border-color: rgba(250,247,242,.25); }
+
+.room-layout { display: grid; grid-template-columns: 1fr 320px; flex: 1; height: calc(100vh - 61px); }
+.room-main { display: flex; flex-direction: column; padding: 30px 40px; border-right: 1px solid var(--room-line); overflow-y: auto; }
+
+.room-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+.rp-label { font-family: var(--font-mono); font-size: 10px; color: var(--room-hint); }
+.rp-bar { flex: 1; height: 1px; background: rgba(250,247,242,.08); }
+.rp-fill { height: 100%; background: rgba(250,247,242,.35); transition: width .4s; }
+.rp-count { font-family: var(--font-mono); font-size: 10px; color: var(--room-hint); }
+
+.room-from { display: flex; align-items: center; gap: 9px; margin-bottom: 14px; }
+.room-avatar { width: 24px; height: 24px; border-radius: 50%; background: rgba(250,247,242,.08); border: 1px solid rgba(250,247,242,.12); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 9px; color: var(--room-muted); }
+.room-ai-name { font-family: var(--font-mono); font-size: 10px; color: var(--room-hint); }
+
+.room-q-bubble { background: rgba(250,247,242,.04); border: 1px solid rgba(250,247,242,.08); border-radius: 11px; padding: 24px 26px; margin-bottom: 22px; }
+.room-q-text { font-family: var(--font-serif); font-size: 21px; line-height: 1.45; color: var(--room-text); font-style: italic; margin-bottom: 12px; }
+.room-q-tag { display: inline-block; font-family: var(--font-mono); font-size: 10px; padding: 3px 8px; border-radius: 3px; background: rgba(250,247,242,.07); color: var(--room-hint); }
+
+.room-followups { display: flex; flex-direction: column; gap: 9px; margin-bottom: 20px; }
+.room-followup { background: rgba(250,247,242,.03); border: 1px solid rgba(250,247,242,.05); border-radius: 8px; padding: 13px 16px; font-size: 14px; font-weight: 300; line-height: 1.65; color: rgba(250,247,242,.6); }
+
+.room-answer { margin-top: auto; }
+.room-textarea { width: 100%; font-family: var(--font-sans); font-weight: 300; font-size: 15px; line-height: 1.7; padding: 16px 18px; border-radius: 10px; border: 1px solid rgba(250,247,242,.1); background: rgba(250,247,242,.04); color: var(--room-text); outline: none; resize: none; min-height: 110px; max-height: 220px; transition: border-color .18s; }
+.room-textarea:focus { border-color: rgba(250,247,242,.25); }
+.room-textarea::placeholder { color: var(--room-hint); }
+.room-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.room-char { font-family: var(--font-mono); font-size: 10px; color: var(--room-hint); }
+.room-btns { display: flex; gap: 8px; }
+.room-btn { font-family: var(--font-sans); font-size: 13px; font-weight: 400; padding: 9px 20px; border-radius: 6px; cursor: pointer; transition: all .18s; }
+.room-btn.skip { background: transparent; color: var(--room-muted); border: 1px solid rgba(250,247,242,.1); }
+.room-btn.skip:hover { border-color: rgba(250,247,242,.25); color: var(--room-text); }
+.room-btn.submit { background: rgba(250,247,242,.1); color: rgba(250,247,242,.88); border: 1px solid rgba(250,247,242,.15); }
+.room-btn.submit:hover { background: rgba(250,247,242,.18); }
+
+.room-sidebar { padding: 26px 22px; display: flex; flex-direction: column; gap: 26px; overflow-y: auto; background: var(--room-bg2); }
+.sb-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--room-hint); margin-bottom: 12px; }
+.sb-ctx { background: rgba(250,247,242,.04); border: 1px solid rgba(250,247,242,.06); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 11px; }
+.sb-ctx-label { font-family: var(--font-mono); font-size: 10px; color: var(--room-hint); margin-bottom: 2px; }
+.sb-ctx-val { font-size: 13px; color: rgba(250,247,242,.8); font-weight: 400; }
+.q-track { display: flex; flex-direction: column; gap: 5px; }
+.qt-row { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-radius: 6px; background: rgba(250,247,242,.03); border: 1px solid rgba(250,247,242,.04); font-size: 11px; color: var(--room-muted); font-weight: 300; }
+.qt-row.now { background: rgba(250,247,242,.08); border-color: rgba(250,247,242,.15); color: var(--room-text); font-weight: 400; }
+.qt-row.done { color: rgba(250,247,242,.25); }
+.qt-n { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 9px; border: 1px solid rgba(250,247,242,.15); color: rgba(250,247,242,.3); }
+.qt-row.now .qt-n { background: rgba(250,247,242,.9); color: var(--room-bg); border-color: transparent; font-weight: 500; }
+.qt-row.done .qt-n { background: rgba(120,180,140,.15); border-color: rgba(120,180,140,.3); color: rgba(120,180,140,.7); }
+.tip-list { display: flex; flex-direction: column; gap: 8px; }
+.tip-row { display: flex; gap: 9px; font-size: 11px; font-weight: 300; line-height: 1.6; color: rgba(250,247,242,.38); }
+.tip-dot { color: rgba(250,247,242,.18); flex-shrink: 0; }
+.thinking span { display: inline-block; animation: blink 1.2s infinite; background: rgba(250,247,242,.3); width: 4px; height: 4px; border-radius: 50%; margin: 0 2px; }
+.thinking span:nth-child(2) { animation-delay: .2s; }
+.thinking span:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+
+/* ══════════════════════════════
+   REPORT
+══════════════════════════════ */
+#page-report .main { padding: 52px 44px; max-width: 860px; margin: 0 auto; width: 100%; }
+.report-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
+.report-title { font-family: var(--font-serif); font-size: 40px; line-height: 1.1; margin-bottom: 20px; }
+.report-meta { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 32px; }
+.rmi { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.rmi strong { color: var(--ink); font-weight: 500; }
+
+.verdict { display: flex; align-items: flex-start; gap: 16px; padding: 20px 22px; border-radius: 10px; margin-bottom: 32px; }
+.verdict.hire  { background: var(--green-bg); border: 1px solid var(--green-border); }
+.verdict.maybe { background: var(--amber-bg); border: 1px solid #e8d0a8; }
+.verdict-icon { font-size: 24px; flex-shrink: 0; margin-top: 1px; }
+.verdict-meta { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+.verdict.hire .verdict-meta   { color: var(--green-label); }
+.verdict.maybe .verdict-meta  { color: var(--amber-text); }
+.verdict-heading { font-size: 15px; font-weight: 500; margin-bottom: 5px; }
+.verdict.hire .verdict-heading  { color: #2a4a34; }
+.verdict.maybe .verdict-heading { color: #6a4820; }
+.verdict-body { font-size: 13px; font-weight: 300; line-height: 1.6; }
+.verdict.hire .verdict-body  { color: #4a6a58; }
+.verdict.maybe .verdict-body { color: #7a5830; }
+
+.score-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 36px; }
+.score-box { padding: 18px; border-radius: 9px; background: var(--warm-white2); border: 1px solid var(--line); text-align: center; }
+.score-n { font-family: var(--font-serif); font-size: 34px; line-height: 1; margin-bottom: 5px; }
+.score-n.hi { color: var(--green-text); }
+.score-n.mi { color: var(--amber-text); }
+.score-n.lo { color: var(--red-text); }
+.score-label { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); }
+
+.report-tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.rtab { font-size: 13px; font-weight: 400; padding: 10px 0; margin-right: 24px; border-bottom: 2px solid transparent; cursor: pointer; color: var(--ink-4); transition: all .18s; }
+.rtab.on { color: var(--ink); border-bottom-color: var(--ink); }
+.tabpanel { display: none; animation: arrive .2s ease; }
+.tabpanel.on { display: block; }
+
+.ov-section { margin-bottom: 28px; }
+.ov-head { font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }
+.ov-body { font-size: 14px; font-weight: 300; line-height: 1.8; color: var(--ink-2); }
+.ov-body strong { color: var(--ink); font-weight: 500; }
+.str-list, .imp-list { display: flex; flex-direction: column; gap: 7px; }
+.str-item { display: flex; gap: 10px; padding: 11px 14px; border-radius: 7px; font-size: 13px; font-weight: 300; line-height: 1.5; background: var(--green-bg); color: var(--green-text); }
+.imp-item { display: flex; gap: 10px; padding: 11px 14px; border-radius: 7px; font-size: 13px; font-weight: 300; line-height: 1.5; background: var(--amber-bg); color: var(--amber-text); }
+
+.qf-list { display: flex; flex-direction: column; gap: 14px; }
+.qf-item { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.qf-head { padding: 16px 20px; background: var(--warm-white2); display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; cursor: pointer; transition: background .16s; }
+.qf-head:hover { background: var(--warm-white3); }
+.qf-q { font-size: 14px; font-weight: 400; line-height: 1.45; flex: 1; color: var(--ink); }
+.qf-score { font-family: var(--font-mono); font-size: 11px; padding: 3px 9px; border-radius: 4px; flex-shrink: 0; font-weight: 400; }
+.qf-score.hi { background: var(--green-bg); color: var(--green-text); }
+.qf-score.mi { background: var(--amber-bg); color: var(--amber-text); }
+.qf-score.lo { background: var(--red-bg); color: var(--red-text); }
+.qf-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height .3s ease, padding .3s ease; }
+.qf-body.open { max-height: 600px; padding: 18px 20px; }
+.fb-head { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 8px; }
+.fb-text { font-size: 13px; font-weight: 300; line-height: 1.7; color: var(--ink-2); margin-bottom: 14px; }
+.user-ans { font-family: var(--font-mono); font-size: 11px; line-height: 1.65; color: var(--ink-3); background: var(--warm-white3); padding: 12px 14px; border-radius: 6px; margin-bottom: 14px; }
+.qf-actions { display: flex; gap: 7px; }
+
+/* ══════════════════════════════
+   QUESTION BANK
+══════════════════════════════ */
+#page-bank .main { padding: 52px 44px; max-width: 860px; margin: 0 auto; width: 100%; }
+.bank-title { font-family: var(--font-serif); font-size: 38px; margin-bottom: 6px; }
+.bank-sub { font-size: 14px; font-weight: 300; color: var(--ink-3); margin-bottom: 30px; }
+.filter-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 24px; }
+.fchip { font-family: var(--font-mono); font-size: 10px; padding: 5px 13px; border-radius: 20px; border: 1px solid var(--line-2); background: transparent; color: var(--ink-3); cursor: pointer; transition: all .16s; }
+.fchip:hover, .fchip.on { background: var(--ink); color: var(--warm-white); border-color: var(--ink); }
+.bank-list { display: flex; flex-direction: column; gap: 9px; }
+.bank-item { padding: 18px 22px; border-radius: 10px; background: var(--warm-white2); border: 1px solid var(--line); display: flex; align-items: flex-start; gap: 14px; transition: border-color .18s; }
+.bank-item:hover { border-color: var(--ink-3); }
+.bq { font-size: 14px; font-weight: 400; line-height: 1.5; margin-bottom: 8px; color: var(--ink); }
+.btags { display: flex; gap: 5px; flex-wrap: wrap; }
+.btag { font-family: var(--font-mono); font-size: 10px; padding: 2px 7px; border-radius: 3px; background: var(--warm-white3); color: var(--ink-4); }
+.bank-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="page-login" class="page active">
+  <div class="login-texture"></div>
+  <div class="login-card">
+    <div class="login-eyebrow">InterviewOS · Early Access</div>
+    <h1 class="login-title">Practice with<br/><em>intention.</em></h1>
+    <p class="login-sub">AI-powered mock interviews that help you land roles in B2B SaaS — with honest feedback, not just encouragement.</p>
+    <div class="field-group">
+      <label class="field-label">Email</label>
+      <input class="field" type="email" placeholder="you@example.com"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Password</label>
+      <input class="field" type="password" placeholder="••••••••"/>
+    </div>
+    <button class="btn full" style="margin-top:8px" onclick="navigate('dash-empty')">Sign in →</button>
+    <div class="login-or"><span>or</span></div>
+    <button class="btn ghost full" onclick="navigate('dash-empty')">Continue with Google</button>
+    <p class="login-switch">New here? <a onclick="navigate('dash-empty')">Create a free account</a></p>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD EMPTY ══ -->
+<div id="page-dash-empty" class="page">
+  <nav class="nav">
+    <div class="nav-logo" onclick="navigate('dash-empty')">Interview<span>OS</span></div>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="navigate('profile')">Profile</button>
+      <div class="nav-avatar" onclick="navigate('profile')">M</div>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="empty-hero">
+      <div class="empty-eyebrow">Welcome to InterviewOS</div>
+      <h1 class="empty-title">Ready for your<br/><em>first mock interview?</em></h1>
+      <p class="empty-sub">Upload your resume, pick a target role, and talk with an AI interviewer — your first session takes less than 10 minutes to set up.</p>
+      <button class="btn" onclick="navigate('setup')">Start your first interview →</button>
+    </div>
+    <div class="steps-strip">
+      <div class="step-cell">
+        <div class="step-n">01</div>
+        <div class="step-title">Upload your materials</div>
+        <div class="step-desc">Add your resume or LinkedIn once. We'll reuse it every time — just pick the version you want.</div>
+      </div>
+      <div class="step-cell">
+        <div class="step-n">02</div>
+        <div class="step-title">Choose a target role</div>
+        <div class="step-desc">Pick from preset roles or paste a real JD. Save it and reuse it for future sessions.</div>
+      </div>
+      <div class="step-cell">
+        <div class="step-n">03</div>
+        <div class="step-title">Get your feedback</div>
+        <div class="step-desc">The AI adapts as you answer. When you're done, you get a full report and per-question scores.</div>
+      </div>
+    </div>
+    <div class="quick-pair" style="margin-top:14px">
+      <div class="quick-card" onclick="navigate('setup')">
+        <div class="quick-icon">⚡</div>
+        <div>
+          <div class="quick-title">Targeted drill</div>
+          <div class="quick-desc">Focus on Behavioral or Case Study questions only. About 15 minutes.</div>
+        </div>
+      </div>
+      <div class="quick-card" onclick="navigate('bank')">
+        <div class="quick-icon">📚</div>
+        <div>
+          <div class="quick-title">Browse question bank</div>
+          <div class="quick-desc">Explore common interview questions by role and type before your first session.</div>
+        </div>
+      </div>
+    </div>
+    <div class="proof-row">
+      <div class="proof-item"><span class="proof-n">2,400+</span><span class="proof-l">Questions</span></div>
+      <div class="proof-sep"></div>
+      <div class="proof-item"><span class="proof-n">8 roles</span><span class="proof-l">Covered</span></div>
+      <div class="proof-sep"></div>
+      <div class="proof-item"><span class="proof-n">HR + Coach</span><span class="proof-l">Dual feedback</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD WITH DATA ══ -->
+<div id="page-dashboard" class="page">
+  <nav class="nav">
+    <div class="nav-logo" onclick="navigate('dashboard')">Interview<span>OS</span></div>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="navigate('bank')">Question Bank</button>
+      <button class="nav-pill" onclick="navigate('setup')">+ New interview</button>
+      <button class="nav-pill" onclick="navigate('profile')">Profile</button>
+      <div class="nav-avatar" onclick="navigate('profile')">M</div>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="dash-hero">
+      <div>
+        <div class="dash-eyebrow">Good to see you, Miumiu</div>
+        <h1 class="dash-title">6 sessions<br/><em>completed</em></h1>
+        <p class="dash-sub">Your Behavioral responses are improving. One more focused drill today would make a real difference — your scores have been climbing.</p>
+      </div>
+      <div class="dash-right">
+        <div class="dash-stat-n">74</div>
+        <div class="dash-stat-l">avg. score</div>
+        <button class="btn sm" onclick="navigate('setup')">New interview →</button>
+      </div>
+    </div>
+    <div class="s-head"><div class="s-title">Practice modes</div></div>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="navigate('setup')">
+        <div class="mode-card-label">Full simulation</div>
+        <div class="mode-card-title">Complete mock interview</div>
+        <div class="mode-card-desc">Multi-round, adaptive questioning, about 45 minutes.</div>
+        <div class="mode-card-tag hi">Recommended</div>
+      </div>
+      <div class="mode-card" onclick="navigate('setup')">
+        <div class="mode-card-label">Drill</div>
+        <div class="mode-card-title">Targeted practice</div>
+        <div class="mode-card-desc">Focus on Behavioral, Case Study, or Technical — 15 minutes.</div>
+        <div class="mode-card-tag">Your choice</div>
+      </div>
+      <div class="mode-card" onclick="navigate('bank')">
+        <div class="mode-card-label">Review</div>
+        <div class="mode-card-title">Question Bank</div>
+        <div class="mode-card-desc">Browse and revisit your saved questions — 12 collected.</div>
+        <div class="mode-card-tag">12 questions</div>
+      </div>
+    </div>
+    <div class="s-head"><div class="s-title">Recent sessions</div><button class="btn sm ghost">View all</button></div>
+    <div class="history-stack">
+      <div class="h-item" onclick="navigate('report')">
+        <div class="h-badge pass">Strong</div>
+        <div class="h-info"><div class="h-role">Solution Consultant — Celonis</div><div class="h-meta">Full simulation · 2 rounds · May 20</div></div>
+        <div class="h-score">82</div><div class="h-arrow">›</div>
+      </div>
+      <div class="h-item" onclick="navigate('report')">
+        <div class="h-badge mid">Developing</div>
+        <div class="h-info"><div class="h-role">Product Manager — Personio</div><div class="h-meta">Behavioral drill · May 17</div></div>
+        <div class="h-score">68</div><div class="h-arrow">›</div>
+      </div>
+      <div class="h-item" onclick="navigate('report')">
+        <div class="h-badge fail">Needs work</div>
+        <div class="h-info"><div class="h-role">Solutions Engineer — Camunda</div><div class="h-meta">Case Study drill · May 14</div></div>
+        <div class="h-score">55</div><div class="h-arrow">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROFILE ══ -->
+<div id="page-profile" class="page">
+  <nav class="nav">
+    <div class="nav-logo" onclick="navigate('dashboard')">Interview<span>OS</span></div>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="navigate('dashboard')">← Back</button>
+    </div>
+  </nav>
+  <div class="main">
+    <h1 class="profile-title">Your assets</h1>
+    <p class="profile-sub">Saved once, reused every session. Update whenever you need to.</p>
+
+    <div class="asset-block">
+      <div class="asset-block-head">
+        <div class="asset-block-title">Resumes</div>
+        <button class="btn sm ghost" onclick="addResume()">+ Upload new</button>
+      </div>
+      <div id="resumeList">
+        <div class="resume-item default">
+          <div class="resume-file-icon">📄</div>
+          <div class="resume-name">Miumiu_CV_EN_2024.pdf</div>
+          <div class="resume-meta">Uploaded May 18 · English</div>
+          <span class="default-tag">Default</span>
+          <div style="display:flex;gap:5px">
+            <button class="icon-btn">↓</button>
+            <button class="icon-btn" onclick="this.closest('.resume-item').remove()">✕</button>
+          </div>
+        </div>
+        <div class="resume-item" style="margin-top:7px">
+          <div class="resume-file-icon">📄</div>
+          <div class="resume-name">Miumiu_Lebenslauf_DE_2024.pdf</div>
+          <div class="resume-meta">Uploaded May 10 · German</div>
+          <div style="display:flex;gap:5px">
+            <button class="icon-btn" onclick="setDefault(this)" title="Set as default">★</button>
+            <button class="icon-btn">↓</button>
+            <button class="icon-btn" onclick="this.closest('.resume-item').remove()">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="upload-row" onclick="addResume()" style="margin-top:8px">
+        <span style="font-size:16px">＋</span>
+        <div class="upload-row-label">Upload another version</div>
+        <div class="upload-row-hint">PDF · DOCX · max 5 MB</div>
+      </div>
+    </div>
+
+    <div class="asset-block">
+      <div class="asset-block-head">
+        <div class="asset-block-title">LinkedIn</div>
+        <button class="btn sm ghost">Edit</button>
+      </div>
+      <div class="linkedin-row">
+        <span style="font-size:18px">🔗</span>
+        <div class="linkedin-url">linkedin.com/in/xiaoyanduan</div>
+        <span class="linked-tag">Connected</span>
+      </div>
+    </div>
+
+    <div class="asset-block">
+      <div class="asset-block-head">
+        <div class="asset-block-title">Saved roles &amp; JDs</div>
+        <button class="btn sm ghost" onclick="navigate('setup')">+ Add new</button>
+      </div>
+      <div id="jdList">
+        <div class="jd-item">
+          <div class="jd-dot" style="background:#3a6b48"></div>
+          <div style="flex:1">
+            <div class="jd-name">Celonis · Solution Consultant</div>
+            <div class="jd-snippet">We are looking for a Solution Consultant to join our team…</div>
+          </div>
+          <div class="jd-actions">
+            <button class="icon-btn" onclick="navigate('setup')">▶</button>
+            <button class="icon-btn" onclick="this.closest('.jd-item').remove()">✕</button>
+          </div>
+        </div>
+        <div class="jd-item" style="margin-top:7px">
+          <div class="jd-dot" style="background:#7f77dd"></div>
+          <div style="flex:1">
+            <div class="jd-name">Personio · Senior PM</div>
+            <div class="jd-snippet">As a Senior Product Manager you will own the roadmap…</div>
+          </div>
+          <div class="jd-actions">
+            <button class="icon-btn" onclick="navigate('setup')">▶</button>
+            <button class="icon-btn" onclick="this.closest('.jd-item').remove()">✕</button>
+          </div>
+        </div>
+        <div class="jd-item" style="margin-top:7px">
+          <div class="jd-dot" style="background:#c05030"></div>
+          <div style="flex:1">
+            <div class="jd-name">Camunda · Solutions Engineer</div>
+            <div class="jd-snippet">Join Camunda as a Solutions Engineer and help enterprise…</div>
+          </div>
+          <div class="jd-actions">
+            <button class="icon-btn" onclick="navigate('setup')">▶</button>
+            <button class="icon-btn" onclick="this.closest('.jd-item').remove()">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETUP ══ -->
+<div id="page-setup" class="page">
+  <nav class="nav">
+    <div class="nav-logo" onclick="navigate('dashboard')">Interview<span>OS</span></div>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="navigate('dashboard')">← Back</button>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="wiz-steps">
+      <div class="wiz-step active" id="ws1"><div class="wiz-step-n">1</div><div class="wiz-step-label">Choose resume</div></div>
+      <div class="wiz-step" id="ws2"><div class="wiz-step-n">2</div><div class="wiz-step-label">Choose role</div></div>
+      <div class="wiz-step" id="ws3"><div class="wiz-step-n">3</div><div class="wiz-step-label">Interview settings</div></div>
+    </div>
+
+    <div class="wpanel active" id="wp1">
+      <h2 class="wiz-title">Which resume for this session?</h2>
+      <p class="wiz-sub">Pick a saved version, or upload a new one. You can manage all your resumes in Profile.</p>
+      <div class="pick-list">
+        <div class="pick-item on" onclick="pickOne(this)">
+          <div class="pick-radio"></div>
+          <div class="pick-label">Miumiu_CV_EN_2024.pdf</div>
+          <div class="pick-meta">English · Default</div>
+        </div>
+        <div class="pick-item" onclick="pickOne(this)">
+          <div class="pick-radio"></div>
+          <div class="pick-label">Miumiu_Lebenslauf_DE_2024.pdf</div>
+          <div class="pick-meta">German · May 10</div>
+        </div>
+      </div>
+      <div class="upload-row" onclick="addResume()">
+        <span style="font-size:16px">＋</span>
+        <div class="upload-row-label">Upload a new resume</div>
+        <div class="upload-row-hint">PDF · DOCX · max 5 MB</div>
+      </div>
+      <div class="wiz-footer">
+        <button class="btn ghost sm" onclick="navigate('dashboard')">Cancel</button>
+        <button class="btn sm" onclick="goStep(2)">Next →</button>
+      </div>
+    </div>
+
+    <div class="wpanel" id="wp2">
+      <h2 class="wiz-title">Which role are you targeting?</h2>
+      <p class="wiz-sub">Pick from your saved roles, or paste a new JD below.</p>
+      <div id="jdPicker">
+        <div class="jd-pick-item" onclick="pickJD(this)">
+          <div class="jd-dot" style="background:#3a6b48;flex-shrink:0;margin-top:5px"></div>
+          <div><div class="jd-name">Celonis · Solution Consultant</div><div class="jd-snippet">We are looking for a Solution Consultant…</div></div>
+        </div>
+        <div class="jd-pick-item" onclick="pickJD(this)">
+          <div class="jd-dot" style="background:#7f77dd;flex-shrink:0;margin-top:5px"></div>
+          <div><div class="jd-name">Personio · Senior PM</div><div class="jd-snippet">As a Senior Product Manager you will own…</div></div>
+        </div>
+        <div class="jd-pick-item" onclick="pickJD(this)">
+          <div class="jd-dot" style="background:#c05030;flex-shrink:0;margin-top:5px"></div>
+          <div><div class="jd-name">Camunda · Solutions Engineer</div><div class="jd-snippet">Join Camunda as a Solutions Engineer…</div></div>
+        </div>
+      </div>
+      <div class="or-line"><span>or paste a new JD</span></div>
+      <textarea class="jd-area" id="newJD" placeholder="Paste the full job description here — the AI will tailor every question to this specific role…"></textarea>
+      <div class="save-check">
+        <input type="checkbox" id="saveJD" checked/>
+        <label for="saveJD">Save this role for future sessions</label>
+        <input class="field save-name" id="jdName" placeholder="Name it, e.g. Celonis SC 2024" style="max-width:220px;font-size:12px;padding:6px 10px"/>
+      </div>
+      <div class="wiz-footer">
+        <button class="btn ghost sm" onclick="goStep(1)">← Back</button>
+        <button class="btn sm" onclick="goStep(3)">Next →</button>
+      </div>
+    </div>
+
+    <div class="wpanel" id="wp3">
+      <h2 class="wiz-title">How do you want to practice?</h2>
+      <p class="wiz-sub">Choose a mode and language, then you're ready to go.</p>
+      <div class="mode-pair">
+        <div class="mode-opt on" onclick="pickMode(this,'full')">
+          <div class="mode-opt-icon">🎯</div>
+          <div class="mode-opt-title">Full simulation</div>
+          <div class="mode-opt-desc">Complete multi-round interview with adaptive follow-up questions. About 45 minutes.</div>
+        </div>
+        <div class="mode-opt" onclick="pickMode(this,'drill')">
+          <div class="mode-opt-icon">⚡</div>
+          <div class="mode-opt-title">Targeted drill</div>
+          <div class="mode-opt-desc">Focus on one question type and go deep. About 15 minutes.</div>
+        </div>
+      </div>
+      <div id="drillOpts" style="display:none">
+        <div class="field-label" style="margin-bottom:9px">Question type</div>
+        <div class="drill-chips">
+          <div class="drill-chip" onclick="this.classList.toggle('on')">Behavioral</div>
+          <div class="drill-chip" onclick="this.classList.toggle('on')">Case Study</div>
+          <div class="drill-chip" onclick="this.classList.toggle('on')">Technical</div>
+          <div class="drill-chip" onclick="this.classList.toggle('on')">Motivation</div>
+          <div class="drill-chip" onclick="this.classList.toggle('on')">Strengths</div>
+          <div class="drill-chip" onclick="this.classList.toggle('on')">Situational</div>
+        </div>
+      </div>
+      <div class="field-label" style="margin-top:20px;margin-bottom:9px">Interview language</div>
+      <div class="lang-row">
+        <div class="lang-chip on" onclick="pickLang(this)">English</div>
+        <div class="lang-chip" onclick="pickLang(this)">Deutsch</div>
+        <div class="lang-chip" onclick="pickLang(this)">中文</div>
+      </div>
+      <div class="wiz-footer">
+        <button class="btn ghost sm" onclick="goStep(2)">← Back</button>
+        <button class="btn sm success" onclick="navigate('interview')">Start interview →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INTERVIEW ROOM ══ -->
+<div id="page-interview" class="page">
+  <nav class="nav">
+    <div class="nav-logo">Interview<span>OS</span></div>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="if(confirm('End this session and see your report?'))navigate('report')">End session</button>
+    </div>
+  </nav>
+  <div class="room-layout">
+    <div class="room-main">
+      <div class="room-progress">
+        <span class="rp-label">Progress</span>
+        <div class="rp-bar"><div class="rp-fill" style="width:40%"></div></div>
+        <span class="rp-count">2 of 5</span>
+      </div>
+      <div style="flex:1">
+        <div class="room-from">
+          <div class="room-avatar">AI</div>
+          <span class="room-ai-name">InterviewOS · Solution Consultant · Round 1</span>
+        </div>
+        <div class="room-q-bubble">
+          <div class="room-q-text">"Tell me about a time when you had to translate a complex technical concept to a non-technical stakeholder. How did you approach it?"</div>
+          <span class="room-q-tag">Behavioral · STAR method</span>
+        </div>
+        <div class="room-followups" id="followupList"></div>
+      </div>
+      <div class="room-answer">
+        <textarea class="room-textarea" id="answerBox" placeholder="Type your answer here — try to follow the STAR structure: Situation, Task, Action, Result…" rows="4" oninput="document.getElementById('charCount').textContent=this.value.length+' chars'"></textarea>
+        <div class="room-foot">
+          <span class="room-char" id="charCount">0 chars</span>
+          <div class="room-btns">
+            <button class="room-btn skip" onclick="skipQ()">Skip</button>
+            <button class="room-btn submit" onclick="submitAnswer()">Submit answer →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="room-sidebar">
+      <div>
+        <div class="sb-label">Session context</div>
+        <div class="sb-ctx">
+          <div><div class="sb-ctx-label">Role</div><div class="sb-ctx-val">Solution Consultant</div></div>
+          <div><div class="sb-ctx-label">Company</div><div class="sb-ctx-val">Celonis</div></div>
+          <div><div class="sb-ctx-label">Resume</div><div class="sb-ctx-val">CV_EN_2024</div></div>
+          <div><div class="sb-ctx-label">Round</div><div class="sb-ctx-val">Round 1 · HR Screen</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="sb-label">Question tracker</div>
+        <div class="q-track">
+          <div class="qt-row done"><div class="qt-n">✓</div><span>Tell me about yourself</span></div>
+          <div class="qt-row now"><div class="qt-n">2</div><span>Technical → non-technical communication</span></div>
+          <div class="qt-row"><div class="qt-n">3</div><span>Why Celonis?</span></div>
+          <div class="qt-row"><div class="qt-n">4</div><span>Process Mining understanding</span></div>
+          <div class="qt-row"><div class="qt-n">5</div><span>Questions for us</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="sb-label">Answering tips</div>
+        <div class="tip-list">
+          <div class="tip-row"><span class="tip-dot">–</span><span>Use STAR: Situation, Task, Action, Result</span></div>
+          <div class="tip-row"><span class="tip-dot">–</span><span>Back up your result with a number if you can</span></div>
+          <div class="tip-row"><span class="tip-dot">–</span><span>Aim for 2–3 minutes of spoken content</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORT ══ -->
+<div id="page-report" class="page">
+  <nav class="nav">
+    <div class="nav-logo" onclick="navigate('dashboard')">Interview<span>OS</span></div>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="navigate('dashboard')">← Dashboard</button>
+      <button class="nav-pill" onclick="navigate('bank')">Save to Question Bank</button>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="report-eyebrow">Session report · May 20, 2024</div>
+    <h1 class="report-title">Solution Consultant<br/>at Celonis</h1>
+    <div class="report-meta">
+      <div class="rmi">Resume: <strong>CV_EN_2024</strong></div>
+      <div class="rmi">Mode: <strong>Full simulation</strong></div>
+      <div class="rmi">Round: <strong>Round 1</strong></div>
+      <div class="rmi">Duration: <strong>38 min</strong></div>
+    </div>
+    <div class="verdict hire">
+      <div class="verdict-icon">✓</div>
+      <div>
+        <div class="verdict-meta">Recruiter lens · Overall signal</div>
+        <div class="verdict-heading">Recommend to advance (Hire signal)</div>
+        <div class="verdict-body">Strong communication structure and a credible B2B SaaS background. Behavioral responses were persuasive. Suggest deepening knowledge of Process Mining before the next round.</div>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="score-box"><div class="score-n hi">82</div><div class="score-label">Overall</div></div>
+      <div class="score-box"><div class="score-n hi">88</div><div class="score-label">Behavioral</div></div>
+      <div class="score-box"><div class="score-n mi">72</div><div class="score-label">Product depth</div></div>
+      <div class="score-box"><div class="score-n mi">75</div><div class="score-label">Clarity</div></div>
+    </div>
+    <div class="report-tabs">
+      <div class="rtab on" onclick="switchTab(this,'tab-ov')">Overall feedback</div>
+      <div class="rtab" onclick="switchTab(this,'tab-qs')">Per-question feedback</div>
+    </div>
+
+    <div class="tabpanel on" id="tab-ov">
+      <div class="ov-section">
+        <div class="ov-head">Summary</div>
+        <div class="ov-body">Overall performance <strong>exceeded expectations</strong>. STAR structure was applied confidently, and the WPS Smart Spreadsheet growth case (MAU 200K → 1.2M) was well-evidenced and compelling. Understanding of Celonis is surface-level — recommend researching Process Mining fundamentals and a few landmark customer cases before the next round.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <div class="ov-head">Strengths</div>
+          <div class="str-list">
+            <div class="str-item">✓ &nbsp;Clear STAR structure throughout</div>
+            <div class="str-item">✓ &nbsp;Data-backed impact stories</div>
+            <div class="str-item">✓ &nbsp;Strong B2B SaaS relevance</div>
+          </div>
+        </div>
+        <div>
+          <div class="ov-head">To improve</div>
+          <div class="imp-list">
+            <div class="imp-item">! &nbsp;Process Mining knowledge is thin</div>
+            <div class="imp-item">! &nbsp;"Why Celonis" answer was too generic</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabpanel" id="tab-qs">
+      <div class="qf-list">
+        <div class="qf-item">
+          <div class="qf-head" onclick="toggleQ(this)">
+            <div class="qf-q">Tell me about yourself and why you're interested in this role.</div>
+            <div class="qf-score hi">90</div>
+          </div>
+          <div class="qf-body">
+            <div class="fb-head">Your answer</div>
+            <div class="user-ans">I have 6 years of B2B SaaS product experience. At Kingsoft WPS I led the Smart Spreadsheet feature, growing MAU from 200K to 1.2M…</div>
+            <div class="fb-head">Coach feedback</div>
+            <div class="fb-text">Very strong opening. The growth numbers are concrete and directly relevant to the impact-driven culture at Celonis. One improvement: close with a clearer connection to "why now" — why this role at this moment in your career.</div>
+            <div class="qf-actions">
+              <button class="btn sm ghost" onclick="saveTB(this)">Save to Question Bank</button>
+              <button class="btn sm ghost">Practice again</button>
+            </div>
+          </div>
+        </div>
+        <div class="qf-item">
+          <div class="qf-head" onclick="toggleQ(this)">
+            <div class="qf-q">Tell me about a time you translated a complex technical concept to a non-technical stakeholder.</div>
+            <div class="qf-score hi">85</div>
+          </div>
+          <div class="qf-body">
+            <div class="fb-head">Your answer</div>
+            <div class="user-ans">When launching the AI recommendation feature, I needed to explain the algorithm logic to the sales team without technical background…</div>
+            <div class="fb-head">Coach feedback</div>
+            <div class="fb-text">Good situation choice — the analogy approach in your Action was effective. Strengthen the Result: add a measurable signal, like how quickly the sales team adopted the framing or how it affected the product rollout timeline.</div>
+            <div class="qf-actions">
+              <button class="btn sm ghost" onclick="saveTB(this)">Save to Question Bank</button>
+              <button class="btn sm ghost">Practice again</button>
+            </div>
+          </div>
+        </div>
+        <div class="qf-item">
+          <div class="qf-head" onclick="toggleQ(this)">
+            <div class="qf-q">Why Celonis, and why now?</div>
+            <div class="qf-score mi">65</div>
+          </div>
+          <div class="qf-body">
+            <div class="fb-head">Your answer</div>
+            <div class="user-ans">Celonis is the leader in Process Mining and I'm very interested in process optimisation…</div>
+            <div class="fb-head">Coach feedback</div>
+            <div class="fb-text">This answer is too generic — a recruiter will hear it from every candidate. Ground it in specifics: a recent Celonis customer case (Uber, Siemens), a product direction you find genuinely interesting, or a problem from your own experience that Process Mining could have solved.</div>
+            <div class="qf-actions">
+              <button class="btn sm ghost" onclick="saveTB(this)">Save to Question Bank</button>
+              <button class="btn sm ghost">Practice again</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ QUESTION BANK ══ -->
+<div id="page-bank" class="page">
+  <nav class="nav">
+    <div class="nav-logo" onclick="navigate('dashboard')">Interview<span>OS</span></div>
+    <div class="nav-actions">
+      <button class="nav-pill" onclick="navigate('dashboard')">← Dashboard</button>
+      <button class="nav-pill" onclick="navigate('setup')">+ New interview</button>
+    </div>
+  </nav>
+  <div class="main">
+    <h1 class="bank-title">Question Bank</h1>
+    <p class="bank-sub">12 questions saved — your personal library, built session by session.</p>
+    <div class="filter-row">
+      <button class="fchip on" onclick="pickFilter(this)">All 12</button>
+      <button class="fchip" onclick="pickFilter(this)">Behavioral</button>
+      <button class="fchip" onclick="pickFilter(this)">Case Study</button>
+      <button class="fchip" onclick="pickFilter(this)">Motivation</button>
+      <button class="fchip" onclick="pickFilter(this)">Technical</button>
+    </div>
+    <div class="bank-list">
+      <div class="bank-item">
+        <div style="flex:1">
+          <div class="bq">Tell me about yourself and why you're interested in this role.</div>
+          <div class="btags"><span class="btag">Behavioral</span><span class="btag">Opening</span><span class="btag">Score 90</span></div>
+        </div>
+        <div class="bank-actions">
+          <button class="icon-btn" onclick="navigate('interview')" title="Practice">▶</button>
+          <button class="icon-btn" onclick="this.closest('.bank-item').remove()" title="Remove">✕</button>
+        </div>
+      </div>
+      <div class="bank-item">
+        <div style="flex:1">
+          <div class="bq">Describe a time you managed competing priorities under tight deadlines.</div>
+          <div class="btags"><span class="btag">Behavioral</span><span class="btag">Pressure</span><span class="btag">Score 78</span></div>
+        </div>
+        <div class="bank-actions">
+          <button class="icon-btn" onclick="navigate('interview')">▶</button>
+          <button class="icon-btn" onclick="this.closest('.bank-item').remove()">✕</button>
+        </div>
+      </div>
+      <div class="bank-item">
+        <div style="flex:1">
+          <div class="bq">Walk me through how you'd diagnose a 20% drop in user activation for a B2B SaaS product.</div>
+          <div class="btags"><span class="btag">Case Study</span><span class="btag">Analytics</span><span class="btag">Needs work</span></div>
+        </div>
+        <div class="bank-actions">
+          <button class="icon-btn" onclick="navigate('interview')">▶</button>
+          <button class="icon-btn" onclick="this.closest('.bank-item').remove()">✕</button>
+        </div>
+      </div>
+      <div class="bank-item">
+        <div style="flex:1">
+          <div class="bq">How would you explain Process Mining to a CFO who has never heard of it?</div>
+          <div class="btags"><span class="btag">Technical</span><span class="btag">Celonis</span><span class="btag">Needs work</span></div>
+        </div>
+        <div class="bank-actions">
+          <button class="icon-btn" onclick="navigate('interview')">▶</button>
+          <button class="icon-btn" onclick="this.closest('.bank-item').remove()">✕</button>
+        </div>
+      </div>
+      <div class="bank-item">
+        <div style="flex:1">
+          <div class="bq">Why do you want to move from product management into a Solution Consultant role?</div>
+          <div class="btags"><span class="btag">Motivation</span><span class="btag">Career transition</span></div>
+        </div>
+        <div class="bank-actions">
+          <button class="icon-btn" onclick="navigate('interview')">▶</button>
+          <button class="icon-btn" onclick="this.closest('.bank-item').remove()">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function navigate(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function goStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const ws = document.getElementById('ws'+i), wp = document.getElementById('wp'+i);
+    ws.classList.remove('active','done'); wp.classList.remove('active');
+    if (i < n) ws.classList.add('done');
+    if (i === n) { ws.classList.add('active'); wp.classList.add('active'); }
+  }
+}
+function pickOne(el) {
+  el.closest('.pick-list').querySelectorAll('.pick-item').forEach(i => i.classList.remove('on'));
+  el.classList.add('on');
+}
+function pickJD(el) {
+  document.querySelectorAll('.jd-pick-item').forEach(i => i.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('newJD').value = '';
+}
+function pickMode(el, mode) {
+  document.querySelectorAll('.mode-opt').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('drillOpts').style.display = mode === 'drill' ? 'block' : 'none';
+}
+function pickLang(el) {
+  document.querySelectorAll('.lang-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+function setDefault(btn) {
+  document.querySelectorAll('.resume-item').forEach(r => { r.classList.remove('default'); const t = r.querySelector('.default-tag'); if(t) t.remove(); });
+  const item = btn.closest('.resume-item'); item.classList.add('default');
+  const tag = document.createElement('span'); tag.className = 'default-tag'; tag.textContent = 'Default';
+  item.insertBefore(tag, item.querySelector('[style*="display:flex"]'));
+}
+function addResume() {
+  const list = document.getElementById('resumeList'); if (!list) return;
+  const names = ['CV_updated_2024.pdf','Resume_PM_EN.pdf','Lebenslauf_v2.pdf'];
+  const n = names[Math.floor(Math.random()*names.length)];
+  const d = document.createElement('div'); d.className = 'resume-item'; d.style.marginTop = '7px';
+  d.innerHTML = `<div class="resume-file-icon">📄</div><div class="resume-name">${n}</div><div class="resume-meta">Just uploaded</div><div style="display:flex;gap:5px"><button class="icon-btn" onclick="setDefault(this)">★</button><button class="icon-btn" onclick="this.closest('.resume-item').remove()">✕</button></div>`;
+  list.appendChild(d);
+}
+const followups = [
+  "Can you be more specific about what made the stakeholder resistant to the idea at first?",
+  "Looking back, what would you do differently if you faced this situation again?"
+];
+let fIdx = 0;
+function submitAnswer() {
+  const box = document.getElementById('answerBox');
+  if (!box.value.trim()) { box.style.borderColor = 'rgba(192,80,48,.4)'; setTimeout(() => box.style.borderColor = '', 900); return; }
+  const list = document.getElementById('followupList');
+  const t = document.createElement('div'); t.className = 'room-followup';
+  t.innerHTML = '<div class="thinking"><span></span><span></span><span></span></div>';
+  list.appendChild(t); list.scrollIntoView({ behavior: 'smooth' });
+  setTimeout(() => {
+    t.remove();
+    if (fIdx < followups.length) {
+      const fb = document.createElement('div'); fb.className = 'room-followup'; fb.style.animation = 'arrive .3s ease';
+      fb.innerHTML = `<span style="display:block;margin-bottom:6px;font-family:var(--font-mono);font-size:10px;color:rgba(250,247,242,.3);letter-spacing:.06em;text-transform:uppercase">Follow-up</span>${followups[fIdx]}`;
+      list.appendChild(fb); fIdx++; box.value = ''; document.getElementById('charCount').textContent = '0 chars'; fb.scrollIntoView({ behavior: 'smooth' });
+    } else { if (confirm('Session complete — view your report?')) navigate('report'); }
+  }, 1500);
+}
+function skipQ() { if (confirm('Skip this question?')) { document.getElementById('followupList').innerHTML = ''; fIdx = 0; document.getElementById('answerBox').value = ''; document.getElementById('charCount').textContent = '0 chars'; } }
+function switchTab(el, id) {
+  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('on'));
+  el.classList.add('on'); document.getElementById(id).classList.add('on');
+}
+function toggleQ(el) { el.nextElementSibling.classList.toggle('open'); }
+function saveTB(btn) { btn.textContent = '✓ Saved'; btn.style.color = 'var(--green-text)'; btn.disabled = true; }
+function pickFilter(el) { document.querySelectorAll('.fchip').forEach(c => c.classList.remove('on')); el.classList.add('on'); }
+</script>
+</body>
+</html>

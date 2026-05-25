@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup — Interview Mentor</title>
+  <style>
+    :root {
+      --paper:          #f7f5f0;
+      --paper-2:        #fcfbf8;
+      --paper-card:     rgba(252,251,248,.9);
+      --ink:            #1f1f1f;
+      --ink-2:          #3a3a3a;
+      --ink-soft:       #5f5f5f;
+      --muted:          #76736c;
+      --line:           #d8d4ca;
+      --line-soft:      #e8e4dc;
+      --accent:         #4f7b62;
+      --accent-soft:    #e9f1ec;
+      --accent-border:  #9fbea9;
+      --accent-text:    #2f5842;
+      --accent-deep:    #1e3d2c;
+      --accent-dim:     #2a4535;
+      --warm:           #8b6840;
+      --warm-soft:      #f9f2e8;
+      --warm-border:    #d8c7ac;
+      --warm-text:      #6a4f28;
+      --weak:           #c06050;
+      --weak-soft:      #fbeeee;
+      --weak-border:    #d0b0b0;
+      --weak-text:      #884040;
+      --danger:         #9a4f4f;
+      --danger-bg:      #f8eded;
+      --danger-border:  #cfb1b1;
+      --danger-text:    #9a4f4f;
+      --serif: "Iowan Old Style", "Palatino", "Times New Roman", serif;
+      --sans:  "Avenir Next", "SF Pro Text", "PingFang SC", "Noto Sans SC", sans-serif;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  14px;
+      --text-md:    15px;
+      --radius-sm:   8px;
+      --radius-md:   12px;
+      --radius-lg:   14px;
+      --radius-pill: 999px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(40rem 28rem at 8% 10%, rgba(255,255,255,.76), transparent 62%),
+        radial-gradient(34rem 24rem at 88% 78%, rgba(216,231,242,.34), transparent 68%),
+        linear-gradient(165deg, var(--paper-2), var(--paper));
+    }
+
+    .page {
+      width: min(720px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ─── NAV ─── */
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 18px 0 14px;
+      margin-bottom: 48px;
+    }
+
+    .brand {
+      font-family: var(--serif);
+      font-size: 28px;
+      letter-spacing: .01em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .back-link {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 140ms ease;
+    }
+    .back-link:hover { color: var(--ink-2); }
+
+    /* ─── PAGE HEADER ─── */
+    .page-header {
+      margin-bottom: 44px;
+    }
+
+    .page-title {
+      font-family: var(--serif);
+      font-size: 36px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 10px;
+      letter-spacing: -.01em;
+    }
+
+    .page-sub {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ─── SECTION ─── */
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .sec-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .sec-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .sec-title {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .sec-divider {
+      height: 1px;
+      background: var(--line-soft);
+      margin: 36px 0;
+    }
+
+    /* ─── TEXTAREA ─── */
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 13px 14px;
+      background: rgba(255,255,255,.9);
+      font-family: var(--sans);
+      font-size: var(--text-base);
+      color: var(--ink);
+      line-height: 1.58;
+      resize: vertical;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent-border);
+      box-shadow: 0 0 0 4px rgba(79,123,98,.1);
+      background: white;
+    }
+
+    .profile-loaded-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 9px;
+      font-size: 12px;
+      color: var(--accent-text);
+    }
+    .profile-loaded-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .profile-loaded-row a {
+      color: var(--muted);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 12px;
+      background: none; border: none;
+      padding: 0; cursor: pointer;
+    }
+    .profile-loaded-row a:hover { color: var(--ink-2); }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--weak-text);
+      margin-top: 7px;
+      display: none;
+    }
+
+    /* ─── ROLE CHIPS ─── */
+    .role-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .role-chip {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-pill);
+      padding: 8px 16px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--paper-2);
+      color: var(--ink-2);
+      transition: border-color 140ms ease, background 140ms ease, color 140ms ease, box-shadow 140ms ease;
+      user-select: none;
+    }
+    .role-chip:hover {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent-text);
+    }
+    .role-chip.selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      box-shadow: 0 0 0 2.5px rgba(79,123,98,.18);
+    }
+
+    .other-input-wrap {
+      margin-top: 10px;
+    }
+    .other-input-wrap input {
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--ink);
+      background: white;
+      width: 200px;
+      transition: box-shadow 160ms ease;
+    }
+    .other-input-wrap input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(79,123,98,.12);
+    }
+
+    .jd-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .jd-optional {
+      font-size: 11px;
+      color: var(--line);
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    /* ─── INTERVIEW TYPE CARDS ─── */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .type-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 18px 16px 16px;
+      cursor: pointer;
+      background: var(--paper-2);
+      transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+      user-select: none;
+    }
+    .type-card:hover {
+      border-color: var(--accent-border);
+      background: rgba(233,241,236,.5);
+    }
+    .type-card.selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 2.5px rgba(79,123,98,.18);
+    }
+
+    .type-icon {
+      font-size: 22px;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+    .type-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+    .type-card.selected .type-name { color: var(--accent-deep); }
+    .type-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ─── SUBMIT ─── */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .submit-note {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .btn-primary-large {
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-pill);
+      padding: 13px 28px;
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      white-space: nowrap;
+      transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+    .btn-primary-large:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(79,123,98,.22);
+      background: #ddeee5;
+    }
+
+    /* ─── PREP ANIMATION ─── */
+    #prepArea {
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 56px 0 40px;
+    }
+
+    .prep-headline {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 36px;
+      letter-spacing: -.01em;
+    }
+
+    .prep-steps {
+      width: 100%;
+      border-left: 2px solid var(--line-soft);
+      padding-left: 24px;
+    }
+
+    .prep-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 0;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: opacity 320ms ease, transform 320ms ease;
+    }
+
+    .prep-step.lit {
+      opacity: 1;
+      transform: none;
+    }
+
+    .prep-indicator {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line);
+      flex-shrink: 0;
+      transition: all 320ms ease;
+      position: relative;
+      background: var(--paper-2);
+    }
+    .prep-step.lit .prep-indicator {
+      border-color: var(--accent-border);
+      background: var(--accent-soft);
+    }
+    .prep-step.ready .prep-indicator {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .prep-step.ready .prep-indicator::after {
+      content: '✓';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .prep-text {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.4;
+      transition: color 320ms ease, font-weight 320ms ease;
+    }
+    .prep-step.lit .prep-text {
+      color: var(--ink-2);
+    }
+    .prep-step.ready .prep-text {
+      color: var(--accent-text);
+      font-weight: 700;
+    }
+
+    /* ─── LAUNCH TRANSITION ─── */
+    @keyframes zoomLaunch {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.055); }
+    }
+    body.launching {
+      animation: zoomLaunch 340ms ease-in forwards;
+      pointer-events: none;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      .type-grid { grid-template-columns: 1fr; }
+      .page-title { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="top">
+    <a href="./index.html" class="brand">Interview Mentor</a>
+    <a href="./index.html" class="back-link">← Home</a>
+  </header>
+
+  <!-- ═══════════════════ FORM ═══════════════════ -->
+  <div id="formArea">
+
+    <div class="page-header">
+      <h1 class="page-title">Set up your session</h1>
+      <p class="page-sub">A focused round of 5 questions, tailored to your resume and the role you're targeting.</p>
+    </div>
+
+    <!-- 01 Resume -->
+    <div class="section">
+      <div class="sec-header">
+        <span class="sec-num">01</span>
+        <span class="sec-title">Your resume</span>
+      </div>
+      <textarea id="resume" rows="7" placeholder="Paste your resume — experience, projects, or a plain-text CV…"></textarea>
+      <div id="profileLoaded" class="profile-loaded-row hidden">
+        <div class="profile-loaded-dot"></div>
+        Loaded from your profile ·
+        <button onclick="clearResume()">clear</button>
+      </div>
+      <div class="field-error" id="resumeError"></div>
+    </div>
+
+    <div class="sec-divider"></div>
+
+    <!-- 02 Role & Job -->
+    <div class="section">
+      <div class="sec-header">
+        <span class="sec-num">02</span>
+        <span class="sec-title">Role &amp; job</span>
+      </div>
+
+      <div class="role-chips" id="roleChips">
+        <div class="role-chip" onclick="selectRole(this,'Product Manager')">Product Manager</div>
+        <div class="role-chip" onclick="selectRole(this,'Software Engineer')">Software Engineer</div>
+        <div class="role-chip" onclick="selectRole(this,'Frontend Engineer')">Frontend Engineer</div>
+        <div class="role-chip" onclick="selectRole(this,'Backend Engineer')">Backend Engineer</div>
+        <div class="role-chip" onclick="selectRole(this,'Full Stack Engineer')">Full Stack</div>
+        <div class="role-chip" onclick="selectRole(this,'Data Scientist')">Data Scientist</div>
+        <div class="role-chip" onclick="selectRole(this,'ML Engineer')">ML Engineer</div>
+        <div class="role-chip" onclick="selectRole(this,'Data Engineer')">Data Engineer</div>
+        <div class="role-chip" onclick="selectRole(this,'DevOps / SRE')">DevOps / SRE</div>
+        <div class="role-chip" onclick="selectRole(this,'UX Designer')">UX Designer</div>
+        <div class="role-chip" onclick="selectRole(this,'__other__')">Other</div>
+      </div>
+
+      <div class="other-input-wrap hidden" id="otherWrap">
+        <input type="text" id="otherRoleText" placeholder="Enter your role…" />
+      </div>
+      <div class="field-error" id="roleError"></div>
+
+      <div style="margin-top: 20px">
+        <div class="jd-label">
+          Job description
+          <span class="jd-optional">optional — adds precision to the questions</span>
+        </div>
+        <textarea id="jd" rows="4" placeholder="Paste the job posting you're practicing for — role, company, requirements…"></textarea>
+      </div>
+    </div>
+
+    <div class="sec-divider"></div>
+
+    <!-- 03 Interview Focus -->
+    <div class="section">
+      <div class="sec-header">
+        <span class="sec-num">03</span>
+        <span class="sec-title">Interview focus</span>
+      </div>
+
+      <div class="type-grid">
+        <div class="type-card" id="typeBehavioral" onclick="selectType(this,'behavioral')">
+          <div class="type-icon">💬</div>
+          <div class="type-name">Behavioral</div>
+          <div class="type-desc">Past experience, STAR stories, decisions, and impact — the most common interview format.</div>
+        </div>
+        <div class="type-card" id="typeResumeDive" onclick="selectType(this,'resume_dive')">
+          <div class="type-icon">📋</div>
+          <div class="type-name">Resume Deep Dive</div>
+          <div class="type-desc">The interviewer digs into specific items from your resume. Ownership, results, and decisions.</div>
+        </div>
+        <div class="type-card" id="typeCaseStudy" onclick="selectType(this,'case_study')">
+          <div class="type-icon">🧩</div>
+          <div class="type-name">Case Study</div>
+          <div class="type-desc">A short business or product scenario. Structure your thinking, form hypotheses, reason through trade-offs.</div>
+        </div>
+      </div>
+      <div class="field-error" id="typeError"></div>
+    </div>
+
+    <div class="sec-divider"></div>
+
+    <!-- Submit -->
+    <div class="submit-row">
+      <div class="submit-note">5 questions &nbsp;·&nbsp; ~10 minutes &nbsp;·&nbsp; feedback after the round</div>
+      <button class="btn-primary-large" onclick="startSession()">Start Session →</button>
+    </div>
+
+  </div><!-- /formArea -->
+
+  <!-- ═══════════════════ PREP ANIMATION ═══════════════════ -->
+  <div id="prepArea">
+    <div class="prep-headline">Preparing your session…</div>
+    <div class="prep-steps">
+      <div class="prep-step" id="step1">
+        <div class="prep-indicator"></div>
+        <div class="prep-text">Reading your resume</div>
+      </div>
+      <div class="prep-step" id="step2">
+        <div class="prep-indicator"></div>
+        <div class="prep-text">Mapping to role requirements</div>
+      </div>
+      <div class="prep-step" id="step3">
+        <div class="prep-indicator"></div>
+        <div class="prep-text">Preparing your first question</div>
+      </div>
+      <div class="prep-step ready" id="step4">
+        <div class="prep-indicator"></div>
+        <div class="prep-text">Ready.</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+  let selectedRole = '';
+  let selectedType = '';
+
+  /* ─── Role selection ───────────────────────────────── */
+  function selectRole(chip, role) {
+    document.querySelectorAll('.role-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    selectedRole = role;
+    const wrap = document.getElementById('otherWrap');
+    if (role === '__other__') {
+      wrap.classList.remove('hidden');
+      setTimeout(() => document.getElementById('otherRoleText').focus(), 60);
+    } else {
+      wrap.classList.add('hidden');
+    }
+    hideError('roleError');
+  }
+
+  /* ─── Interview type selection ─────────────────────── */
+  function selectType(card, type) {
+    document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedType = type;
+    hideError('typeError');
+  }
+
+  /* ─── Validation helpers ───────────────────────────── */
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function hideError(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+
+  /* ─── Start session ────────────────────────────────── */
+  function startSession() {
+    const resume = document.getElementById('resume').value.trim();
+    if (!resume) { showError('resumeError', 'Please add your resume to continue.'); return; }
+    hideError('resumeError');
+
+    if (!selectedRole) { showError('roleError', 'Please select a role.'); return; }
+    hideError('roleError');
+
+    if (!selectedType) { showError('typeError', 'Please select an interview focus.'); return; }
+    hideError('typeError');
+
+    let role = selectedRole;
+    if (role === '__other__') {
+      role = (document.getElementById('otherRoleText').value || '').trim() || 'Professional';
+    }
+
+    const jd = document.getElementById('jd').value.trim();
+
+    // Save profile (implicit creation)
+    try {
+      if (!localStorage.getItem('im_profile')) {
+        localStorage.setItem('im_profile', JSON.stringify({
+          resumeText: resume,
+          targetLanguage: 'en',
+          savedAt: new Date().toISOString()
+        }));
+      }
+    } catch(_) {}
+
+    // Pass session setup to interview.html via sessionStorage
+    try {
+      sessionStorage.setItem('im_setup', JSON.stringify({
+        resume, role, jd, interviewType: selectedType
+      }));
+    } catch(_) {}
+
+    runPrepAnimation();
+  }
+
+  /* ─── Prep animation → launch ──────────────────────── */
+  function runPrepAnimation() {
+    document.getElementById('formArea').style.display = 'none';
+    const prep = document.getElementById('prepArea');
+    prep.style.display = 'flex';
+
+    const steps = ['step1', 'step2', 'step3', 'step4'];
+    const delays = [0, 700, 1400, 2050];
+
+    steps.forEach((id, i) => {
+      setTimeout(() => {
+        document.getElementById(id).classList.add('lit');
+      }, delays[i]);
+    });
+
+    // After last step appears, zoom and navigate
+    const launchAt = delays[delays.length - 1] + 480;
+    setTimeout(() => {
+      document.body.classList.add('launching');
+      setTimeout(() => {
+        window.location.href = './interview.html';
+      }, 310);
+    }, launchAt);
+  }
+
+  /* ─── Pre-fill from profile ────────────────────────── */
+  function clearResume() {
+    document.getElementById('resume').value = '';
+    document.getElementById('profileLoaded').classList.add('hidden');
+    document.getElementById('resume').focus();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    // Pre-fill resume from profile
+    try {
+      const profile = JSON.parse(localStorage.getItem('im_profile') || 'null');
+      if (profile && profile.resumeText) {
+        document.getElementById('resume').value = profile.resumeText;
+        document.getElementById('profileLoaded').classList.remove('hidden');
+      }
+    } catch(_) {}
+
+    // Default to Behavioral
+    selectType(document.getElementById('typeBehavioral'), 'behavioral');
+  });
+</script>
+</body>
+</html>

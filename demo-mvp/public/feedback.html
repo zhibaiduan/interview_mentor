@@ -1,0 +1,1218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interview Mentor — Feedback</title>
+  <style>
+    :root {
+      /* ── Surface ── */
+      --paper:          #f7f5f0;
+      --paper-2:        #fcfbf8;
+      --paper-card:     rgba(252,251,248,.9);
+
+      /* ── Text ── */
+      --ink:            #1f1f1f;
+      --ink-2:          #3a3a3a;
+      --ink-soft:       #5f5f5f;
+      --muted:          #76736c;
+
+      /* ── Border ── */
+      --line:           #d8d4ca;
+      --line-soft:      #e8e4dc;
+
+      /* ── Accent (sage green) ── */
+      --accent:         #4f7b62;
+      --accent-soft:    #e9f1ec;
+      --accent-border:  #9fbea9;
+      --accent-text:    #2f5842;
+      --accent-deep:    #1e3d2c;
+      --accent-dim:     #2a4535;
+
+      /* ── Warm (amber brown) ── */
+      --warm:           #8b6840;
+      --warm-soft:      #f9f2e8;
+      --warm-border:    #d8c7ac;
+      --warm-text:      #6a4f28;
+      --warm-dim:       #4a3820;
+      --warm-muted:     #9a6860;
+      --warm-faint:     #7a5050;
+
+      /* ── Weak (red-adjacent, for Weakest signal) ── */
+      --weak:           #c06050;
+      --weak-soft:      #fbeeee;
+      --weak-border:    #d0b0b0;
+      --weak-text:      #884040;
+
+      /* ── Danger ── */
+      --danger-bg:      #f8eded;
+      --danger-border:  #cfb1b1;
+      --danger-text:    #9a4f4f;
+
+      /* ── Typography ── */
+      --serif:    "Iowan Old Style", "Palatino", "Times New Roman", serif;
+      --sans:     "Avenir Next", "SF Pro Text", "PingFang SC", "Noto Sans SC", sans-serif;
+
+      --text-label: 10px;   /* section label, 全大写 */
+      --text-xs:    11px;   /* badge, meta */
+      --text-sm:    13px;   /* 次级正文 */
+      --text-base:  14px;   /* 主正文 */
+      --text-md:    15px;   /* lede, 略大正文 */
+      --text-lg:    17px;   /* 卡片标题 */
+      --text-xl:    26px;   /* hero headline */
+      --text-2xl:   30px;   /* brand */
+      --text-3xl:   42px;   /* 大数字 */
+
+      /* ── Radius ── */
+      --radius-sm:   8px;
+      --radius-md:   12px;
+      --radius-lg:   14px;
+      --radius-pill: 999px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(38rem 26rem at 10% 12%, rgba(255,255,255,.76), transparent 64%),
+        radial-gradient(30rem 22rem at 88% 80%, rgba(216,231,242,.32), transparent 68%),
+        linear-gradient(165deg, var(--paper-2), var(--paper));
+    }
+
+    /* ═══ ENDING OVERLAY ═══════════════════════════════════ */
+    #ending {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(38rem 26rem at 10% 12%, rgba(255,255,255,.76), transparent 64%),
+        radial-gradient(30rem 22rem at 88% 80%, rgba(216,231,242,.32), transparent 68%),
+        linear-gradient(165deg, var(--paper-2), var(--paper));
+      z-index: 200;
+      transition: opacity 480ms ease;
+    }
+
+    #ending.fading { opacity: 0; pointer-events: none; }
+
+    .ending-card {
+      text-align: center;
+      padding: 0 24px;
+      max-width: 480px;
+      animation: riseIn 600ms ease both;
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .ending-brand {
+      font-family: var(--serif);
+      font-size: 13px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+
+    .envelope-stage {
+      margin: 0 auto 32px;
+      width: 108px;
+      height: 80px;
+      animation: bob 3s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    .env-flap-group {
+      transform-origin: 54px 20px;
+      transition: transform 550ms cubic-bezier(.4,0,.2,1);
+    }
+
+    .env-flap-group.open { transform: scaleY(-1); }
+
+    .ending-title {
+      font-family: var(--serif);
+      font-size: 34px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .ending-sub {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .ending-cta {
+      border: 1.5px solid var(--accent-border);
+      border-radius: var(--radius-pill);
+      padding: 13px 32px;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    .ending-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(79,123,98,.18); }
+
+    /* ═══ MAIN PAGE ═════════════════════════════════════════ */
+    #main { display: none; opacity: 0; transition: opacity 480ms ease; }
+    #main.visible { display: block; }
+    #main.faded-in { opacity: 1; }
+
+    .page {
+      width: min(1200px, calc(100vw - 24px));
+      margin: 22px auto 52px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 0;
+    }
+
+    .brand { font-family: var(--serif); font-size: 30px; letter-spacing: .01em; }
+
+    .session-meta {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    /* ─── TAB BAR ─── */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      border: none;
+      background: transparent;
+      padding: 13px 20px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 150ms, border-color 150ms;
+      letter-spacing: .01em;
+    }
+
+    .tab:hover { color: var(--ink-soft); }
+
+    .tab.active {
+      color: var(--ink);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ─── PANEL ─── */
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(252,251,248,.9);
+      box-shadow: 0 12px 30px rgba(38,34,28,.045);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .hidden { display: none !important; }
+
+    .slabel {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slabel::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
+
+    /* ─── VERDICT BANNER ─── */
+    .verdict-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .signal-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .signal-badge {
+      border: 1.5px solid;
+      border-radius: var(--radius-sm);
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .signal-badge.strong { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+    .signal-badge.developing { border-color: var(--warm-border); background: var(--warm-soft); color: var(--warm-text); }
+    .signal-badge.weak { border-color: var(--weak-border); background: var(--weak-soft); color: var(--weak-text); }
+
+    .overall-score {
+      font-family: var(--serif);
+      font-size: 42px;
+      font-weight: 500;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .overall-denom {
+      font-size: 18px;
+      color: var(--muted);
+      margin-left: 2px;
+    }
+
+    .verdict-summary {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      margin: 10px 0 20px;
+      max-width: 640px;
+    }
+
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-pill);
+      padding: 9px 16px;
+      background: rgba(255,255,255,.75);
+      color: var(--ink-2);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 150ms, box-shadow 150ms;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(38,34,28,.08); }
+    .btn.primary { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+
+    /* Mini score bars in verdict sidebar */
+    .verdict-sidebar { min-width: 200px; }
+
+    .mini-score {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--line-soft);
+    }
+
+    .mini-score:last-child { border-bottom: none; }
+
+    .mini-name {
+      font-size: 12px;
+      color: var(--ink-2);
+      width: 100px;
+      flex-shrink: 0;
+    }
+
+    .mini-track {
+      flex: 1;
+      height: 4px;
+      background: var(--line-soft);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .mini-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      background: var(--accent);
+    }
+
+    .mini-fill.warm { background: var(--warm); }
+
+    .mini-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      width: 26px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ─── SCOREBOARD ─── */
+    .score-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px dashed var(--line-soft);
+    }
+
+    .score-row:last-child { border-bottom: none; }
+
+    .score-info { flex: 1; min-width: 0; }
+
+    .score-name { font-size: 13px; font-weight: 650; color: var(--ink-2); margin-bottom: 3px; }
+
+    .score-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 5px; }
+
+    .score-reason {
+      font-size: var(--text-sm);
+      color: var(--ink-soft);
+      line-height: 1.6;
+      border-left: 2px solid var(--line);
+      padding-left: 9px;
+      margin-top: 4px;
+    }
+
+    .score-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding-top: 2px; }
+
+    .score-track {
+      width: 90px;
+      height: 4px;
+      background: var(--line-soft);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .score-fill { height: 100%; border-radius: var(--radius-pill); background: var(--accent); }
+    .score-fill.warm { background: var(--warm); }
+
+    .level-badge {
+      border: 1px solid;
+      border-radius: var(--radius-pill);
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      min-width: 76px;
+      text-align: center;
+      letter-spacing: .02em;
+    }
+
+    .level-badge.strong { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+    .level-badge.developing { border-color: var(--line); background: rgba(255,255,255,.7); color: var(--ink-soft); }
+    .level-badge.gap { border-color: var(--warm-border); background: var(--warm-soft); color: var(--warm); }
+
+    /* ─── RECRUITER LENS ─── */
+    .persona-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .avatar.green { background: var(--accent-soft); color: var(--accent-text); }
+    .avatar.warm  { background: var(--warm-soft);   color: var(--warm-text); }
+
+    .persona-name { font-size: 14px; font-weight: 700; color: var(--ink-2); line-height: 1.3; }
+    .persona-role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .criteria-table { width: 100%; margin-bottom: 16px; }
+
+    .criteria-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 110px;
+      gap: 12px;
+      padding: 0 0 6px;
+      border-bottom: 1px solid var(--line);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+    }
+
+    .criteria-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 110px;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px dashed var(--line-soft);
+      align-items: center;
+    }
+
+    .criteria-row:last-child { border-bottom: none; }
+
+    .criteria-name { font-size: 13px; color: var(--ink-2); }
+
+    .signal-pill {
+      border: 1px solid;
+      border-radius: var(--radius-pill);
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .signal-pill.strong { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+    .signal-pill.developing { border-color: var(--line); background: rgba(255,255,255,.6); color: var(--ink-soft); }
+    .signal-pill.gap { border-color: var(--warm-border); background: var(--warm-soft); color: var(--warm); }
+
+    .subsection-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      margin: 14px 0 8px;
+    }
+
+    .assessment-quote {
+      border-left: 3px solid var(--accent-border);
+      background: rgba(255,255,255,.48);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 13px;
+      font-size: 13px;
+      color: var(--ink-2);
+      line-height: 1.65;
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+
+    .assessment-quote.warm { border-left-color: var(--warm-border); }
+
+    .compared-list { list-style: none; }
+
+    .compared-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      padding: 4px 0;
+    }
+
+    .compared-item::before { content: '→'; color: var(--warm); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    /* ─── COACH LENS ─── */
+    .coach-diagnosis {
+      background: var(--warm-soft);
+      border: 1px solid var(--warm-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .diagnosis-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--warm);
+      margin-bottom: 6px;
+    }
+
+    .diagnosis-text {
+      font-size: 13.5px;
+      color: var(--warm-dim);
+      line-height: 1.65;
+    }
+
+    .quick-wins-list { list-style: none; margin-bottom: 14px; }
+
+    .quick-win-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      padding: 4px 0;
+    }
+
+    .quick-win-item::before { content: '→'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    .pattern-box {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+
+    .pattern-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .pattern-name {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--accent-deep);
+      margin-bottom: 10px;
+    }
+
+    .pattern-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .pattern-col-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+
+    .pattern-col-label.not { color: var(--warm-muted); }
+    .pattern-col-label.do  { color: var(--accent); }
+
+    .pattern-col-text {
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    .pattern-col-text.not { color: var(--warm-faint); font-style: italic; }
+    .pattern-col-text.do  { color: var(--accent-dim); }
+
+    /* ─── PRIORITY REPAIR ─── */
+    .repair-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .repair-left { flex: 1; min-width: 0; }
+
+    .repair-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--warm-border);
+      background: var(--warm-soft);
+      border-radius: var(--radius-sm);
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--warm);
+      margin-bottom: 8px;
+    }
+
+    .repair-headline {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .repair-sub { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+    /* ─── QUESTION REVIEW (TAB 2) — CARD LIST ─── */
+    .q-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(252,251,248,.9);
+      box-shadow: 0 12px 30px rgba(38,34,28,.045);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .q-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .q-card-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .q-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .q-dot.strong  { background: var(--accent); }
+    .q-dot.medium  { background: var(--warm); }
+    .q-dot.weakest { background: var(--weak); }
+
+    .q-card-id {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .q-card-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .q-card-level {
+      border: 1px solid;
+      border-radius: var(--radius-pill);
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .q-card-level.strong  { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+    .q-card-level.medium  { border-color: var(--warm-border); background: var(--warm-soft); color: var(--warm); }
+    .q-card-level.weakest { border-color: var(--weak-border); background: var(--weak-soft); color: var(--weak-text); }
+
+    .q-card-intent {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+
+    .q-answer-inline {
+      margin-bottom: 14px;
+    }
+
+    .q-answer-text {
+      display: block;
+      font-size: var(--text-base);
+      color: var(--ink-soft);
+      line-height: 1.7;
+    }
+
+    .transcript-box {
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-sm);
+      padding: 10px 13px;
+      background: rgba(255,255,255,.38);
+      margin-bottom: 12px;
+    }
+
+    .transcript-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 5px; }
+    .transcript-text { font-size: 13px; color: var(--ink-soft); line-height: 1.65; font-style: italic; }
+
+    .views-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .view-block {
+      padding: 10px 12px;
+      background: rgba(255,255,255,.42);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-sm);
+    }
+
+    .view-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 5px; }
+    .view-text { font-size: 13px; color: var(--ink-2); line-height: 1.62; }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .before-box {
+      padding: 10px 12px;
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,.28);
+    }
+
+    .polish-box {
+      padding: 12px 14px;
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-sm);
+      background: rgba(233,241,236,.72);
+    }
+
+    .compare-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+    .before-box .compare-label { color: var(--muted); }
+    .polish-box  .compare-label { color: var(--accent); }
+
+    .compare-text { font-size: 13px; line-height: 1.65; }
+    .before-box  .compare-text { color: var(--ink-soft); font-style: italic; }
+    .polish-box  .compare-text { color: var(--accent-dim); }
+
+    .q-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line-soft);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1020px) {
+      .verdict-layout { grid-template-columns: 1fr; }
+      .pattern-compare { grid-template-columns: 1fr; }
+      .views-grid, .compare-grid { grid-template-columns: 1fr; }
+      .repair-panel { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 640px) {
+      .page { width: calc(100vw - 16px); margin: 10px auto 36px; }
+      .top { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .brand { font-size: 26px; }
+      .panel { padding: 14px; border-radius: var(--radius-md); }
+      .ending-title { font-size: 28px; }
+      .overall-score { font-size: 34px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ ENDING OVERLAY ════════════════════════════════════ -->
+<div id="ending">
+  <div class="ending-card">
+    <div class="ending-brand">Interview Mentor</div>
+    <div class="envelope-stage">
+      <svg width="108" height="80" viewBox="0 0 108 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="20" width="100" height="56" rx="5" fill="#fcfbf8" stroke="#d8d4ca" stroke-width="1.5"/>
+        <path d="M4 70 L42 46" stroke="#e4e0d6" stroke-width="1.2"/>
+        <path d="M104 70 L66 46" stroke="#e4e0d6" stroke-width="1.2"/>
+        <line x1="24" y1="57" x2="84" y2="57" stroke="#e8e4dc" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="24" y1="65" x2="60" y2="65" stroke="#e8e4dc" stroke-width="1.5" stroke-linecap="round"/>
+        <g class="env-flap-group" id="envFlap">
+          <path d="M4 24 L54 50 L104 24" fill="#f4f2ed" stroke="#d8d4ca" stroke-width="1.5" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+    <h1 class="ending-title">Round Complete</h1>
+    <p class="ending-sub">Every practice round makes your next answer clearer.<br>Your personalized feedback is ready.</p>
+    <button class="ending-cta" id="openBtn" onclick="openFeedback()">Open Your Feedback</button>
+  </div>
+</div>
+
+<!-- ═══ MAIN FEEDBACK ════════════════════════════════════ -->
+<div id="main">
+<main class="page">
+
+  <header class="top">
+    <div class="brand">Interview Mentor</div>
+    <div class="session-meta" id="sessionMeta">Round Review</div>
+  </header>
+
+  <div class="tab-bar">
+    <button class="tab active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" data-tab="questions" onclick="switchTab('questions')">Question Review</button>
+  </div>
+
+  <!-- ══════════════ TAB 1: OVERVIEW ══════════════ -->
+  <section id="tab-overview">
+
+    <!-- 1. VERDICT BANNER -->
+    <div class="panel">
+      <div class="slabel">Round Assessment</div>
+      <div class="verdict-layout">
+        <div>
+          <div class="signal-row">
+            <span class="signal-badge developing" id="signalBadge">Hire Signal: Developing</span>
+          </div>
+          <div>
+            <span class="overall-score" id="overallScore">71</span>
+            <span class="overall-denom"> / 100</span>
+          </div>
+          <p class="verdict-summary">Coherent and steady — the gap is evidence and ownership visibility. You have the experience, but the interviewer cannot yet see the judgment layer clearly enough to make a confident hire decision.</p>
+          <div class="btn-row">
+            <button class="btn primary" onclick="switchTab('questions'); setTimeout(()=>scrollToQ(1), 80)">Practice Weakest Answer</button>
+            <button class="btn" onclick="location.href='./index.html'">Start Another Round</button>
+          </div>
+        </div>
+        <div class="verdict-sidebar" id="verdictMiniScores"></div>
+      </div>
+    </div>
+
+    <!-- 2. SCORECARD -->
+    <div class="panel">
+      <div class="slabel">Scorecard</div>
+      <div id="scoreRows"></div>
+    </div>
+
+    <!-- 3. RECRUITER LENS -->
+    <div class="panel">
+      <div class="slabel">Recruiter Lens</div>
+      <div class="persona-row">
+        <div class="avatar warm">AC</div>
+        <div>
+          <div class="persona-name">Ava Chen</div>
+          <div class="persona-role">Senior Hiring Manager · simulated interviewer</div>
+        </div>
+      </div>
+
+      <div class="subsection-label">Evaluation Criteria</div>
+      <table class="criteria-table">
+        <thead>
+          <tr class="criteria-head">
+            <th style="text-align:left;font-weight:600">What I was looking for</th>
+            <th style="text-align:left;font-weight:600">Your signal</th>
+          </tr>
+        </thead>
+        <tbody id="criteriaRows"></tbody>
+      </table>
+
+      <div class="subsection-label">Overall Assessment</div>
+      <div class="assessment-quote warm">I would not advance at this point. Communication is professional and calm, but decision ownership — the core signal for this level — is not yet visible enough to create a confident hire signal.</div>
+
+      <div class="subsection-label">Compared to Candidates Who Pass the Bar</div>
+      <ul class="compared-list">
+        <li class="compared-item">They lead with a decision or outcome, not with context or setup.</li>
+        <li class="compared-item">They name a metric or scope in the first 30 seconds of each answer.</li>
+        <li class="compared-item">Their ownership boundary is explicit: "I decided X" — not just "we worked on Y."</li>
+      </ul>
+    </div>
+
+    <!-- 4. COACH LENS -->
+    <div class="panel">
+      <div class="slabel">Coach Lens</div>
+      <div class="persona-row">
+        <div class="avatar green">LM</div>
+        <div>
+          <div class="persona-name">Leo Martin</div>
+          <div class="persona-role">Interview Coach · answer structure</div>
+        </div>
+      </div>
+
+      <div class="subsection-label">Core Diagnosis</div>
+      <div class="coach-diagnosis">
+        <div class="diagnosis-label">Root Issue</div>
+        <div class="diagnosis-text">Answers describe situations rather than demonstrate judgment. The structure is solid — the gap is the evidence layer. Every answer needs one more layer: the decision you made, the constraint you worked under, and the number that proves it worked.</div>
+      </div>
+
+      <div class="subsection-label">Quick Wins — Fixable Before Your Next Round</div>
+      <ul class="quick-wins-list">
+        <li class="quick-win-item">Add one concrete number to every answer — metric, timeframe, or user scope.</li>
+        <li class="quick-win-item">Open Q2 and Q3 with the decision itself, not the background story.</li>
+        <li class="quick-win-item">Use the frame "I chose X over Y because…" to make judgment visible.</li>
+      </ul>
+
+      <div class="subsection-label">Pattern to Internalize</div>
+      <div class="pattern-box">
+        <div class="pattern-label">Answer Framework</div>
+        <div class="pattern-name">Decision → Constraint → Outcome</div>
+        <div class="pattern-compare">
+          <div>
+            <div class="pattern-col-label not">Not this</div>
+            <div class="pattern-col-text not">Narrate the story, then hope the point is obvious at the end.</div>
+          </div>
+          <div>
+            <div class="pattern-col-label do">Do this</div>
+            <div class="pattern-col-text do">Open with what you chose. Explain the constraint. Close with the measurable result.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. PRIORITY REPAIR -->
+    <div class="panel">
+      <div class="slabel">Priority Repair</div>
+      <div class="repair-panel">
+        <div class="repair-left">
+          <div class="repair-tag">Highest Leverage</div>
+          <div class="repair-headline">Q2 · Trade-off Decision is where to start.</div>
+          <div class="repair-sub">Fixing this one answer teaches the same pattern that will improve Q3 and Q4. One repair, applied three times.</div>
+        </div>
+        <button class="btn primary" onclick="switchTab('questions'); setTimeout(()=>scrollToQ(1), 80)">Open Q2 in Question Review →</button>
+      </div>
+    </div>
+
+  </section><!-- /tab-overview -->
+
+  <!-- ══════════════ TAB 2: QUESTION REVIEW ══════════════ -->
+  <section id="tab-questions" class="hidden">
+    <div id="qCardList"></div>
+  </section>
+
+</main>
+</div>
+
+<script>
+  // ─── DATA ───────────────────────────────────────────────
+  const SCORES = [
+    {
+      name: 'Clarity', pct: 82, level: 'strong',
+      desc: 'Structure and logic — can the interviewer follow your sequence and intent?',
+      reason: 'Your answers in Q1, Q3, and Q5 followed a clear setup → action → outcome sequence. The interviewer could follow your logic without asking for clarification. Q4 was slightly harder to track because you introduced the failure mid-sentence rather than framing it upfront.'
+    },
+    {
+      name: 'Evidence', pct: 58, level: 'gap',
+      desc: 'Metrics, specifics, and before/after results — the proof layer for every claim.',
+      reason: 'Across five answers, only one contained a number ("raised conversion by 12%"). Q2 and Q3 made claims without any quantified outcome — "improved performance" and "helped the team" are not checkable by a hiring manager. Two answers also used vague time references ("a few weeks," "eventually") instead of specific durations.'
+    },
+    {
+      name: 'Ownership', pct: 61, level: 'developing',
+      desc: 'Personal agency — "I" vs "we," and the visibility of your decisions and judgment.',
+      reason: 'Q2 used "we chose" throughout with no explanation of your personal role in the decision. Q3 described the project outcome but not the specific trade-off you made. Q1 and Q5 were stronger — you said "I built" and "I decided" which gave the interviewer a clear signal of individual contribution.'
+    },
+    {
+      name: 'Role Alignment', pct: 75, level: 'developing',
+      desc: 'Relevance to the target role — how directly your experience maps to what they need.',
+      reason: 'Your background maps well to 3 of the 5 questions. Q1 and Q5 directly referenced skills the JD listed. Q2 and Q4 described relevant situations but didn\'t explicitly connect back to the target role\'s requirements — adding one bridging sentence ("which is directly relevant to what this role needs") would close that gap.'
+    },
+  ];
+
+  const CRITERIA = [
+    { name: 'Clear impact articulation',    signal: 'developing' },
+    { name: 'Personal decision ownership',  signal: 'gap' },
+    { name: 'Role-relevant depth',          signal: 'strong' },
+    { name: 'Professional presence',        signal: 'strong' },
+  ];
+
+  const QUESTIONS = [
+    {
+      id: 'Q1', title: 'Self Intro', level: 'strong',
+      intent: 'Show the interviewer why your background is relevant in the first minute.',
+      transcript: 'I worked on many projects and collaborated with many teams.',
+      recruiter: 'You said "many projects" and "many teams" — I couldn\'t remember a single one 10 seconds later. The opener needs one specific achievement that anchors everything. Right now it reads like a resume summary, not a positioning statement.',
+      coach: 'Flip the order: lead with your most relevant result, then tell me who you are. "I shipped an onboarding improvement that raised conversion 12% — I\'m a software engineer with three years of product-side experience." One result first, context second.',
+      polish: 'I\'m a software engineer with 3 years of experience. The most relevant thing I\'ve built for this role is an onboarding improvement that raised conversion by 12% — I owned the backend rollout, the metrics tracking, and the iteration after the first release underperformed.'
+    },
+    {
+      id: 'Q2', title: 'Trade-off Decision', level: 'weakest',
+      intent: 'Prove judgment: what you chose, why you chose it, and what constraint mattered.',
+      transcript: 'We chose fast delivery first and optimized later.',
+      recruiter: 'You said "we chose" — I have no signal that you personally drove this. And "optimized later" is not a trade-off, it\'s a postponement. What was the specific alternative you rejected? What would have happened if you had chosen it? Without those two answers, I cannot evaluate your judgment.',
+      coach: 'Restructure it as: "I chose X over Y because [the constraint that made Y risky]. The cost was [what you gave up]. The result was [metric]." Every word in that structure has to be yours — not the team\'s.',
+      polish: 'I chose a phased rollout over a full rewrite because we had a two-week ship deadline and a full rewrite would have taken six. The trade-off was accepting short-term technical debt. We shipped on time, and conversion improved by 12% without increasing the error rate.'
+    },
+    {
+      id: 'Q3', title: 'Ownership & Impact', level: 'medium',
+      intent: 'Make your personal contribution visible without overstating the team result.',
+      transcript: 'I worked with PM and designers to deliver the feature.',
+      recruiter: '"Worked with" is collaboration language — it doesn\'t tell me where your responsibility ended and theirs began. For this level, I need to know: what did you personally decide? What would not have shipped without you? The answer right now could describe anyone on the team.',
+      coach: 'Use the frame "I owned X, partnered on Y, and the result was Z." Ownership means: if you had left, that thing would not have happened the same way. Find what that thing was — name it explicitly, and attach the number.',
+      polish: 'I owned the backend rollout plan and the metric tracking setup. I partnered with PM on scope and with design on the component spec. The launch improved signup conversion by 12% — that\'s the metric I defined and watched through the release.'
+    },
+    {
+      id: 'Q4', title: 'Failure & Recovery', level: 'medium',
+      intent: 'Show that you can diagnose weak outcomes and change your operating system.',
+      transcript: 'The first solution failed and we learned from it.',
+      recruiter: '"We learned from it" is the weakest close to a failure story. Every team says that. What I want to know is: what did YOU change afterward? What habit or guardrail do you still use today because of that failure? Without a specific change, this signals reflection without action.',
+      coach: 'Two required parts: the signal you missed, and what you added to catch it next time. "I added [X] after that failure, and in the next release [metric] improved." The recovery has to be something you can point to — not just a lesson absorbed.',
+      polish: 'Our first release underperformed because I lacked event-level tracking before launch — I was only measuring aggregate metrics. After that I added a step-by-step funnel to every rollout. In the next iteration I spotted a drop-off on the confirmation step, redesigned it, and completion improved by 9%.'
+    },
+    {
+      id: 'Q5', title: 'Why This Role', level: 'strong',
+      intent: 'Connect motivation to immediate contribution.',
+      transcript: 'I like this company and role because it fits my background.',
+      recruiter: '"Fits my background" could describe a hundred candidates. The motivation is present but generic — it tells me you\'re interested, not that you\'re the right person. I want to hear what specifically connects to something you\'ve already proven you can do.',
+      coach: 'You\'re opening from your side of the table. Flip it: close with what you bring to them. "I can contribute immediately by [one specific thing]" is more memorable than expressing fit. One near-term contribution shows you\'ve thought past the offer letter.',
+      polish: 'This role sits at the intersection of product metrics and onboarding improvement — exactly where I\'ve done my most effective work. I can contribute immediately: I\'d start by auditing the current onboarding funnel and setting up the tracking layer that makes experimentation faster.'
+    }
+  ];
+
+  const LEVEL_LABEL = { strong: 'Strong', medium: 'Medium', weakest: 'Weakest' };
+
+  // ─── SESSION ────────────────────────────────────────────
+  function loadSession() {
+    let s = {};
+    try { s = JSON.parse(sessionStorage.getItem('interview_last_session') || '{}'); } catch(_) {}
+    const role     = s.role          || 'Software Engineer';
+    const turns    = s.turnCount     ? `${s.turnCount}/${s.maxTurns || 5}` : '5/5';
+    const duration = s.durationLabel || '05:00';
+    document.getElementById('sessionMeta').textContent = `${role} · ${duration}`;
+    return s;
+  }
+
+  // ─── MINI SCORES (VERDICT SIDEBAR) ──────────────────────
+  function renderMiniScores() {
+    document.getElementById('verdictMiniScores').innerHTML = SCORES.map(s => `
+      <div class="mini-score">
+        <div class="mini-name">${s.name}</div>
+        <div class="mini-track"><div class="mini-fill ${s.pct < 65 ? 'warm' : ''}" style="width:${s.pct}%"></div></div>
+        <div class="mini-val">${s.pct}</div>
+      </div>
+    `).join('');
+  }
+
+  // ─── SCORECARD ──────────────────────────────────────────
+  function renderScores() {
+    const labelMap = { strong: 'Strong', developing: 'Developing', gap: 'Gap' };
+    document.getElementById('scoreRows').innerHTML = SCORES.map(s => `
+      <div class="score-row">
+        <div class="score-info">
+          <div class="score-name">${s.name}</div>
+          <div class="score-desc">${s.desc}</div>
+          <div class="score-reason">${s.reason}</div>
+        </div>
+        <div class="score-right">
+          <div class="score-track">
+            <div class="score-fill ${s.level === 'gap' ? 'warm' : ''}" style="width:${s.pct}%"></div>
+          </div>
+          <span class="level-badge ${s.level}">${labelMap[s.level]}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ─── CRITERIA TABLE ──────────────────────────────────────
+  function renderCriteria() {
+    const labelMap = { strong: 'Strong', developing: 'Developing', gap: 'Gap' };
+    document.getElementById('criteriaRows').innerHTML = CRITERIA.map(c => `
+      <tr class="criteria-row">
+        <td class="criteria-name">${c.name}</td>
+        <td><span class="signal-pill ${c.signal}">${labelMap[c.signal]}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  // ─── Q CARDS ────────────────────────────────────────────
+  function renderQCards() {
+    document.getElementById('qCardList').innerHTML = QUESTIONS.map((q, i) => `
+      <div class="q-card" id="q-card-${i}">
+        <div class="q-card-header">
+          <div class="q-card-title-row">
+            <div class="q-dot ${q.level}"></div>
+            <span class="q-card-id">${q.id}</span>
+            <span style="color:var(--line);font-size:13px">·</span>
+            <span class="q-card-name">${q.title}</span>
+          </div>
+          <span class="q-card-level ${q.level}">${LEVEL_LABEL[q.level]}</span>
+        </div>
+
+        <div class="q-card-intent">${q.intent}</div>
+
+        <div class="q-answer-inline">
+          <span class="q-answer-text">${q.transcript}</span>
+        </div>
+
+        <div class="views-grid">
+          <div class="view-block">
+            <div class="view-label">Recruiter View</div>
+            <div class="view-text">${q.recruiter}</div>
+          </div>
+          <div class="view-block">
+            <div class="view-label">Coach View</div>
+            <div class="view-text">${q.coach}</div>
+          </div>
+        </div>
+
+        <div class="q-actions">
+          <button class="btn primary">Re-practice this question</button>
+          <button class="btn">Polish my answer</button>
+          <button class="btn">Save to Question Bank</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function scrollToQ(i) {
+    const el = document.getElementById('q-card-' + i);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ─── TAB SWITCH ─────────────────────────────────────────
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+    document.getElementById('tab-overview').classList.toggle('hidden', name !== 'overview');
+    document.getElementById('tab-questions').classList.toggle('hidden', name !== 'questions');
+  }
+
+  // ─── ENVELOPE TRANSITION ────────────────────────────────
+  function openFeedback() {
+    const btn = document.getElementById('openBtn');
+    btn.disabled = true;
+    btn.textContent = 'Opening...';
+
+    document.getElementById('envFlap').classList.add('open');
+
+    setTimeout(() => {
+      const ending = document.getElementById('ending');
+      const main   = document.getElementById('main');
+      ending.classList.add('fading');
+      main.classList.add('visible');
+      requestAnimationFrame(() => requestAnimationFrame(() => main.classList.add('faded-in')));
+      setTimeout(() => { ending.style.display = 'none'; }, 500);
+    }, 520);
+  }
+
+  function skipEnvelope() {
+    document.getElementById('ending').style.display = 'none';
+    const main = document.getElementById('main');
+    main.classList.add('visible');
+    main.style.opacity = '1';
+  }
+
+  // ─── SAVE SESSION TO HISTORY ────────────────────────────
+  function saveSessionToHistory(session) {
+    if (!session.endedAt) return;
+    try {
+      const flagKey = 'im_saved_' + session.endedAt;
+      if (sessionStorage.getItem(flagKey)) return;
+      sessionStorage.setItem(flagKey, '1');
+      const overallScore = Math.round(SCORES.reduce((sum, s) => sum + s.pct, 0) / SCORES.length);
+      const record = {
+        id: Date.now(),
+        date: session.endedAt,
+        overallScore,
+        questionCount: QUESTIONS.length,
+        role: session.role || 'Software Engineer'
+      };
+      const sessions = JSON.parse(localStorage.getItem('im_sessions') || '[]');
+      sessions.push(record);
+      if (sessions.length > 20) sessions.splice(0, sessions.length - 20);
+      localStorage.setItem('im_sessions', JSON.stringify(sessions));
+    } catch(_) {}
+  }
+
+  // ─── BOOT ───────────────────────────────────────────────
+  (function init() {
+    const session = loadSession();
+    saveSessionToHistory(session);
+    renderMiniScores();
+    renderScores();
+    renderCriteria();
+    renderQCards();
+    if (!session.endedAt) skipEnvelope();
+  })();
+</script>
+</body>
+</html>

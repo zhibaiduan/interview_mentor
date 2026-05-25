@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interview Mentor</title>
+  <style>
+    :root {
+      --paper:          #f7f5f0;
+      --paper-2:        #fcfbf8;
+      --paper-card:     rgba(252,251,248,.9);
+      --ink:            #1f1f1f;
+      --ink-2:          #3a3a3a;
+      --ink-soft:       #5f5f5f;
+      --muted:          #76736c;
+      --line:           #d8d4ca;
+      --line-soft:      #e8e4dc;
+      --accent:         #4f7b62;
+      --accent-soft:    #e9f1ec;
+      --accent-border:  #9fbea9;
+      --accent-text:    #2f5842;
+      --accent-deep:    #1e3d2c;
+      --accent-dim:     #2a4535;
+      --warm:           #8b6840;
+      --warm-soft:      #f9f2e8;
+      --warm-border:    #d8c7ac;
+      --warm-text:      #6a4f28;
+      --warm-dim:       #4a3820;
+      --warm-muted:     #9a6860;
+      --warm-faint:     #7a5050;
+      --weak:           #c06050;
+      --weak-soft:      #fbeeee;
+      --weak-border:    #d0b0b0;
+      --weak-text:      #884040;
+      --danger:         #9a4f4f;
+      --danger-bg:      #f8eded;
+      --danger-border:  #cfb1b1;
+      --danger-text:    #9a4f4f;
+      --serif: "Iowan Old Style", "Palatino", "Times New Roman", serif;
+      --sans:  "Avenir Next", "SF Pro Text", "PingFang SC", "Noto Sans SC", sans-serif;
+      --text-label: 10px;
+      --text-xs:    11px;
+      --text-sm:    13px;
+      --text-base:  14px;
+      --text-md:    15px;
+      --text-lg:    17px;
+      --text-xl:    26px;
+      --text-2xl:   30px;
+      --text-3xl:   42px;
+      --radius-sm:   8px;
+      --radius-md:   12px;
+      --radius-lg:   14px;
+      --radius-pill: 999px;
+      --peach:      #f4ddcf;
+      --lavender:   #e1dcf4;
+      --blue-mist:  #d8e7f2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(40rem 28rem at 8% 10%, rgba(255,255,255,.76), transparent 62%),
+        radial-gradient(34rem 24rem at 88% 78%, rgba(216,231,242,.34), transparent 68%),
+        linear-gradient(165deg, var(--paper-2), var(--paper));
+    }
+
+    .page {
+      width: min(1180px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ─── NAV ─── */
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      padding: 18px 0 14px;
+    }
+
+    .brand { font-family: var(--serif); font-size: 30px; letter-spacing: .01em; color: var(--ink); }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-pill);
+      padding: 9px 16px;
+      background: var(--paper-2);
+      color: var(--ink-2);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 150ms ease, border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(38,34,28,.08); }
+    .btn.primary { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+    .btn.large   { padding: 13px 28px; font-size: 15px; font-weight: 700; }
+    .btn-xs      { font-size: 11px; padding: 4px 10px; }
+
+    /* ─── PANEL ─── */
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(252,251,248,.88);
+      box-shadow: 0 12px 30px rgba(38,34,28,.05);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+    .panel:last-child { margin-bottom: 0; }
+
+    /* ─── FORM ─── */
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px 13px;
+      background: rgba(255,255,255,.9);
+      font: inherit;
+      color: var(--ink);
+      line-height: 1.55;
+      resize: vertical;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    textarea:focus { outline: none; border-color: var(--accent-border); box-shadow: 0 0 0 4px rgba(79,123,98,.1); background: white; }
+
+    .field-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+    .field-msg   { font-size: 13px; color: var(--muted); margin-top: 8px; min-height: 18px; }
+
+    .slabel {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted);
+      margin-bottom: 22px; display: flex; align-items: center; gap: 10px;
+    }
+    .slabel::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
+
+    /* ═══════════════════════════════════════════════════
+       LANDING — HERO
+    ═══════════════════════════════════════════════════ */
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 56px;
+      align-items: center;
+      padding: 72px 0 64px;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .hero-headline {
+      font-family: var(--serif);
+      font-size: 56px;
+      line-height: 1.08;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--ink-soft);
+      margin-bottom: 36px;
+      max-width: 520px;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .hero-note { font-size: 12px; color: var(--muted); }
+
+    /* ─── PREVIEW CARD (hero right) ─── */
+    .preview-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(252,251,248,.96);
+      box-shadow: 0 20px 50px rgba(38,34,28,.09), 0 4px 12px rgba(38,34,28,.05);
+      padding: 22px;
+      position: relative;
+    }
+
+    .preview-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(79,123,98,.08), transparent 60%);
+      pointer-events: none;
+    }
+
+    .preview-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .preview-score-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .preview-score-num {
+      font-family: var(--serif);
+      font-size: 38px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .preview-score-denom { font-size: 14px; color: var(--muted); }
+
+    .preview-badge {
+      border: 1px solid var(--accent-border);
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      border-radius: var(--radius-pill);
+      padding: 3px 9px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .preview-bars { margin-bottom: 16px; }
+
+    .preview-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .preview-bar-name {
+      font-size: 11px;
+      color: var(--ink-soft);
+      width: 72px;
+      flex-shrink: 0;
+    }
+
+    .preview-bar-track {
+      flex: 1;
+      height: 4px;
+      background: var(--line-soft);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .preview-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+    }
+
+    .preview-bar-fill.green { background: var(--accent); }
+    .preview-bar-fill.warm  { background: var(--warm); }
+
+    .preview-bar-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      width: 24px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .preview-divider {
+      height: 1px;
+      background: var(--line-soft);
+      margin: 14px 0;
+    }
+
+    .preview-polish-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .preview-polish-text {
+      border-left: 3px solid var(--accent-border);
+      padding-left: 10px;
+      font-size: 12.5px;
+      color: var(--accent-dim);
+      line-height: 1.65;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       GHOST STATE (empty-state preview cards)
+    ═══════════════════════════════════════════════════ */
+
+    .ghost-card {
+      border: 1px dashed var(--line);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      opacity: .52;
+      pointer-events: none;
+    }
+    .ghost-card:last-of-type { margin-bottom: 0; }
+
+    .ghost-q {
+      font-size: 13px; color: var(--ink-2); font-weight: 600;
+      line-height: 1.4; margin-bottom: 9px;
+    }
+    .ghost-a {
+      font-size: 12.5px; color: var(--accent-dim); line-height: 1.65;
+      border-left: 2px solid var(--accent-border); padding-left: 10px;
+      margin-bottom: 10px;
+    }
+    .ghost-tag {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      border: 1px solid var(--accent-border); background: var(--accent-soft);
+      color: var(--accent-text); border-radius: var(--radius-pill); padding: 2px 8px;
+    }
+    .ghost-session-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 9px 0; border-bottom: 1px dashed var(--line-soft);
+      opacity: .42; pointer-events: none;
+    }
+    .ghost-session-row:last-of-type { border-bottom: none; }
+    .ghost-session-date { font-size: 11px; color: var(--muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: .04em; }
+    .ghost-session-role { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+    .ghost-score { font-family: var(--serif); font-size: 20px; color: var(--line); }
+
+    .ghost-profile-block {
+      background: var(--line-soft); border-radius: var(--radius-sm);
+      padding: 10px 12px; margin-bottom: 10px;
+      font-size: 12px; color: var(--muted); line-height: 1.6; opacity: .7;
+    }
+    .ghost-note {
+      font-size: 12px; color: var(--muted); margin-top: 14px; line-height: 1.6;
+      text-align: center;
+    }
+    .ghost-note a {
+      color: var(--accent-text); font-weight: 600; cursor: pointer;
+      text-decoration: none; background: none; border: none; font-size: 12px; padding: 0;
+    }
+    .ghost-note a:hover { text-decoration: underline; }
+
+    /* ═══════════════════════════════════════════════════
+       LANDING — VALUE PROOF (BEFORE/AFTER)
+    ═══════════════════════════════════════════════════ */
+
+    .proof-section {
+      padding: 72px 0 0;
+    }
+
+    .proof-question {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,.52);
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--ink-2);
+      margin-bottom: 20px;
+    }
+
+    .proof-question-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0;
+      align-items: stretch;
+    }
+
+    .proof-before {
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+      background: rgba(255,255,255,.36);
+      padding: 24px;
+    }
+
+    .proof-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      background: transparent;
+      position: relative;
+    }
+
+    .proof-arrow::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--line-soft);
+    }
+
+    .proof-arrow-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .proof-after {
+      border: 1px solid var(--accent-border);
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      background: rgba(233,241,236,.5);
+      padding: 24px;
+    }
+
+    .proof-col-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .proof-col-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      font-weight: 700;
+    }
+
+    .proof-before .proof-col-label { color: var(--muted); }
+    .proof-after  .proof-col-label { color: var(--accent); }
+
+    .proof-signal {
+      border: 1px solid;
+      border-radius: var(--radius-pill);
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .proof-signal.weak   { border-color: var(--weak-border); background: var(--weak-soft); color: var(--weak-text); }
+    .proof-signal.strong { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+
+    .proof-answer {
+      font-size: 14px;
+      line-height: 1.72;
+      margin-bottom: 16px;
+    }
+
+    .proof-before .proof-answer { color: var(--ink-soft); font-style: italic; }
+    .proof-after  .proof-answer { color: var(--accent-dim); }
+
+    .proof-recruiter-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+    }
+
+    .proof-before .proof-recruiter-label { color: var(--warm-muted); }
+    .proof-after  .proof-recruiter-label { color: var(--accent); }
+
+    .proof-recruiter-text {
+      font-size: 12.5px;
+      line-height: 1.6;
+      border-left: 2px solid;
+      padding-left: 9px;
+    }
+
+    .proof-before .proof-recruiter-text { color: var(--warm-dim); border-left-color: var(--warm-border); }
+    .proof-after  .proof-recruiter-text { color: var(--accent-dim); border-left-color: var(--accent-border); }
+
+    /* ═══════════════════════════════════════════════════
+       LANDING — HOW IT WORKS
+    ═══════════════════════════════════════════════════ */
+
+    .how-section { padding: 72px 0 0; }
+
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .step-card {
+      padding: 24px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(252,251,248,.82);
+      box-shadow: 0 8px 20px rgba(38,34,28,.04);
+    }
+
+    .step-num-badge {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent-soft); color: var(--accent-text);
+      border: 1px solid var(--accent-border);
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .step-title { font-size: 15px; font-weight: 700; color: var(--ink-2); margin-bottom: 8px; line-height: 1.35; }
+    .step-desc  { font-size: 13px; color: var(--ink-soft); line-height: 1.65; }
+
+    /* ═══════════════════════════════════════════════════
+       LANDING — START SECTION (inputs)
+    ═══════════════════════════════════════════════════ */
+
+    .start-section { padding: 72px 0 0; }
+
+    .start-panel {
+      border: 1px solid var(--accent-border);
+      border-radius: var(--radius-lg);
+      background: rgba(233,241,236,.32);
+      box-shadow: 0 12px 30px rgba(79,123,98,.07);
+      padding: 32px;
+    }
+
+    .start-headline {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .start-sub {
+      font-size: 14px;
+      color: var(--ink-soft);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .start-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── WHO IT'S FOR ─── */
+    .who-section { padding: 72px 0 0; }
+
+    .who-list { list-style: none; display: flex; flex-direction: column; gap: 13px; }
+
+    .who-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 15px; color: var(--ink-2); line-height: 1.6;
+    }
+
+    .who-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent); flex-shrink: 0; margin-top: 7px;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DASHBOARD STATE
+    ═══════════════════════════════════════════════════ */
+
+    .dash-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+      padding-top: 22px;
+    }
+
+    .panel-title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--muted); margin-bottom: 14px;
+    }
+
+    /* Quick start (in left column, compact) */
+    .resume-loaded-tag {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background: var(--accent-soft);
+      border: 1px solid var(--accent-border); border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+    .resume-loaded-text { font-size: 13px; color: var(--accent-text); font-weight: 600; }
+
+    /* Question Bank (main left, large) */
+    .bank-card-list { margin-top: 4px; }
+
+    .bank-card-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--line-soft);
+      align-items: start;
+    }
+    .bank-card-item:last-child { border-bottom: none; }
+
+    .bank-card-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 5px;
+    }
+    .bank-card-dot.strong { background: var(--accent); }
+    .bank-card-dot.medium { background: var(--warm); }
+
+    .bank-card-q { font-size: 13px; color: var(--ink-2); line-height: 1.45; font-weight: 600; margin-bottom: 3px; }
+    .bank-card-snippet { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    .bank-card-tag {
+      font-size: 10px; font-weight: 700;
+      border: 1px solid var(--accent-border);
+      background: var(--accent-soft); color: var(--accent-text);
+      border-radius: var(--radius-pill); padding: 2px 7px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    .bank-empty {
+      padding: 28px 0;
+      text-align: center;
+    }
+    .bank-empty-num {
+      font-family: var(--serif);
+      font-size: 42px;
+      color: var(--line);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .bank-empty-label { font-size: 14px; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+    .bank-empty-note  { font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 320px; margin: 0 auto; }
+
+    /* Session history (in right sidebar, compact) */
+    .session-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--line-soft);
+    }
+    .session-row:last-child { border-bottom: none; }
+    .session-date  { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+    .session-role  { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+    .session-score { display: flex; align-items: baseline; gap: 1px; flex-shrink: 0; }
+    .session-score-num   { font-family: var(--serif); font-size: 20px; color: var(--ink); font-weight: 500; }
+    .session-score-denom { font-size: 10px; color: var(--muted); }
+
+    /* Profile card (right sidebar, compact) */
+    .profile-snippet {
+      font-size: 12px; color: var(--ink-soft); line-height: 1.6;
+      padding: 9px 11px; border: 1px dashed var(--line); border-radius: var(--radius-sm);
+      background: rgba(255,255,255,.38); margin-bottom: 10px;
+    }
+    .profile-lang-pill {
+      display: inline-block; border: 1px solid var(--line); border-radius: var(--radius-pill);
+      padding: 3px 10px; font-size: 11px; font-weight: 600; color: var(--muted);
+    }
+
+    .empty-note { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+    /* ═══════════════════════════════════════════════════
+       EDIT RESUME OVERLAY
+    ═══════════════════════════════════════════════════ */
+
+    .overlay {
+      position: fixed; inset: 0; background: rgba(28,26,22,.46);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 300; padding: 20px;
+    }
+    .overlay-card {
+      background: var(--paper-2); border: 1px solid var(--line);
+      border-radius: var(--radius-lg); box-shadow: 0 24px 60px rgba(28,26,22,.18);
+      padding: 26px; width: min(660px, 100%);
+    }
+    .overlay-title { font-family: var(--serif); font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+    .overlay-sub   { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .overlay-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1020px) {
+      .hero        { grid-template-columns: 1fr; gap: 40px; }
+      .preview-card { display: none; }
+      .dash-layout { grid-template-columns: 1fr; }
+      .proof-grid  { grid-template-columns: 1fr; }
+      .proof-before { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+      .proof-arrow  { width: 100%; height: 36px; }
+      .proof-arrow::before { top: 50%; left: 50%; width: 1px; height: 100%; }
+      .proof-after  { border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+    }
+
+    @media (max-width: 760px) {
+      .hero-headline { font-size: 40px; }
+      .steps-row     { grid-template-columns: 1fr; }
+      .setup-grid    { grid-template-columns: 1fr; }
+      .hero          { padding: 44px 0 36px; }
+      .proof-section, .how-section, .start-section, .who-section { padding-top: 52px; }
+    }
+
+    @media (max-width: 480px) {
+      .page { width: calc(100vw - 18px); }
+      .hero-headline { font-size: 32px; }
+      .hero-sub { font-size: 15px; }
+      .start-panel { padding: 22px; }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SETUP MODAL
+    ═══════════════════════════════════════════════════ */
+    .setup-modal-backdrop {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(28,26,22,.48);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; overflow-y: auto;
+    }
+    .setup-modal-card {
+      background: var(--paper-2); border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 32px 80px rgba(28,26,22,.18), 0 8px 24px rgba(28,26,22,.06);
+      width: min(680px, 100%); padding: 32px;
+      animation: modalIn 240ms cubic-bezier(.22,.68,0,1.15);
+    }
+    @keyframes modalIn {
+      0%   { opacity: 0; transform: scale(.95) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 28px;
+    }
+    .modal-title { font-family: var(--serif); font-size: 24px; font-weight: 500; color: var(--ink); }
+    .modal-subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.55; }
+    .modal-close {
+      background: none; border: 1px solid var(--line); border-radius: 50%;
+      width: 32px; height: 32px; font-size: 18px; color: var(--muted); cursor: pointer;
+      display: grid; place-items: center; flex-shrink: 0; line-height: 1;
+      transition: border-color 130ms, color 130ms;
+    }
+    .modal-close:hover { border-color: var(--ink-soft); color: var(--ink); }
+    .modal-section { margin-bottom: 24px; }
+    .modal-sec-row {
+      display: flex; align-items: baseline; gap: 10px; margin-bottom: 13px;
+    }
+    .modal-sec-num { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: .1em; text-transform: uppercase; }
+    .modal-sec-title { font-family: var(--serif); font-size: 16px; font-weight: 500; color: var(--ink); }
+    .modal-field-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 7px; }
+    .modal-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 6px; }
+    .modal-chip {
+      border: 1px solid var(--line); border-radius: var(--radius-pill);
+      padding: 7px 14px; font-family: var(--sans); font-size: 13px; font-weight: 600;
+      cursor: pointer; background: var(--paper-2); color: var(--ink-2);
+      transition: all 120ms ease; user-select: none;
+    }
+    .modal-chip:hover { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent-text); }
+    .modal-chip.selected {
+      border-color: var(--accent); background: var(--accent-soft); color: var(--accent-text);
+      box-shadow: 0 0 0 2px rgba(79,123,98,.15);
+    }
+    .modal-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .modal-type-card {
+      border: 1px solid var(--line); border-radius: var(--radius-md);
+      padding: 15px 13px; cursor: pointer; background: var(--paper-2);
+      transition: all 120ms ease; user-select: none;
+    }
+    .modal-type-card:hover { border-color: var(--accent-border); background: rgba(233,241,236,.5); }
+    .modal-type-card.selected {
+      border-color: var(--accent); background: var(--accent-soft);
+      box-shadow: 0 0 0 2px rgba(79,123,98,.15);
+    }
+    .modal-type-icon { font-size: 19px; margin-bottom: 7px; }
+    .modal-type-name { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+    .modal-type-card.selected .modal-type-name { color: var(--accent-deep); }
+    .modal-type-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .modal-divider { height: 1px; background: var(--line-soft); margin: 20px 0; }
+    .modal-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; padding-top: 20px; border-top: 1px solid var(--line-soft); flex-wrap: wrap;
+    }
+    .modal-footer-note { font-size: 13px; color: var(--muted); }
+    .modal-field-error {
+      font-size: 12px; color: var(--weak-text); margin-top: 6px;
+      padding: 6px 10px; background: var(--weak-soft);
+      border-radius: var(--radius-sm); border: 1px solid var(--weak-border);
+      display: none;
+    }
+    /* Prep animation */
+    .modal-prep-area { display: none; flex-direction: column; padding: 16px 0 8px; min-height: 180px; }
+    .modal-prep-headline { font-family: var(--serif); font-size: 22px; color: var(--ink); margin-bottom: 24px; }
+    .modal-prep-steps { border-left: 2px solid var(--line-soft); padding-left: 18px; }
+    .modal-prep-step {
+      display: flex; align-items: center; gap: 12px; padding: 9px 0;
+      opacity: 0; transform: translateX(-8px);
+      transition: opacity 300ms ease, transform 300ms ease;
+    }
+    .modal-prep-step.lit { opacity: 1; transform: none; }
+    .modal-prep-dot {
+      width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line);
+      flex-shrink: 0; background: var(--paper-2); transition: all 300ms ease; position: relative;
+    }
+    .modal-prep-step.lit .modal-prep-dot { border-color: var(--accent-border); background: var(--accent-soft); }
+    .modal-prep-step.ready .modal-prep-dot { background: var(--accent); border-color: var(--accent); }
+    .modal-prep-step.ready .modal-prep-dot::after {
+      content: '✓'; position: absolute; inset: 0; display: flex;
+      align-items: center; justify-content: center;
+      color: white; font-size: 10px; font-weight: 800;
+    }
+    .modal-prep-text { font-size: 15px; color: var(--muted); transition: color 300ms ease; }
+    .modal-prep-step.lit .modal-prep-text { color: var(--ink-2); }
+    .modal-prep-step.ready .modal-prep-text { color: var(--accent-text); font-weight: 700; }
+    @keyframes zoomLaunch {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.05); }
+    }
+    body.launching { animation: zoomLaunch 340ms ease-in forwards; pointer-events: none; }
+    @media (max-width: 600px) {
+      .modal-type-grid { grid-template-columns: 1fr; }
+      .setup-modal-card { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LANDING STATE
+═══════════════════════════════════════ -->
+<div id="stLanding" class="hidden">
+<div class="page">
+
+  <header class="top">
+    <div class="brand">Interview Mentor</div>
+    <button class="btn primary" onclick="openSetupModal()">Start Practicing →</button>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow">For non-native tech job seekers</div>
+      <h1 class="hero-headline">Sound as capable as you actually are.</h1>
+      <p class="hero-sub">Practice the real conversation, not a fixed script — questions tailored to your resume, follow-ups that respond to what you actually say.</p>
+      <div class="hero-cta-row">
+        <button class="btn primary large" onclick="openSetupModal()">Start Your First Session →</button>
+        <span class="hero-note">No account needed · ~10 minutes · English or German</span>
+      </div>
+    </div>
+
+    <div class="preview-card">
+      <div class="preview-label">What you get after one round</div>
+      <div class="preview-score-row">
+        <span class="preview-score-num">71</span>
+        <span class="preview-score-denom">/ 100</span>
+        <span class="preview-badge">Hire Signal: Developing</span>
+      </div>
+      <div class="preview-bars">
+        <div class="preview-bar-row">
+          <span class="preview-bar-name">Clarity</span>
+          <div class="preview-bar-track"><div class="preview-bar-fill green" style="width:82%"></div></div>
+          <span class="preview-bar-val">82</span>
+        </div>
+        <div class="preview-bar-row">
+          <span class="preview-bar-name">Evidence</span>
+          <div class="preview-bar-track"><div class="preview-bar-fill warm" style="width:58%"></div></div>
+          <span class="preview-bar-val">58</span>
+        </div>
+        <div class="preview-bar-row">
+          <span class="preview-bar-name">Ownership</span>
+          <div class="preview-bar-track"><div class="preview-bar-fill warm" style="width:61%"></div></div>
+          <span class="preview-bar-val">61</span>
+        </div>
+        <div class="preview-bar-row">
+          <span class="preview-bar-name">Role Fit</span>
+          <div class="preview-bar-track"><div class="preview-bar-fill green" style="width:75%"></div></div>
+          <span class="preview-bar-val">75</span>
+        </div>
+      </div>
+      <div class="preview-divider"></div>
+      <div class="preview-polish-label">Polished answer · Q2</div>
+      <div class="preview-polish-text">"I chose a phased rollout over a full rewrite — two-week deadline, rewrite would have taken six. We shipped on time and conversion improved by 12%."</div>
+    </div>
+  </section>
+
+  <!-- ── GHOST GRID (same structure as dashboard) ── -->
+  <div class="dash-layout">
+
+    <!-- LEFT: Ghost Question Bank -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">Question Bank</div>
+
+        <div class="ghost-card">
+          <div class="ghost-q">Walk me through a trade-off decision you made in a recent project.</div>
+          <div class="ghost-a">"I chose a phased rollout over a full rewrite — two-week deadline, and a rewrite would have taken six. Technical debt was the accepted cost. We shipped on time and conversion improved by 12%."</div>
+          <span class="ghost-tag">Polished</span>
+        </div>
+
+        <div class="ghost-card">
+          <div class="ghost-q">You led the backend migration — what was the hardest decision?</div>
+          <div class="ghost-a">"Decoupling auth without downtime. I ran old and new in parallel for three weeks, used feature flags per user segment, and rolled back twice before the final clean cutover. Zero incidents after go-live."</div>
+          <span class="ghost-tag">Polished</span>
+        </div>
+
+        <div class="ghost-note">
+          Your saved answers appear here after each session.<br>
+          <button class="ghost-note a" onclick="openSetupModal()">Start your first session →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Ghost Profile + Ghost Sessions -->
+    <aside>
+      <div class="panel">
+        <div class="panel-title">My Profile</div>
+        <div class="ghost-profile-block">Your resume snippet and target language appear here after your first session.</div>
+        <div style="opacity:.35"><div class="profile-lang-pill">Language · EN</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Recent Sessions</div>
+        <div class="ghost-session-row">
+          <div>
+            <div class="ghost-session-date">—</div>
+            <div class="ghost-session-role">Software Engineer @ —</div>
+          </div>
+          <div class="ghost-score">—</div>
+        </div>
+        <div class="ghost-session-row">
+          <div>
+            <div class="ghost-session-date">—</div>
+            <div class="ghost-session-role">Product Manager @ —</div>
+          </div>
+          <div class="ghost-score">—</div>
+        </div>
+        <div class="ghost-note">Session history builds as you practice.</div>
+      </div>
+    </aside>
+
+  </div><!-- /dash-layout -->
+
+</div>
+</div><!-- /stLanding -->
+
+
+<!-- ═══════════════════════════════════════
+     DASHBOARD STATE
+═══════════════════════════════════════ -->
+<div id="stDashboard" class="hidden">
+<div class="page">
+
+  <header class="top">
+    <div class="brand">Interview Mentor</div>
+    <button class="btn primary" onclick="openSetupModal()">New Session →</button>
+  </header>
+
+  <div class="dash-layout">
+
+    <!-- ── LEFT MAIN: Quick Start + Question Bank ── -->
+    <div>
+
+      <!-- Quick Start (compact) -->
+      <div class="panel">
+        <div class="panel-title">Quick Start</div>
+        <div class="resume-loaded-tag">
+          <span class="resume-loaded-text">Resume loaded ✓</span>
+          <button class="btn btn-xs" onclick="openEditOverlay()">Edit</button>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin:10px 0 14px;line-height:1.6">Pick a role, paste a job description, and choose your interview focus on the next page.</p>
+        <button class="btn primary" onclick="openSetupModal()">Start New Session →</button>
+      </div>
+
+      <!-- Question Bank (main content) -->
+      <div class="panel">
+        <div class="panel-title">Question Bank</div>
+        <div id="bankContent"></div>
+      </div>
+
+    </div><!-- /left main -->
+
+    <!-- ── RIGHT SIDEBAR: Profile + Recent Sessions ── -->
+    <aside>
+
+      <!-- My Profile (compact) -->
+      <div class="panel">
+        <div class="panel-title">My Profile</div>
+        <div id="profileCard"></div>
+        <div style="margin-top:10px">
+          <button class="btn btn-xs" onclick="openEditOverlay()">Edit Resume</button>
+        </div>
+      </div>
+
+      <!-- Recent Sessions -->
+      <div class="panel">
+        <div class="panel-title">Recent Sessions</div>
+        <div id="sessionHistory"></div>
+      </div>
+
+    </aside>
+
+  </div><!-- /dash-layout -->
+
+</div>
+</div><!-- /stDashboard -->
+
+
+<!-- ═══════════════════════════════════════
+     SETUP MODAL
+═══════════════════════════════════════ -->
+<div id="setupModal" class="setup-modal-backdrop hidden" onclick="handleSetupBackdropClick(event)">
+  <div class="setup-modal-card" id="setupModalCard">
+
+    <!-- Form content -->
+    <div id="modalFormContent">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Set up your session</div>
+          <div class="modal-subtitle">5 questions · ~10 min · feedback after the round</div>
+        </div>
+        <button class="modal-close" onclick="closeSetupModal()">×</button>
+      </div>
+
+      <!-- 01 Resume -->
+      <div class="modal-section">
+        <div class="modal-sec-row">
+          <span class="modal-sec-num">01</span>
+          <span class="modal-sec-title">Your resume</span>
+        </div>
+        <textarea id="modalResume" rows="5" placeholder="Paste your resume — experience, projects, or a plain-text CV…"></textarea>
+        <div id="modalProfileLoaded" class="hidden" style="font-size:12px;color:var(--accent-text);margin-top:8px;display:flex;align-items:center;gap:6px">
+          <span>✓ Loaded from profile</span>
+          <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;text-decoration:underline;padding:0" onclick="clearModalResume()">clear</button>
+        </div>
+        <div class="modal-field-error" id="modalResumeError"></div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <!-- 02 Role & Job -->
+      <div class="modal-section">
+        <div class="modal-sec-row">
+          <span class="modal-sec-num">02</span>
+          <span class="modal-sec-title">Role &amp; job</span>
+        </div>
+        <div class="modal-chips" id="modalRoleChips">
+          <div class="modal-chip" onclick="selectModalRole(this,'Product Manager')">Product Manager</div>
+          <div class="modal-chip selected" onclick="selectModalRole(this,'Software Engineer')">Software Engineer</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'Frontend Engineer')">Frontend Engineer</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'Backend Engineer')">Backend Engineer</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'Full Stack Engineer')">Full Stack</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'Data Scientist')">Data Scientist</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'ML Engineer')">ML Engineer</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'DevOps / SRE')">DevOps / SRE</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'UX Designer')">UX Designer</div>
+          <div class="modal-chip" onclick="selectModalRole(this,'__other__')">Other</div>
+        </div>
+        <div id="modalOtherWrap" class="hidden" style="margin-top:8px">
+          <input type="text" id="modalOtherRole" placeholder="Enter your role…"
+            style="border:1px solid var(--accent-border);border-radius:var(--radius-sm);padding:7px 11px;font:inherit;font-size:13px;color:var(--ink);background:white;width:200px;outline:none" />
+        </div>
+        <div class="modal-field-error" id="modalRoleError"></div>
+        <div style="margin-top:16px">
+          <div class="modal-field-label">Job description <span style="color:var(--line);font-weight:400;text-transform:none;letter-spacing:0">optional — adds precision</span></div>
+          <textarea id="modalJD" rows="3" placeholder="Paste the job posting you're practicing for…"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <!-- 03 Interview Focus -->
+      <div class="modal-section">
+        <div class="modal-sec-row">
+          <span class="modal-sec-num">03</span>
+          <span class="modal-sec-title">Interview focus</span>
+        </div>
+        <div class="modal-type-grid">
+          <div class="modal-type-card selected" id="modalTypeBehavioral" onclick="selectModalType(this,'behavioral')">
+            <div class="modal-type-icon">💬</div>
+            <div class="modal-type-name">Behavioral</div>
+            <div class="modal-type-desc">Past experience, STAR stories, decisions and impact.</div>
+          </div>
+          <div class="modal-type-card" id="modalTypeResumeDive" onclick="selectModalType(this,'resume_dive')">
+            <div class="modal-type-icon">📋</div>
+            <div class="modal-type-name">Resume Deep Dive</div>
+            <div class="modal-type-desc">Dig into specific items on your resume. Ownership and results.</div>
+          </div>
+          <div class="modal-type-card" id="modalTypeCaseStudy" onclick="selectModalType(this,'case_study')">
+            <div class="modal-type-icon">🧩</div>
+            <div class="modal-type-name">Case Study</div>
+            <div class="modal-type-desc">A short business scenario. Structure your thinking and trade-offs.</div>
+          </div>
+        </div>
+        <div class="modal-field-error" id="modalTypeError"></div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-footer-note">No account needed &nbsp;·&nbsp; English or German</div>
+        <button class="btn primary large" onclick="startSessionModal()">Start Session →</button>
+      </div>
+    </div><!-- /modalFormContent -->
+
+    <!-- Prep animation (shown after submit) -->
+    <div id="modalPrepContent" class="modal-prep-area">
+      <div class="modal-prep-headline">Preparing your session…</div>
+      <div class="modal-prep-steps">
+        <div class="modal-prep-step" id="mstep1"><div class="modal-prep-dot"></div><div class="modal-prep-text">Reading your resume</div></div>
+        <div class="modal-prep-step" id="mstep2"><div class="modal-prep-dot"></div><div class="modal-prep-text">Mapping to role requirements</div></div>
+        <div class="modal-prep-step" id="mstep3"><div class="modal-prep-dot"></div><div class="modal-prep-text">Preparing your first question</div></div>
+        <div class="modal-prep-step ready" id="mstep4"><div class="modal-prep-dot"></div><div class="modal-prep-text">Ready.</div></div>
+      </div>
+    </div>
+
+  </div><!-- /setup-modal-card -->
+</div><!-- /setupModal -->
+
+
+<!-- ═══════════════════════════════════════
+     EDIT RESUME OVERLAY
+═══════════════════════════════════════ -->
+<div id="editOverlay" class="overlay hidden" onclick="handleOverlayClick(event)">
+  <div class="overlay-card">
+    <div class="overlay-title">Edit Resume</div>
+    <div class="overlay-sub">This resume is pre-filled in every new session. Update it when you switch roles or add new projects.</div>
+    <textarea id="editResumeTA" rows="14" placeholder="Paste your resume here…"></textarea>
+    <div class="overlay-actions">
+      <button class="btn" onclick="closeEditOverlay()">Cancel</button>
+      <button class="btn primary" onclick="saveResume()">Save Resume</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  /* ─── STORAGE ──────────────────────────────────── */
+  const LS = {
+    profile:  () => { try { return JSON.parse(localStorage.getItem('im_profile') || 'null'); } catch(_) { return null; } },
+    sessions: () => { try { return JSON.parse(localStorage.getItem('im_sessions') || '[]'); } catch(_) { return []; } },
+    bank:     () => { try { return JSON.parse(localStorage.getItem('im_bank') || '[]'); } catch(_) { return []; } },
+    save:     (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(_) {} }
+  };
+
+  /* ─── BOOT ─────────────────────────────────────── */
+  window.addEventListener('DOMContentLoaded', () => {
+    const profile = LS.profile();
+    if (profile && profile.resumeText) {
+      showDashboard(profile);
+    } else {
+      document.getElementById('stLanding').classList.remove('hidden');
+    }
+  });
+
+  /* ─── DASHBOARD ────────────────────────────────── */
+  function showDashboard(profile) {
+    document.getElementById('stLanding').classList.add('hidden');
+    document.getElementById('stDashboard').classList.remove('hidden');
+    renderProfileCard(profile);
+    renderSessionHistory();
+    renderBankContent();
+  }
+
+  function renderProfileCard(profile) {
+    if (!profile) return;
+    const text    = (profile.resumeText || '').replace(/\s+/g, ' ').trim();
+    const snippet = text.length > 130 ? text.slice(0, 130) + '…' : text;
+    const lang    = (profile.targetLanguage || 'en').toUpperCase();
+    document.getElementById('profileCard').innerHTML = `
+      <div class="profile-snippet">${snippet}</div>
+      <div class="profile-lang-pill">Language · ${lang}</div>
+    `;
+  }
+
+  function renderSessionHistory() {
+    const sessions = LS.sessions();
+    const el = document.getElementById('sessionHistory');
+    if (!sessions.length) {
+      el.innerHTML = '<div class="empty-note">No sessions yet.</div>';
+      return;
+    }
+    el.innerHTML = [...sessions].reverse().slice(0, 5).map(s => {
+      const d       = new Date(s.date);
+      const dateStr = isNaN(d.getTime()) ? '—' : d.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+      const score   = s.overallScore != null ? s.overallScore : null;
+      return `<div class="session-row">
+        <div>
+          <div class="session-date">${dateStr}</div>
+          <div class="session-role">${s.role || 'Practice Session'}</div>
+        </div>
+        ${score != null
+          ? `<div class="session-score"><span class="session-score-num">${score}</span><span class="session-score-denom"> /100</span></div>`
+          : '<div class="session-score"><span class="session-score-denom">—</span></div>'
+        }
+      </div>`;
+    }).join('');
+  }
+
+  function renderBankContent() {
+    const bank = LS.bank();
+    const el   = document.getElementById('bankContent');
+    if (!bank.length) {
+      el.innerHTML = `
+        <div class="bank-empty">
+          <div class="bank-empty-num">0</div>
+          <div class="bank-empty-label">No saved answers yet</div>
+          <div class="bank-empty-note">Complete a practice round, then save polished answers from the feedback page to build your personal interview library.</div>
+        </div>`;
+      return;
+    }
+    el.innerHTML = `<div class="bank-card-list">${
+      bank.map(item => `
+        <div class="bank-card-item">
+          <div class="bank-card-dot strong"></div>
+          <div>
+            <div class="bank-card-q">${item.question || 'Saved question'}</div>
+            <div class="bank-card-snippet">${(item.polishedAnswer || '').slice(0, 90)}…</div>
+          </div>
+          <span class="bank-card-tag">Saved</span>
+        </div>`).join('')
+    }</div>
+    <div style="margin-top:12px">
+      <a href="./bank.html" style="font-size:13px;color:var(--accent-text);text-decoration:none;font-weight:600">View all ${bank.length} answers →</a>
+    </div>`;
+  }
+
+  /* ─── SETUP MODAL ─────────────────────────────── */
+  let modalRole = 'Software Engineer';
+  let modalType = 'behavioral';
+
+  function openSetupModal() {
+    // Pre-fill resume from profile if available
+    try {
+      const profile = LS.profile();
+      const ta = document.getElementById('modalResume');
+      const loaded = document.getElementById('modalProfileLoaded');
+      if (profile && profile.resumeText) {
+        ta.value = profile.resumeText;
+        loaded.classList.remove('hidden');
+      } else {
+        ta.value = '';
+        loaded.classList.add('hidden');
+      }
+    } catch(_) {}
+    // Reset to defaults
+    resetModalForm();
+    document.getElementById('setupModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSetupModal() {
+    document.getElementById('setupModal').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function handleSetupBackdropClick(e) {
+    if (e.target === document.getElementById('setupModal')) closeSetupModal();
+  }
+
+  function resetModalForm() {
+    // Show form, hide prep
+    document.getElementById('modalFormContent').style.display = '';
+    const prep = document.getElementById('modalPrepContent');
+    prep.style.display = 'none';
+    document.querySelectorAll('.modal-prep-step').forEach(s => s.classList.remove('lit'));
+    // Reset defaults
+    modalRole = 'Software Engineer';
+    modalType = 'behavioral';
+    document.querySelectorAll('.modal-chip').forEach(c => c.classList.remove('selected'));
+    const sweChip = [...document.querySelectorAll('.modal-chip')].find(c => c.textContent === 'Software Engineer');
+    if (sweChip) sweChip.classList.add('selected');
+    document.querySelectorAll('.modal-type-card').forEach(c => c.classList.remove('selected'));
+    const behavCard = document.getElementById('modalTypeBehavioral');
+    if (behavCard) behavCard.classList.add('selected');
+    document.getElementById('modalOtherWrap').classList.add('hidden');
+    document.getElementById('modalJD').value = '';
+    ['modalResumeError','modalRoleError','modalTypeError'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+  }
+
+  function selectModalRole(chip, role) {
+    document.querySelectorAll('.modal-chip').forEach(c => c.classList.remove('selected'));
+    chip.classList.add('selected');
+    modalRole = role;
+    const wrap = document.getElementById('modalOtherWrap');
+    if (role === '__other__') {
+      wrap.classList.remove('hidden');
+      setTimeout(() => document.getElementById('modalOtherRole').focus(), 60);
+    } else {
+      wrap.classList.add('hidden');
+    }
+    const err = document.getElementById('modalRoleError');
+    if (err) err.style.display = 'none';
+  }
+
+  function selectModalType(card, type) {
+    document.querySelectorAll('.modal-type-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    modalType = type;
+    const err = document.getElementById('modalTypeError');
+    if (err) err.style.display = 'none';
+  }
+
+  function clearModalResume() {
+    document.getElementById('modalResume').value = '';
+    document.getElementById('modalProfileLoaded').classList.add('hidden');
+    document.getElementById('modalResume').focus();
+  }
+
+  function showModalError(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg; el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function startSessionModal() {
+    const resume = document.getElementById('modalResume').value.trim();
+    if (!resume) { showModalError('modalResumeError', 'Please add your resume to continue.'); return; }
+
+    let role = modalRole;
+    if (role === '__other__') {
+      role = (document.getElementById('modalOtherRole').value || '').trim() || 'Professional';
+    }
+
+    const jd = document.getElementById('modalJD').value.trim();
+
+    // Save profile (implicit creation)
+    try {
+      if (!localStorage.getItem('im_profile')) {
+        LS.save('im_profile', { resumeText: resume, targetLanguage: 'en', savedAt: new Date().toISOString() });
+      }
+    } catch(_) {}
+
+    // Save setup for interview.html
+    try {
+      sessionStorage.setItem('im_setup', JSON.stringify({ resume, role, jd, interviewType: modalType }));
+    } catch(_) {}
+
+    runModalPrepAnimation();
+  }
+
+  function runModalPrepAnimation() {
+    document.getElementById('modalFormContent').style.display = 'none';
+    const prep = document.getElementById('modalPrepContent');
+    prep.style.display = 'flex';
+
+    const steps = ['mstep1','mstep2','mstep3','mstep4'];
+    const delays = [0, 700, 1400, 2050];
+    steps.forEach((id, i) => {
+      setTimeout(() => document.getElementById(id).classList.add('lit'), delays[i]);
+    });
+
+    setTimeout(() => {
+      document.body.classList.add('launching');
+      setTimeout(() => { window.location.href = './interview.html'; }, 310);
+    }, delays[delays.length - 1] + 460);
+  }
+
+  /* ─── EDIT RESUME OVERLAY ──────────────────────── */
+  function openEditOverlay() {
+    const profile = LS.profile();
+    document.getElementById('editResumeTA').value = profile ? (profile.resumeText || '') : '';
+    document.getElementById('editOverlay').classList.remove('hidden');
+    setTimeout(() => document.getElementById('editResumeTA').focus(), 60);
+  }
+
+  function closeEditOverlay() {
+    document.getElementById('editOverlay').classList.add('hidden');
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('editOverlay')) closeEditOverlay();
+  }
+
+  function saveResume() {
+    const newResume = document.getElementById('editResumeTA').value.trim();
+    if (!newResume) return;
+    const profile = LS.profile() || {};
+    LS.save('im_profile', { ...profile, resumeText: newResume, savedAt: new Date().toISOString() });
+    closeEditOverlay();
+    renderProfileCard(LS.profile());
+  }
+</script>
+
+</body>
+</html>
