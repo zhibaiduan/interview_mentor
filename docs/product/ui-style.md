@@ -1,239 +1,116 @@
-# UI Style Guide — Interview Mentor
+# UI Style Guide — OfferUp
 
-## 1. 设计目标
+## Positioning
 
-本产品的 UI 目标是：
+OfferUp should feel like a calm European career coach workspace: structured, candid, warm, and precise. The interface should reduce interview anxiety without becoming cute, decorative, or generic SaaS.
 
-1. **简约、干净、专业**：信息架构清楚，降低认知负担，支持高效练习与复盘。
-2. **放松、治愈、有呼吸感**：在不牺牲专业度的前提下，缓解用户面试焦虑。
+Design phrase: **Calm but precise.**
 
-一句话总结：
-**Professional first, soothing second.**
+## Principles
 
----
+1. **Clarity before decoration**  
+   Every screen should make the next action obvious within a few seconds.
 
-## 2. 设计原则
+2. **Supportive pressure**  
+   The product is honest about performance, but feedback should point toward the next useful action.
 
-## 2.1 信息优先（Clarity First）
-- 每个页面聚焦一个主任务（如：回答、复盘、复习）。
-- 避免同屏过多指标与卡片。
-- 关键决策信息（下一步做什么）必须一眼可见。
+3. **Two preparation paths**  
+   UI should consistently distinguish focused drills from role-based interview plans.
 
-## 2.2 单层容器（Single-layer Containment）
-- 可以使用边框和卡片。
-- 但避免“卡片套卡片”的层层嵌套。
-- 结构优先使用：**单层面板 + 分隔线 + 留白**。
+4. **Compounding assets**  
+   Sessions should feel like they build a reusable preparation library, not like one-off practice.
 
-## 2.3 低刺激界面（Low-stimulus UI）
-- 控制高饱和色使用面积。
-- 背景和大面积容器保持中性纸感。
-- 动效克制，减少闪烁、跳动与强对比。
+5. **Single-layer composition**  
+   Prefer one clear surface with dividers and spacing. Avoid cards inside cards.
 
-## 2.4 温和反馈（Supportive Feedback）
-- 文案避免评判语气。
-- 默认用“下一步建议”表达，而不是“错误审判”。
-- 反馈应可执行、可复述、可复练。
+## Design Tokens
 
-## 2.5 稳定节奏（Rhythm & Breathing Space）
-- 使用稳定垂直节奏（8pt 基线）。
-- 通过留白制造呼吸感。
-- 训练流程保持固定节奏，减少心理负担。
+```css
+:root {
+  --paper:          #faf7f1;
+  --paper-2:        #fffdf8;
+  --paper-card:     rgba(255,253,248,.92);
 
----
+  --ink:            #29241f;
+  --ink-2:          #3a342d;
+  --ink-soft:       #6f665e;
+  --muted:          #8a8178;
 
-## 3. 视觉风格定义
+  --line:           #ddd5ca;
+  --line-soft:      #ebe4da;
+  --line-strong:    #c8beb1;
 
-## 3.1 总体风格关键词
-- Minimal
-- Editorial
-- Calm Professional
-- Paper-tone
-- Soft Focus
+  --accent:         #3f6b52;
+  --accent-soft:    #e6f0e9;
+  --accent-border:  #b9d3c1;
+  --accent-text:    #2f5842;
 
-## 3.2 视觉层次
-1. **基础层**：纸感背景（低对比、浅暖灰）
-2. **信息层**：黑白灰文字与细边框
-3. **强调层**：鼠尾草绿，仅用于按钮、状态、关键动作
+  --role:           #4a647a;
+  --role-soft:      #e6edf2;
+  --role-border:    #becbd5;
 
----
+  --drill:          #9a6b2f;
+  --drill-soft:     #f4eadb;
+  --drill-border:   #dec796;
 
-## 4. 色彩系统
+  --danger:         #9a4f4f;
+  --danger-bg:      #f8eded;
+  --danger-border:  #cfb1b1;
 
-## 4.1 主体色（中性纸感）
-- `--paper`: `#f7f5f0`
-- `--paper-2`: `#fcfbf8`
-- `--ink`: `#1f1f1f`
-- `--ink-soft`: `#5f5f5f`
-- `--line`: `#d8d4ca`
-- `--line-soft`: `#e8e4dc`
+  --serif: "Iowan Old Style", "Palatino", "Times New Roman", serif;
+  --sans:  "Avenir Next", "SF Pro Text", sans-serif;
 
-## 4.2 主题强调色（鼠尾草绿，仅小面积）
-- `--accent`: `#4f7b62`
-- `--accent-soft`: `#e9f1ec`
+  --radius-sm:      8px;
+  --radius-md:      12px;
+  --radius-lg:      14px;
+  --radius-pill:    999px;
+}
+```
 
-使用规则：
-- 强调色占比建议 **<= 10%**。
-- 不用于大面积底色，不做全局主背景。
-- 主要用于：Primary CTA、状态标签、关键文字提示。
+## Color Usage
 
-## 4.3 辅助氛围色（可选，极低透明度）
-用于背景微弱气氛，不参与信息编码：
-- 杏桃：`#f4ddcf`
-- 薰衣草：`#e1dcf4`
-- 雾蓝：`#d8e7f2`
+- **Paper neutrals** are the base for page backgrounds and quiet surfaces.
+- **Sage green** is for primary actions, improvement, feedback, and progress.
+- **Blue-gray** is for role-based interview plans and structured preparation.
+- **Amber** is for focused drills and short practice energy.
+- Avoid a fully beige product: every important user choice should have a distinct semantic color.
 
----
+## Typography
 
-## 5. 字体系统
+- Brand and hero titles may use the serif stack.
+- Functional UI, forms, interview controls, feedback content, and reports should use the sans stack.
+- Use italic serif sparingly. It can feel premium, but too much makes the product less precise.
+- Keep letter spacing at `0` for normal text. Use uppercase tracking only for small labels.
 
-## 5.1 推荐字体策略
-采用“**衬线标题 + 无衬线正文**”组合：
+## Core Components
 
-- 标题/品牌：`Iowan Old Style`, `Palatino`, `Times New Roman`, `serif`
-- 正文/UI：`Avenir Next`, `SF Pro Text`, `PingFang SC`, `Noto Sans SC`, `sans-serif`
+- `Button`: primary sage, neutral secondary, clear hover/focus state.
+- `PathCard`: two major preparation paths, using `--drill` and `--role`.
+- `ProcessStep`: lightweight onboarding explanation, not a heavy task list.
+- `UploadCard`: resume, LinkedIn, or notes input.
+- `RoleCard`: saved job descriptions and target roles.
+- `InterviewRoom`: immersive voice-first mock experience.
+- `FeedbackPanel`: recruiter lens, coach lens, and next recommended practice.
+- `QuestionBankItem`: saved question, answer status, and replay action.
+- `ScoreBadge`: clear status without harsh colors.
 
-这样可以同时获得：
-- 专业与质感（衬线）
-- 清晰与可读性（无衬线）
+## New User Landing Pattern
 
-## 5.2 备选精致字体（后续可升级）
-- 标题：`Newsreader` / `Cormorant Garamond`
-- 正文：`Manrope` / `Source Sans 3`
+The first page should explain the product as a preparation system:
 
-## 5.3 字号建议
-- Brand：`32-36px`
-- 页面主标题：`28-32px`
-- 区块标题：`20-22px`
-- 正文：`14-16px`
-- 标签/辅助说明：`11-12px`
-
----
-
-## 6. 版式与间距
-
-## 6.1 栅格
-- Desktop：2栏布局（内容栏 + 反馈/题库栏）
-- Mobile：单栏顺序布局
-
-## 6.2 间距系统（8pt）
-- 微间距：`8px`
-- 常规间距：`12px / 16px`
-- 结构间距：`20px / 24px / 32px`
-
-## 6.3 组件圆角
-- 主面板：`12-16px`
-- 按钮：`999px`（胶囊形）
-- 不使用过度圆角与玻璃拟物叠层
-
----
-
-## 7. 边框与阴影规范
-
-## 7.1 边框
-- 细线为主：`1px solid var(--line)`
-- 分区内部优先用分隔线，不额外增加新卡片
-
-## 7.2 阴影
-- 仅用于轻微层次，不用于“漂浮感炫技”
-- 阴影透明度保持低（约 4%-8%）
-
-## 7.3 容器层级
-- 页面级容器：可有
-- 区块级容器：可有
-- 子信息层：尽量用列表/分隔线，不再套新容器
-
----
-
-## 8. 组件风格
-
-## 8.1 按钮
-- Primary：纸感底 + 轻鼠尾草绿强调
-- Secondary：中性浅灰
-- 文案短且动作明确（如 `Record Answer`）
-
-## 8.2 标签与状态
-- 绿色只用于“可行动正向状态”（如 `Polish Ready`）
-- 中性状态用灰色
-- 警示状态不用刺眼红，优先暖棕/深灰
-
-## 8.3 数据信息（KPI）
-- 放在同一层容器中
-- 内部用细分隔线组织
-- 避免每个 KPI 再独立起卡
-
----
-
-## 9. 背景与氛围
-
-## 9.1 背景基调
-- 纸质浅暖色为主
-- 可叠加非常轻的渐变光斑
-
-## 9.2 纹理建议
-- 可使用极轻微 grain/noise（不影响可读性）
-- 目的是增加“真实材质感”，避免纯平面单调
-
-## 9.3 禁止项
-- 高饱和渐变大面积覆盖
-- 背景色抢占信息注意力
-
----
-
-## 10. 交互与动效
-
-## 10.1 动效原则
-- 慢、轻、短
-- 动效时间建议：`120ms - 220ms`
-- 仅用于状态切换和焦点引导
-
-## 10.2 交互反馈
-- Hover/Focus 清晰但不过度高亮
-- 面试流程中避免频繁弹窗打断
-
----
-
-## 11. 文案语气（Tone of UI Copy）
-
-## 11.1 语气标准
-- 专业、平和、可执行
-- 不说教，不制造压力
-
-## 11.2 推荐表达
-- “下一轮建议你先给结论句”
-- “补一个数字会更有说服力”
-
-## 11.3 避免表达
-- “你的回答很差”
-- “这个完全不行”
-
----
-
-## 12. 可访问性与可读性
-
-- 正文对比度满足可读标准（优先深灰文字）
-- 正文行高建议 `1.6 - 1.8`
-- 移动端最小正文不低于 `14px`
-- 不能仅靠颜色传达关键信息（需有文案或图标）
-
----
-
-## 13. 页面落地检查清单（Design QA）
-
-每次设计评审前检查：
-
-1. 是否出现多层嵌套卡片？（应避免）
-2. 强调色占比是否控制在 10% 以内？
-3. 主任务是否 3 秒内可识别？
-4. 反馈文案是否可执行？
-5. 页面是否存在足够留白和阅读节奏？
-
----
-
-## 14. 当前版本结论
-
-当前产品应采用：
-**纸感中性色为底 + 鼠尾草绿小面积强调 + 单层容器结构 + 温和专业文案**。
-
-这套风格能兼顾：
-- 面试产品应有的专业信任感
-- non-native 用户在高压场景下需要的放松与支持感
+1. Add your background.
+2. Choose focused drill or role interview plan.
+3. Practice live with adaptive follow-ups.
+4. Get targeted feedback.
+5. Build saved questions, answers, roles, and progress history.
+
+The first CTA should say **Start your first practice**, not **Start your first interview**, because the first session may be a drill or a role-based mock.
+
+## Design QA
+
+- Can the user identify the main action in 3 seconds?
+- Are focused drills and role plans visually distinct?
+- Is text contrast strong enough on warm backgrounds?
+- Is the page calm without becoming low-contrast?
+- Is the experience clearly more than a question bank?
+- Does the feedback lead to a next practice action?

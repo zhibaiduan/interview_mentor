@@ -1,6 +1,6 @@
-# Interview Mentor
+# OfferUp
 
-Interview Mentor is an interview training product for non-native technology candidates. The current MVP focuses on one complete practice loop: configure a target role, run a short mock interview, and review the answers afterward.
+OfferUp is an interview training product for non-native technology candidates. The current MVP focuses on one complete practice loop: configure a target role, run a short mock interview, and review the answers afterward.
 
 ## Product Areas
 

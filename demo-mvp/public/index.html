@@ -3,27 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Interview Mentor</title>
+  <title>OfferUp</title>
   <style>
     :root {
-      --paper:          #f7f5f0;
-      --paper-2:        #fcfbf8;
-      --paper-card:     rgba(252,251,248,.9);
-      --ink:            #1f1f1f;
-      --ink-2:          #3a3a3a;
-      --ink-soft:       #5f5f5f;
-      --muted:          #76736c;
-      --line:           #d8d4ca;
-      --line-soft:      #e8e4dc;
-      --accent:         #4f7b62;
-      --accent-soft:    #e9f1ec;
-      --accent-border:  #9fbea9;
+      --paper:          #faf7f1;
+      --paper-2:        #fffdf8;
+      --paper-card:     rgba(255,253,248,.92);
+      --ink:            #29241f;
+      --ink-2:          #3a342d;
+      --ink-soft:       #6f665e;
+      --muted:          #8a8178;
+      --line:           #ddd5ca;
+      --line-soft:      #ebe4da;
+      --line-strong:    #c8beb1;
+      --accent:         #3f6b52;
+      --accent-soft:    #e6f0e9;
+      --accent-border:  #b9d3c1;
       --accent-text:    #2f5842;
       --accent-deep:    #1e3d2c;
       --accent-dim:     #2a4535;
+      --role:           #4a647a;
+      --role-soft:      #e6edf2;
+      --role-border:    #becbd5;
+      --drill:          #9a6b2f;
+      --drill-soft:     #f4eadb;
+      --drill-border:   #dec796;
       --warm:           #8b6840;
-      --warm-soft:      #f9f2e8;
-      --warm-border:    #d8c7ac;
+      --warm-soft:      #f4eadb;
+      --warm-border:    #dec796;
       --warm-text:      #6a4f28;
       --warm-dim:       #4a3820;
       --warm-muted:     #9a6860;
@@ -63,8 +70,8 @@
       color: var(--ink);
       min-height: 100vh;
       background:
-        radial-gradient(40rem 28rem at 8% 10%, rgba(255,255,255,.76), transparent 62%),
-        radial-gradient(34rem 24rem at 88% 78%, rgba(216,231,242,.34), transparent 68%),
+        radial-gradient(40rem 28rem at 8% 10%, rgba(255,255,255,.8), transparent 62%),
+        radial-gradient(34rem 24rem at 88% 78%, rgba(230,237,242,.46), transparent 68%),
         linear-gradient(165deg, var(--paper-2), var(--paper));
     }
 
@@ -86,6 +93,22 @@
     }
 
     .brand { font-family: var(--serif); font-size: 30px; letter-spacing: .01em; color: var(--ink); }
+    .brand span { color: #b4aaa0; font-weight: 400; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .avatar-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink-2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.45);
+    }
 
     /* ─── BUTTONS ─── */
     .btn {
@@ -146,11 +169,10 @@
     ═══════════════════════════════════════════════════ */
 
     .hero {
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      gap: 56px;
-      align-items: center;
-      padding: 72px 0 64px;
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 86px 0 38px;
     }
 
     .hero-eyebrow {
@@ -164,30 +186,156 @@
 
     .hero-headline {
       font-family: var(--serif);
-      font-size: 56px;
+      font-size: 58px;
       line-height: 1.08;
       font-weight: 500;
       color: var(--ink);
       margin-bottom: 20px;
-      letter-spacing: -.02em;
+      letter-spacing: 0;
     }
 
     .hero-sub {
       font-size: 16px;
       line-height: 1.75;
       color: var(--ink-soft);
-      margin-bottom: 36px;
-      max-width: 520px;
+      margin: 0 auto 30px;
+      max-width: 640px;
     }
 
     .hero-cta-row {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 14px;
       flex-wrap: wrap;
     }
 
     .hero-note { font-size: 12px; color: var(--muted); }
+
+    .path-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 34px auto 36px;
+      max-width: 860px;
+    }
+
+    .path-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--paper-card);
+      box-shadow: 0 12px 28px rgba(38,34,28,.05);
+      padding: 24px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: start;
+      cursor: pointer;
+      transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+    .path-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--line-strong);
+      background: var(--paper-2);
+      box-shadow: 0 16px 34px rgba(38,34,28,.08);
+    }
+    .path-card.drill { border-color: var(--drill-border); }
+    .path-card.role { border-color: var(--role-border); }
+    .path-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      border: 1px solid;
+    }
+    .path-card.drill .path-icon { background: var(--drill-soft); color: var(--drill); border-color: var(--drill-border); }
+    .path-card.role .path-icon { background: var(--role-soft); color: var(--role); border-color: var(--role-border); }
+    .path-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .path-title {
+      font-size: 18px;
+      color: var(--ink);
+      font-weight: 750;
+      margin-bottom: 8px;
+    }
+    .path-desc {
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.65;
+    }
+
+    .process-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,253,248,.72);
+      margin: 28px auto 24px;
+    }
+    .process-step {
+      padding: 22px 18px;
+      min-height: 156px;
+      border-right: 1px solid var(--line-soft);
+    }
+    .process-step:last-child { border-right: none; }
+    .process-num {
+      font-size: 11px;
+      color: #b5aaa0;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+    .process-title {
+      font-family: var(--serif);
+      font-size: 17px;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .process-desc {
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.58;
+    }
+
+    .promise-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 30px auto 0;
+      max-width: 900px;
+    }
+    .promise-item {
+      background: rgba(255,253,248,.72);
+      padding: 22px 24px;
+      text-align: center;
+    }
+    .promise-k {
+      font-family: var(--serif);
+      font-size: 26px;
+      color: var(--ink);
+      margin-bottom: 7px;
+    }
+    .promise-v {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      font-weight: 700;
+    }
 
     /* ─── PREVIEW CARD (hero right) ─── */
     .preview-card {
@@ -711,7 +859,10 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 1020px) {
-      .hero        { grid-template-columns: 1fr; gap: 40px; }
+      .path-grid   { grid-template-columns: 1fr; }
+      .process-strip { grid-template-columns: 1fr; }
+      .process-step { min-height: 0; border-right: none; border-bottom: 1px solid var(--line-soft); }
+      .process-step:last-child { border-bottom: none; }
       .preview-card { display: none; }
       .dash-layout { grid-template-columns: 1fr; }
       .proof-grid  { grid-template-columns: 1fr; }
@@ -724,6 +875,7 @@
     @media (max-width: 760px) {
       .hero-headline { font-size: 40px; }
       .steps-row     { grid-template-columns: 1fr; }
+      .promise-strip { grid-template-columns: 1fr; }
       .setup-grid    { grid-template-columns: 1fr; }
       .hero          { padding: 44px 0 36px; }
       .proof-section, .how-section, .start-section, .who-section { padding-top: 52px; }
@@ -860,113 +1012,87 @@
 <div class="page">
 
   <header class="top">
-    <div class="brand">Interview Mentor</div>
-    <button class="btn primary" onclick="openSetupModal()">Start Practicing →</button>
+    <div class="brand">Offer<span>Up</span></div>
+    <div class="top-actions">
+      <button class="btn primary" onclick="openSetupModal()">Start practice →</button>
+      <div class="avatar-btn" aria-label="Profile">M</div>
+    </div>
   </header>
 
   <!-- ── HERO ── -->
   <section class="hero">
-    <div>
-      <div class="hero-eyebrow">For non-native tech job seekers</div>
-      <h1 class="hero-headline">Sound as capable as you actually are.</h1>
-      <p class="hero-sub">Practice the real conversation, not a fixed script — questions tailored to your resume, follow-ups that respond to what you actually say.</p>
-      <div class="hero-cta-row">
-        <button class="btn primary large" onclick="openSetupModal()">Start Your First Session →</button>
-        <span class="hero-note">No account needed · ~10 minutes · English or German</span>
-      </div>
-    </div>
-
-    <div class="preview-card">
-      <div class="preview-label">What you get after one round</div>
-      <div class="preview-score-row">
-        <span class="preview-score-num">71</span>
-        <span class="preview-score-denom">/ 100</span>
-        <span class="preview-badge">Hire Signal: Developing</span>
-      </div>
-      <div class="preview-bars">
-        <div class="preview-bar-row">
-          <span class="preview-bar-name">Clarity</span>
-          <div class="preview-bar-track"><div class="preview-bar-fill green" style="width:82%"></div></div>
-          <span class="preview-bar-val">82</span>
-        </div>
-        <div class="preview-bar-row">
-          <span class="preview-bar-name">Evidence</span>
-          <div class="preview-bar-track"><div class="preview-bar-fill warm" style="width:58%"></div></div>
-          <span class="preview-bar-val">58</span>
-        </div>
-        <div class="preview-bar-row">
-          <span class="preview-bar-name">Ownership</span>
-          <div class="preview-bar-track"><div class="preview-bar-fill warm" style="width:61%"></div></div>
-          <span class="preview-bar-val">61</span>
-        </div>
-        <div class="preview-bar-row">
-          <span class="preview-bar-name">Role Fit</span>
-          <div class="preview-bar-track"><div class="preview-bar-fill green" style="width:75%"></div></div>
-          <span class="preview-bar-val">75</span>
-        </div>
-      </div>
-      <div class="preview-divider"></div>
-      <div class="preview-polish-label">Polished answer · Q2</div>
-      <div class="preview-polish-text">"I chose a phased rollout over a full rewrite — two-week deadline, rewrite would have taken six. We shipped on time and conversion improved by 12%."</div>
+    <div class="hero-eyebrow">Interview practice with your real background</div>
+    <h1 class="hero-headline">Prepare for interviews with clarity.</h1>
+    <p class="hero-sub">Upload your resume, choose a focused drill or a role-based interview plan, and practice with an AI interviewer that adapts to your answers.</p>
+    <div class="hero-cta-row">
+      <button class="btn primary large" onclick="openSetupModal()">Start your first practice →</button>
+      <span class="hero-note">No account needed · first setup under 10 minutes</span>
     </div>
   </section>
 
-  <!-- ── GHOST GRID (same structure as dashboard) ── -->
-  <div class="dash-layout">
-
-    <!-- LEFT: Ghost Question Bank -->
-    <div>
-      <div class="panel">
-        <div class="panel-title">Question Bank</div>
-
-        <div class="ghost-card">
-          <div class="ghost-q">Walk me through a trade-off decision you made in a recent project.</div>
-          <div class="ghost-a">"I chose a phased rollout over a full rewrite — two-week deadline, and a rewrite would have taken six. Technical debt was the accepted cost. We shipped on time and conversion improved by 12%."</div>
-          <span class="ghost-tag">Polished</span>
-        </div>
-
-        <div class="ghost-card">
-          <div class="ghost-q">You led the backend migration — what was the hardest decision?</div>
-          <div class="ghost-a">"Decoupling auth without downtime. I ran old and new in parallel for three weeks, used feature flags per user segment, and rolled back twice before the final clean cutover. Zero incidents after go-live."</div>
-          <span class="ghost-tag">Polished</span>
-        </div>
-
-        <div class="ghost-note">
-          Your saved answers appear here after each session.<br>
-          <button class="ghost-note a" onclick="openSetupModal()">Start your first session →</button>
-        </div>
+  <!-- ── PRIMARY PATHS ── -->
+  <section class="path-grid" aria-label="Practice paths">
+    <article class="path-card drill" onclick="openSetupModal()">
+      <div class="path-icon">DR</div>
+      <div>
+        <div class="path-label">Focused drill</div>
+        <div class="path-title">Practice one interview skill</div>
+        <p class="path-desc">A short session for CV walkthroughs, motivation, behavioral stories, project deep dives, HR questions, or interviewer questions.</p>
       </div>
+    </article>
+    <article class="path-card role" onclick="openSetupModal()">
+      <div class="path-icon">JD</div>
+      <div>
+        <div class="path-label">Role interview plan</div>
+        <div class="path-title">Prepare for a specific job</div>
+        <p class="path-desc">Paste a target JD, then practice realistic rounds for the role: recruiter screen, hiring manager, technical or case, and final fit.</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="process-strip" aria-label="How OfferUp works">
+    <article class="process-step">
+      <div class="process-num">01</div>
+      <h2 class="process-title">Add your background</h2>
+      <p class="process-desc">Use a resume, LinkedIn summary, or a few notes about your experience.</p>
+    </article>
+    <article class="process-step">
+      <div class="process-num">02</div>
+      <h2 class="process-title">Choose your path</h2>
+      <p class="process-desc">Train one skill, or prepare for a specific role with a job description.</p>
+    </article>
+    <article class="process-step">
+      <div class="process-num">03</div>
+      <h2 class="process-title">Practice live</h2>
+      <p class="process-desc">Talk through an immersive mock interview with adaptive follow-ups.</p>
+    </article>
+    <article class="process-step">
+      <div class="process-num">04</div>
+      <h2 class="process-title">Get feedback</h2>
+      <p class="process-desc">Review your answers through recruiter lens and coach lens.</p>
+    </article>
+    <article class="process-step">
+      <div class="process-num">05</div>
+      <h2 class="process-title">Build assets</h2>
+      <p class="process-desc">Save questions, stronger answers, target roles, and progress history.</p>
+    </article>
+  </section>
+
+  <section class="promise-strip" aria-label="Product promises">
+    <div class="promise-item">
+      <div class="promise-k">2 modes</div>
+      <div class="promise-v">Drill or role plan</div>
     </div>
-
-    <!-- RIGHT: Ghost Profile + Ghost Sessions -->
-    <aside>
-      <div class="panel">
-        <div class="panel-title">My Profile</div>
-        <div class="ghost-profile-block">Your resume snippet and target language appear here after your first session.</div>
-        <div style="opacity:.35"><div class="profile-lang-pill">Language · EN</div></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-title">Recent Sessions</div>
-        <div class="ghost-session-row">
-          <div>
-            <div class="ghost-session-date">—</div>
-            <div class="ghost-session-role">Software Engineer @ —</div>
-          </div>
-          <div class="ghost-score">—</div>
-        </div>
-        <div class="ghost-session-row">
-          <div>
-            <div class="ghost-session-date">—</div>
-            <div class="ghost-session-role">Product Manager @ —</div>
-          </div>
-          <div class="ghost-score">—</div>
-        </div>
-        <div class="ghost-note">Session history builds as you practice.</div>
-      </div>
-    </aside>
-
-  </div><!-- /dash-layout -->
+    <div class="promise-item">
+      <div class="promise-k">Adaptive</div>
+      <div class="promise-v">Follow-up questions</div>
+    </div>
+    <div class="promise-item">
+      <div class="promise-k">Compounding</div>
+      <div class="promise-v">Feedback and assets</div>
+    </div>
+  </section>
 
 </div>
 </div><!-- /stLanding -->
@@ -979,7 +1105,7 @@
 <div class="page">
 
   <header class="top">
-    <div class="brand">Interview Mentor</div>
+    <div class="brand">Offer<span>Up</span></div>
     <button class="btn primary" onclick="openSetupModal()">New Session →</button>
   </header>
 
@@ -1043,8 +1169,8 @@
     <div id="modalFormContent">
       <div class="modal-header">
         <div>
-          <div class="modal-title">Set up your session</div>
-          <div class="modal-subtitle">5 questions · ~10 min · feedback after the round</div>
+          <div class="modal-title">Set up your first practice</div>
+          <div class="modal-subtitle">Choose a focused drill or role-based session · feedback after the round</div>
         </div>
         <button class="modal-close" onclick="closeSetupModal()">×</button>
       </div>
@@ -1096,35 +1222,35 @@
 
       <div class="modal-divider"></div>
 
-      <!-- 03 Interview Focus -->
+      <!-- 03 Practice Focus -->
       <div class="modal-section">
         <div class="modal-sec-row">
           <span class="modal-sec-num">03</span>
-          <span class="modal-sec-title">Interview focus</span>
+          <span class="modal-sec-title">Practice focus</span>
         </div>
         <div class="modal-type-grid">
           <div class="modal-type-card selected" id="modalTypeBehavioral" onclick="selectModalType(this,'behavioral')">
-            <div class="modal-type-icon">💬</div>
-            <div class="modal-type-name">Behavioral</div>
-            <div class="modal-type-desc">Past experience, STAR stories, decisions and impact.</div>
+            <div class="modal-type-icon">01</div>
+            <div class="modal-type-name">Core behavioral drill</div>
+            <div class="modal-type-desc">STAR stories, motivation, decisions, teamwork, and impact.</div>
           </div>
           <div class="modal-type-card" id="modalTypeResumeDive" onclick="selectModalType(this,'resume_dive')">
-            <div class="modal-type-icon">📋</div>
-            <div class="modal-type-name">Resume Deep Dive</div>
-            <div class="modal-type-desc">Dig into specific items on your resume. Ownership and results.</div>
+            <div class="modal-type-icon">02</div>
+            <div class="modal-type-name">Project deep dive</div>
+            <div class="modal-type-desc">Dig into your strongest experience, ownership, trade-offs, and results.</div>
           </div>
           <div class="modal-type-card" id="modalTypeCaseStudy" onclick="selectModalType(this,'case_study')">
-            <div class="modal-type-icon">🧩</div>
-            <div class="modal-type-name">Case Study</div>
-            <div class="modal-type-desc">A short business scenario. Structure your thinking and trade-offs.</div>
+            <div class="modal-type-icon">03</div>
+            <div class="modal-type-name">Role scenario</div>
+            <div class="modal-type-desc">A role-specific case, technical explanation, or stakeholder situation.</div>
           </div>
         </div>
         <div class="modal-field-error" id="modalTypeError"></div>
       </div>
 
       <div class="modal-footer">
-        <div class="modal-footer-note">No account needed &nbsp;·&nbsp; English or German</div>
-        <button class="btn primary large" onclick="startSessionModal()">Start Session →</button>
+        <div class="modal-footer-note">No account needed &nbsp;·&nbsp; voice-based mock interview</div>
+        <button class="btn primary large" onclick="startSessionModal()">Start practice →</button>
       </div>
     </div><!-- /modalFormContent -->
 
