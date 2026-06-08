@@ -1961,8 +1961,8 @@
 
   /* ─── BOOT ─────────────────────────────────────── */
   window.addEventListener('DOMContentLoaded', () => {
-    const profile = LS.profile();
-    showDashboard(profile);
+    document.getElementById('stLanding').classList.remove('hidden');
+    document.getElementById('stDashboard').classList.add('hidden');
   });
 
   /* ─── DASHBOARD ────────────────────────────────── */
