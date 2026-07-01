@@ -3,26 +3,24 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react"
 import {
   ArrowRight,
-  ArrowLeft,
   BriefcaseBusiness,
   Check,
-  ChevronDown,
-  ChevronUp,
+  CheckCircle2,
+  ChevronRight,
   FileText,
-  GraduationCap,
   Home,
   Library,
   Loader2,
+  Lock,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
   Trash2,
-  Wrench
+  X
 } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Panel } from "@/components/ui/panel"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
@@ -34,27 +32,22 @@ type ResumeAsset = {
   content: string
 }
 
-type SignalState = "ready" | "warning" | "waiting" | "scanning"
+type SetupStep = "resume" | "role" | "settings"
 type ParsePhase = "idle" | "uploading" | "extracting"
-type SetupStage = "choose" | "review"
-type ResumeModuleKey = "summary" | "work" | "skills" | "education" | "projects"
-type ExtractedResumeItem = {
-  title: string
-  meta?: string
-  points: string[]
-}
-type ExtractedResumeSection = {
-  key: ResumeModuleKey
+type RoleMode = "jd" | "quick"
+type FocusType = {
+  id: string
   label: string
-  count: number
-  items: ExtractedResumeItem[]
+  description: string
+  interviewer: string
+  locked?: boolean
 }
 
 const defaultResumes: ResumeAsset[] = [
   {
     id: "last-used",
     title: "Product / AI resume",
-    meta: "Last used",
+    meta: "Last used Jun 20",
     source: "library",
     content: `PROFILE SUMMARY
 Product-minded builder focused on AI workflow products, interview preparation, and user-centered product decisions.
@@ -112,98 +105,135 @@ RESULTS
   }
 ]
 
-const resumeKeywords = {
-  summary: /(profile summary|summary|about|简介|个人总结|自我介绍)/i,
-  work: /(work experience|experience|company|intern|worked|managed|led|role|工作|实习|负责|经历)/i,
-  education: /(education|university|school|degree|bachelor|master|课程|教育|大学|学校|学位)/i,
-  skill: /(skills|typescript|react|python|sql|figma|research|analysis|communication|技能|能力)/i,
-  project: /(selected projects|project|built|launched|created|implemented|designed|developed|项目|上线|设计|开发)/i
-}
-
-const resumeModuleDefinitions = [
+const savedJds = [
   {
-    key: "summary",
-    label: "Summary",
-    scanning: "Looking for positioning summary",
-    ready: "Summary found",
-    missing: "No summary found",
-    icon: FileText
+    id: "personio",
+    label: "PM Werkstudent · Personio",
+    updated: "Jun 28",
+    content:
+      "We are looking for a Product Manager working student to support discovery, analytics, stakeholder alignment, roadmap decisions, and clear communication with engineering and design teams."
   },
   {
-    key: "work",
-    label: "Working experience",
-    scanning: "Checking work experience",
-    ready: "Working experience found",
-    missing: "Add role, team, or responsibility",
-    icon: BriefcaseBusiness
-  },
-  {
-    key: "education",
-    label: "Education experience",
-    scanning: "Checking education background",
-    ready: "Education experience found",
-    missing: "Optional, add school or degree if useful",
-    icon: GraduationCap
-  },
-  {
-    key: "skills",
-    label: "Skills",
-    scanning: "Checking skills and tools",
-    ready: "Skills found",
-    missing: "Add tools, methods, or strengths",
-    icon: Wrench
-  },
-  {
-    key: "projects",
-    label: "Projects",
-    scanning: "Checking project experience",
-    ready: "Project experience found",
-    missing: "Add one concrete project if possible",
-    icon: Sparkles
+    id: "figma",
+    label: "Associate PM · Figma",
+    updated: "Jun 15",
+    content:
+      "Join the product team to work on collaboration workflows, user research synthesis, data-informed prioritization, and cross-functional delivery for creative teams."
   }
-] as const
+]
+
+const genericRoles = [
+  "Product Manager",
+  "Frontend Engineer",
+  "Backend Engineer",
+  "Data Analyst",
+  "UX Designer",
+  "Operations"
+]
+
+const focusTypes: FocusType[] = [
+  {
+    id: "resume",
+    label: "Resume Deep Dive",
+    interviewer: "Hiring Manager",
+    description:
+      "Questions drawn from your projects, ownership, and impact. Expect the interviewer to probe what you actually did versus what the team did."
+  },
+  {
+    id: "behavioral",
+    label: "Behavioral (STAR)",
+    interviewer: "HR",
+    description:
+      "Past-behavior questions on conflict, leadership, failure, and collaboration. Structure your answer around situation, task, action, and result."
+  },
+  {
+    id: "motivation",
+    label: "Motivation & Fit",
+    interviewer: "HR",
+    description:
+      "Why this role, this company, and this location. Generic answers are weak here; specificity matters."
+  },
+  {
+    id: "culture",
+    label: "Culture & Collaboration",
+    interviewer: "HR + HM",
+    description: "Team dynamics, disagreement, and cross-functional work.",
+    locked: true
+  },
+  {
+    id: "situational",
+    label: "Situational / Case",
+    interviewer: "Hiring Manager",
+    description: "Scenario-based reasoning and prioritization under realistic constraints.",
+    locked: true
+  }
+]
+
+const levels = [
+  { id: "junior", label: "Junior", years: "0-2 yrs" },
+  { id: "mid", label: "Mid", years: "2-5 yrs" },
+  { id: "senior", label: "Senior", years: "5+ yrs" }
+]
+
+const intensities = [
+  { id: "off", label: "Off", sub: "No follow-ups", duration: "~8 min" },
+  { id: "low", label: "Low", sub: "0-1 / question", duration: "~10 min" },
+  { id: "medium", label: "Mid", sub: "0-3 / question", duration: "~12-18 min" },
+  { id: "high", label: "High", sub: "0-5 / question", duration: "~20-30 min" }
+]
+
+const parseSteps = [
+  "Reading document structure",
+  "Finding roles and companies",
+  "Identifying projects and skills",
+  "Filtering private-looking fields",
+  "Ready"
+]
 
 export function SetupFlow() {
   const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [resumes, setResumes] = useState(defaultResumes)
   const [selectedResumeId, setSelectedResumeId] = useState(defaultResumes[0].id)
-  const [pickerOpen, setPickerOpen] = useState(searchParams.get("panel") === "resumes")
+  const [resumePickerOpen, setResumePickerOpen] = useState(searchParams.get("panel") === "resumes")
+  const [jdPickerOpen, setJdPickerOpen] = useState(searchParams.get("panel") === "jd-history")
   const [parsePhase, setParsePhase] = useState<ParsePhase>("idle")
-  const [scanProgress, setScanProgress] = useState<number>(resumeModuleDefinitions.length)
-  const [stage, setStage] = useState<SetupStage>("choose")
-  const [activeModule, setActiveModule] = useState<ResumeModuleKey>("work")
-  const [expandedItem, setExpandedItem] = useState(0)
+  const [parseStep, setParseStep] = useState(parseSteps.length - 1)
+  const [step, setStep] = useState<SetupStep>("resume")
+  const [resumeConfirmed, setResumeConfirmed] = useState(false)
+  const [roleConfirmed, setRoleConfirmed] = useState(false)
+  const [roleMode, setRoleMode] = useState<RoleMode>("jd")
+  const [jdText, setJdText] = useState("")
+  const [companyName, setCompanyName] = useState("")
+  const [quickRole, setQuickRole] = useState("")
+  const [focusType, setFocusType] = useState("resume")
+  const [level, setLevel] = useState("junior")
+  const [intensity, setIntensity] = useState("medium")
   const [notice, setNotice] = useState("")
 
   const selectedResume = resumes.find((resume) => resume.id === selectedResumeId) ?? resumes[0]
-  const analysis = useMemo(() => analyzeResume(selectedResume.content), [selectedResume.content])
-  const extractedText = useMemo(() => buildExtractedText(selectedResume.content), [selectedResume.content])
-  const extractedSections = useMemo(() => extractResumeSections(selectedResume.content), [selectedResume.content])
+  const resumeSignals = useMemo(() => parseResumeSignals(selectedResume.content), [selectedResume.content])
+  const selectedFocus = focusTypes.find((focus) => focus.id === focusType) ?? focusTypes[0]
+  const selectedLevel = levels.find((item) => item.id === level) ?? levels[0]
+  const selectedIntensity = intensities.find((item) => item.id === intensity) ?? intensities[2]
   const isParsing = parsePhase !== "idle"
-  const canContinue = analysis.wordCount >= 40 && !isParsing
+  const roleValid = roleMode === "quick" ? quickRole.length > 0 : jdText.trim().length >= 50
+  const canStart = resumeConfirmed && roleConfirmed
 
   useEffect(() => {
     if (!notice) return
-    const timer = window.setTimeout(() => setNotice(""), 2600)
+    const timer = window.setTimeout(() => setNotice(""), 3000)
     return () => window.clearTimeout(timer)
   }, [notice])
-
-  function chooseResume(resumeId: string) {
-    setSelectedResumeId(resumeId)
-    setPickerOpen(false)
-    setStage("choose")
-    setActiveModule("work")
-    setExpandedItem(0)
-    setScanProgress(resumeModuleDefinitions.length)
-    setNotice("Resume selected. Review the extracted information before continuing.")
-  }
 
   async function handleUpload(file: File | undefined) {
     if (!file) return
 
     setParsePhase("uploading")
-    setScanProgress(0)
+    setParseStep(0)
+    setResumeConfirmed(false)
+    setStep("resume")
+
     const content = await readResumeFile(file)
     const uploadedResume: ResumeAsset = {
       id: `uploaded-${Date.now()}`,
@@ -215,738 +245,914 @@ export function SetupFlow() {
 
     window.setTimeout(() => {
       setParsePhase("extracting")
-      resumeModuleDefinitions.forEach((_, index) => {
-        window.setTimeout(() => setScanProgress(index + 1), 260 * (index + 1))
-      })
-    }, 520)
-
-    window.setTimeout(() => {
-      setResumes((current) => [uploadedResume, ...current])
-      setSelectedResumeId(uploadedResume.id)
-      setParsePhase("idle")
-      setStage("review")
-      setActiveModule("work")
-      setExpandedItem(0)
-      setScanProgress(resumeModuleDefinitions.length)
-      setNotice("Upload complete. OfferUp extracted the interview-relevant information below.")
-    }, 2100)
+      let current = 0
+      const interval = window.setInterval(() => {
+        current += 1
+        setParseStep(current)
+        if (current >= parseSteps.length - 1) {
+          window.clearInterval(interval)
+          window.setTimeout(() => {
+            setResumes((existing) => [uploadedResume, ...existing])
+            setSelectedResumeId(uploadedResume.id)
+            setParsePhase("idle")
+            setParseStep(parseSteps.length - 1)
+            setNotice("Resume uploaded. Review the extracted signals before confirming.")
+          }, 360)
+        }
+      }, 360)
+    }, 420)
   }
 
-  function handleDeleteSelected() {
-    if (selectedResume.source !== "uploaded") return
+  function chooseResume(resumeId: string) {
+    setSelectedResumeId(resumeId)
+    setResumePickerOpen(false)
+    setResumeConfirmed(false)
+    setStep("resume")
+    setParsePhase("extracting")
+    setParseStep(0)
 
-    setResumes((current) => current.filter((resume) => resume.id !== selectedResume.id))
+    let current = 0
+    const interval = window.setInterval(() => {
+      current += 1
+      setParseStep(current)
+      if (current >= parseSteps.length - 1) {
+        window.clearInterval(interval)
+        setParsePhase("idle")
+        setNotice("Resume selected. Confirm the extracted interview signals to continue.")
+      }
+    }, 280)
+  }
+
+  function deleteUploadedResume() {
+    if (selectedResume.source !== "uploaded") return
+    setResumes((existing) => existing.filter((resume) => resume.id !== selectedResume.id))
     setSelectedResumeId(defaultResumes[0].id)
-    setStage("choose")
-    setActiveModule("work")
-    setExpandedItem(0)
-    setScanProgress(resumeModuleDefinitions.length)
+    setResumeConfirmed(false)
+    setStep("resume")
     setNotice("Uploaded resume removed. Last used resume is selected again.")
   }
 
-  function handleContinue() {
-    if (!canContinue) return
-    setNotice("Resume confirmed. JD setup will come next.")
+  function confirmResume() {
+    if (isParsing) return
+    setResumeConfirmed(true)
+    setStep("role")
+  }
+
+  function confirmRole() {
+    if (!roleValid) return
+    setRoleConfirmed(true)
+    setStep("settings")
+  }
+
+  function startInterview() {
+    if (!canStart) return
+    setNotice("Setup ready. Session creation and credit spend will connect in the next API slice.")
   }
 
   return (
-    <div className="mx-auto grid min-h-[calc(100vh-120px)] w-full max-w-[1080px] gap-6 xl:grid-cols-[minmax(0,720px)_300px] xl:justify-center">
-      <main className="grid content-start gap-7">
-        {stage === "choose" ? (
-          <ResumeChooseStep
-            selectedResume={selectedResume}
-            analysis={analysis}
-            canContinue={canContinue}
-            isParsing={isParsing}
-            notice={notice}
-            fileInputRef={fileInputRef}
-            onUpload={handleUpload}
-            onOpenLibrary={() => setPickerOpen(true)}
-            onDelete={handleDeleteSelected}
-            onReview={() => setStage("review")}
-            parsePhase={parsePhase}
-            scanProgress={scanProgress}
-          />
-        ) : (
-          <ResumeReviewStep
-            selectedResume={selectedResume}
-            analysis={analysis}
-            extractedText={extractedText}
-            sections={extractedSections}
-            activeModule={activeModule}
-            expandedItem={expandedItem}
-            notice={notice}
-            onSelectModule={(key) => {
-              setActiveModule(key)
-              setExpandedItem(0)
+    <div className="-mx-5 -my-8 min-h-[calc(100vh-2rem)] pb-24 sm:-mx-8 md:-mx-10 md:-my-10">
+      <div className="mx-auto w-full max-w-[640px] px-6 pb-12 pt-12 sm:px-8 md:pt-16">
+        <header className="mb-10">
+          <h1 className="font-display text-2xl italic leading-heading text-[var(--text-primary)]">
+            Set up your session.
+          </h1>
+          <p className="mt-2 text-sm font-medium text-[var(--text-secondary)]">
+            Two things needed. Everything else is pre-set.
+          </p>
+        </header>
+
+        <div className="grid gap-0">
+          <SetupSectionHeader
+            number={1}
+            title="Resume"
+            active={step === "resume"}
+            complete={resumeConfirmed}
+            onChange={() => {
+              setResumeConfirmed(false)
+              setStep("resume")
             }}
-            onToggleItem={(index) => setExpandedItem((current) => (current === index ? -1 : index))}
-            onBack={() => setStage("choose")}
-            onContinue={handleContinue}
-            canContinue={canContinue}
           />
-        )}
-      </main>
+          <div className="pl-0 sm:pl-10">
+            {resumeConfirmed ? (
+              <ConfirmedSummary icon={FileText} title={selectedResume.title} label="Ready" />
+            ) : (
+              <ResumeStep
+                selectedResume={selectedResume}
+                resumeSignals={resumeSignals}
+                isParsing={isParsing}
+                parsePhase={parsePhase}
+                parseStep={parseStep}
+                fileInputRef={fileInputRef}
+                onUpload={handleUpload}
+                onOpenPicker={() => setResumePickerOpen(true)}
+                onDelete={deleteUploadedResume}
+                onConfirm={confirmResume}
+              />
+            )}
+          </div>
 
-      <ProgressRail currentStage={stage} canContinue={canContinue} />
+          <StepConnector muted={step === "resume"} />
 
-      <ResumeLibraryDrawer
-        open={pickerOpen}
+          <SetupSectionHeader
+            number={2}
+            title="Target role"
+            active={step === "role"}
+            complete={roleConfirmed}
+            disabled={!resumeConfirmed}
+            onChange={() => {
+              setRoleConfirmed(false)
+              setStep("role")
+            }}
+          />
+          <div className={cn("pl-0 transition-opacity duration-slow sm:pl-10", resumeConfirmed ? "opacity-100" : "pointer-events-none opacity-35")}>
+            {roleConfirmed ? (
+              <ConfirmedSummary
+                icon={BriefcaseBusiness}
+                title={roleMode === "quick" ? quickRole : companyName ? `${companyName} - JD` : "Custom JD"}
+                label="Ready"
+              />
+            ) : step !== "resume" ? (
+              <TargetRoleStep
+                roleMode={roleMode}
+                jdText={jdText}
+                companyName={companyName}
+                quickRole={quickRole}
+                roleValid={roleValid}
+                onRoleModeChange={(mode) => {
+                  setRoleMode(mode)
+                  setJdText("")
+                  setQuickRole("")
+                  setRoleConfirmed(false)
+                }}
+                onJdTextChange={setJdText}
+                onCompanyNameChange={setCompanyName}
+                onQuickRoleChange={setQuickRole}
+                onOpenJdPicker={() => setJdPickerOpen(true)}
+                onConfirm={confirmRole}
+              />
+            ) : null}
+          </div>
+
+          <StepConnector muted={step !== "settings"} />
+
+          <SetupSectionHeader
+            number={3}
+            title="Session settings"
+            active={step === "settings"}
+            disabled={!roleConfirmed}
+          />
+          <div className={cn("pl-0 transition-opacity duration-slow sm:pl-10", step === "settings" ? "opacity-100" : "pointer-events-none opacity-35")}>
+            {step === "settings" ? (
+              <SessionSettingsStep
+                focusType={focusType}
+                level={level}
+                intensity={intensity}
+                onFocusTypeChange={setFocusType}
+                onLevelChange={setLevel}
+                onIntensityChange={setIntensity}
+              />
+            ) : null}
+          </div>
+
+          {notice ? (
+            <p className="mt-8 rounded-md bg-[var(--bg-info)] px-3 py-2 text-sm text-[var(--text-info)] shadow-[inset_0_0_0_1px_var(--border-info)]">
+              {notice}
+            </p>
+          ) : null}
+
+          <Button asChild variant="ghost" className="mt-6 w-fit justify-start">
+            <a href="/home">
+              <Home aria-hidden="true" size={16} />
+              Return home
+            </a>
+          </Button>
+        </div>
+      </div>
+
+      <SetupSummaryBar
+        canStart={canStart}
+        focus={selectedFocus.label}
+        level={selectedLevel.label}
+        duration={selectedIntensity.duration}
+        disabledReason={!resumeConfirmed ? "Confirm your resume first" : !roleConfirmed ? "Confirm target role to continue" : ""}
+        onStart={startInterview}
+      />
+
+      <ResumePickerModal
+        open={resumePickerOpen}
         resumes={resumes}
         selectedResumeId={selectedResumeId}
-        onClose={() => setPickerOpen(false)}
+        onClose={() => setResumePickerOpen(false)}
         onSelect={chooseResume}
+        onUpload={() => fileInputRef.current?.click()}
+      />
+
+      <JdPickerModal
+        open={jdPickerOpen}
+        onClose={() => setJdPickerOpen(false)}
+        onSelect={(content) => {
+          setRoleMode("jd")
+          setJdText(content)
+          setRoleConfirmed(false)
+          setStep("role")
+          setJdPickerOpen(false)
+        }}
       />
     </div>
   )
 }
 
-function ResumeChooseStep({
-  selectedResume,
-  analysis,
-  canContinue,
-  isParsing,
-  notice,
-  fileInputRef,
-  onUpload,
-  onOpenLibrary,
-  onDelete,
-  onReview,
-  parsePhase,
-  scanProgress
+function SetupSectionHeader({
+  number,
+  title,
+  active,
+  complete,
+  disabled,
+  onChange
 }: {
-  selectedResume: ResumeAsset
-  analysis: ReturnType<typeof analyzeResume>
-  canContinue: boolean
-  isParsing: boolean
-  notice: string
-  fileInputRef: RefObject<HTMLInputElement>
-  onUpload: (file: File | undefined) => void
-  onOpenLibrary: () => void
-  onDelete: () => void
-  onReview: () => void
-  parsePhase: ParsePhase
-  scanProgress: number
+  number: number
+  title: string
+  active: boolean
+  complete?: boolean
+  disabled?: boolean
+  onChange?: () => void
 }) {
   return (
-    <>
-      <header className="grid gap-3">
-        <h1 className="font-display text-xl leading-heading">Choose your resume</h1>
-        <p className="max-w-readable text-base leading-body text-[var(--text-secondary)]">
-          We will use only interview-relevant content and ignore private contact details.
-        </p>
-      </header>
-
-      <section className="grid gap-5">
+    <div className={cn("mb-4 flex items-center gap-3", disabled ? "opacity-45" : "")}>
+      <span
+        className={cn(
+          "flex size-6 shrink-0 items-center justify-center rounded-pill font-mono text-[10px] font-bold",
+          complete
+            ? "bg-[var(--accent-save)] text-[var(--text-inverse)]"
+            : active
+              ? "bg-[var(--accent-action)] text-[var(--text-inverse)]"
+              : "bg-[var(--color-line-soft)] text-[var(--text-muted)]"
+        )}
+      >
+        {complete ? <CheckCircle2 aria-hidden="true" size={14} /> : number}
+      </span>
+      <h2 className={cn("font-display text-lg font-medium leading-heading", disabled ? "text-[var(--text-muted)]" : "text-[var(--text-primary)]")}>
+        {title}
+      </h2>
+      {complete && onChange ? (
         <button
           type="button"
-          className="group grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 rounded-md bg-[var(--bg-surface)] p-4 text-left shadow-[inset_0_0_0_1px_var(--border-strong)] transition-colors duration-base hover:bg-[var(--state-hover-bg)]"
-          onClick={onOpenLibrary}
+          className="ml-auto text-xs font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
+          onClick={onChange}
         >
-          <span className="flex size-11 items-center justify-center rounded-md bg-[var(--bg-surface-muted)] text-[var(--text-secondary)] shadow-[inset_0_0_0_1px_var(--border-subtle)]">
-            <FileText aria-hidden="true" size={20} />
-          </span>
-          <span className="min-w-0">
-            <span className="flex flex-wrap items-center gap-2">
-              <span className="truncate text-base font-semibold text-[var(--text-primary)]">{selectedResume.title}</span>
-              <Badge variant="neutral">{selectedResume.source === "uploaded" ? "Uploaded" : "Active"}</Badge>
-            </span>
-            <span className="mt-1 block text-sm leading-body text-[var(--text-secondary)]">
-              {selectedResume.meta} · {analysis.wordCount} words
-            </span>
-          </span>
-          <span className="flex size-7 items-center justify-center rounded-pill bg-[var(--accent-action)] text-[var(--text-inverse)]">
-            <Check aria-hidden="true" size={14} />
-          </span>
+          Change
         </button>
-
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" onClick={() => fileInputRef.current?.click()}>
-            <RefreshCcw aria-hidden="true" size={16} />
-            Upload new resume
-          </Button>
-          <Button type="button" variant="secondary" onClick={onOpenLibrary}>
-            <Library aria-hidden="true" size={16} />
-            Choose from history
-          </Button>
-          {selectedResume.source === "uploaded" ? (
-            <Button type="button" variant="danger" onClick={onDelete}>
-              <Trash2 aria-hidden="true" size={16} />
-              Delete uploaded resume
-            </Button>
-          ) : null}
-          <input
-            ref={fileInputRef}
-            className="sr-only"
-            type="file"
-            accept=".txt,.md,.pdf,.doc,.docx"
-            onChange={(event) => onUpload(event.target.files?.[0])}
-          />
-        </div>
-
-        {isParsing ? (
-          <ParsingState phase={parsePhase} analysis={analysis} scanProgress={scanProgress} />
-        ) : (
-          <div className="grid max-w-readable grid-cols-[auto_1fr] gap-3 rounded-md bg-[var(--bg-surface-muted)] p-4 text-sm leading-body text-[var(--text-secondary)] shadow-[inset_0_0_0_1px_var(--border-subtle)]">
-            <ShieldCheck aria-hidden="true" className="mt-1 text-[var(--text-secondary)]" size={16} />
-            <p>
-              <span className="font-semibold text-[var(--text-primary)]">Privacy:</span> Names, email, phone numbers,
-              addresses, and links are stripped before question generation. Only professional content is used.
-            </p>
-          </div>
-        )}
-
-        {notice ? (
-          <p className="max-w-readable rounded-md bg-[var(--bg-info)] px-3 py-2 text-sm text-[var(--text-info)] shadow-[inset_0_0_0_1px_var(--border-info)]">
-            {notice}
-          </p>
-        ) : null}
-
-        <div className="flex justify-end pt-1">
-          <Button type="button" disabled={!canContinue || isParsing} onClick={onReview}>
-            Review extracted content
-            <ArrowRight aria-hidden="true" size={16} />
-          </Button>
-        </div>
-      </section>
-    </>
-  )
-}
-
-function ResumeReviewStep({
-  selectedResume,
-  analysis,
-  extractedText,
-  sections,
-  activeModule,
-  expandedItem,
-  notice,
-  onSelectModule,
-  onToggleItem,
-  onBack,
-  onContinue,
-  canContinue
-}: {
-  selectedResume: ResumeAsset
-  analysis: ReturnType<typeof analyzeResume>
-  extractedText: string
-  sections: Record<ResumeModuleKey, ExtractedResumeSection>
-  activeModule: ResumeModuleKey
-  expandedItem: number
-  notice: string
-  onSelectModule: (key: ResumeModuleKey) => void
-  onToggleItem: (index: number) => void
-  onBack: () => void
-  onContinue: () => void
-  canContinue: boolean
-}) {
-  const activeSection = sections[activeModule]
-  const moduleItems = moduleItemsFromAnalysis(analysis, resumeModuleDefinitions.length)
-
-  return (
-    <>
-      <header className="grid gap-3">
-        <h1 className="font-display text-xl leading-heading">Choose your resume</h1>
-        <p className="max-w-readable text-base leading-body text-[var(--text-secondary)]">
-          We will use only interview-relevant content and ignore private contact details.
-        </p>
-      </header>
-
-      <section className="grid gap-4">
-        <Panel className="grid gap-5 border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.30)]">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-b border-[var(--border-subtle)] pb-4">
-            <span className="flex size-9 items-center justify-center rounded-md bg-[var(--bg-surface)] text-[var(--text-secondary)] shadow-[inset_0_0_0_1px_var(--border-subtle)]">
-              <FileText aria-hidden="true" size={18} />
-            </span>
-            <span className="min-w-0">
-              <span className="flex flex-wrap items-center gap-2">
-                <span className="truncate text-sm font-semibold text-[var(--text-primary)]">{selectedResume.title}</span>
-                <Badge variant="neutral">Selected resume</Badge>
-              </span>
-              <span className="mt-1 block text-xs leading-body text-[var(--text-secondary)]">
-                {selectedResume.meta} · {analysis.wordCount} words
-              </span>
-            </span>
-            <Button type="button" variant="ghost" size="sm" onClick={onBack}>
-              Change
-            </Button>
-          </div>
-
-          <div className="grid gap-4">
-            <div className="grid gap-1.5">
-              <div className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-[var(--text-muted)]">
-                Review extracted content
-              </div>
-              <h2 className="font-display text-xl leading-heading">Confirm what we extracted</h2>
-              <p className="max-w-readable text-sm leading-body text-[var(--text-secondary)]">
-                Check the resume signals before setting the target role.
-              </p>
-            </div>
-
-            <ModuleTabs
-              sections={sections}
-              activeModule={activeModule}
-              moduleItems={moduleItems}
-              onSelectModule={onSelectModule}
-            />
-
-            <div className="rounded-md bg-[var(--bg-surface)] p-4 shadow-[inset_0_0_0_1px_var(--border-subtle)]">
-              <div className="grid gap-0">
-                {activeSection.items.length > 0 ? (
-                  activeSection.items.map((item, index) => {
-                    const expanded = expandedItem === index
-                    return (
-                      <button
-                        key={`${activeSection.key}-${item.title}-${index}`}
-                        type="button"
-                        className={cn(
-                          "grid w-full gap-2 border-b border-[var(--border-subtle)] py-3 text-left last:border-b-0",
-                          index === 0 ? "pt-0" : ""
-                        )}
-                        onClick={() => onToggleItem(index)}
-                      >
-                        <span className="flex items-start justify-between gap-4">
-                          <span>
-                            <span className="block text-sm font-semibold leading-heading text-[var(--text-primary)]">
-                              {item.title}
-                            </span>
-                            {item.meta ? (
-                              <span className="mt-1 block text-xs font-medium leading-body text-[var(--text-secondary)]">
-                                {item.meta}
-                              </span>
-                            ) : null}
-                          </span>
-                          <span className="mt-0.5 text-[var(--text-secondary)]">
-                            {expanded ? <ChevronUp aria-hidden="true" size={16} /> : <ChevronDown aria-hidden="true" size={16} />}
-                          </span>
-                        </span>
-                        {expanded ? (
-                          <ul className="ml-5 grid list-disc gap-1.5 pt-1 text-sm leading-body text-[var(--text-secondary)]">
-                            {item.points.map((point) => (
-                              <li key={point}>{point}</li>
-                            ))}
-                          </ul>
-                        ) : null}
-                      </button>
-                    )
-                  })
-                ) : (
-                  <div className="rounded-md bg-[var(--bg-warning)] p-4 text-sm leading-body text-[var(--text-warning)] shadow-[inset_0_0_0_1px_var(--border-warning)]">
-                    We did not find a clear {activeSection.label.toLowerCase()} section. You can continue, but adding this detail later may improve the interview questions.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <details className="rounded-md bg-[var(--bg-surface-muted)] p-3 shadow-[inset_0_0_0_1px_var(--border-subtle)]">
-            <summary className="cursor-pointer text-sm font-semibold text-[var(--text-primary)]">
-              View plain extracted text
-            </summary>
-            <Textarea
-              className="mt-3 min-h-[160px] resize-none font-mono text-xs leading-[1.58]"
-              value={extractedText}
-              readOnly
-            />
-          </details>
-
-          {notice ? (
-            <p className="rounded-md bg-[var(--bg-info)] px-3 py-2 text-sm text-[var(--text-info)] shadow-[inset_0_0_0_1px_var(--border-info)]">
-              {notice}
-            </p>
-          ) : null}
-
-          <footer className="flex items-center justify-between border-t border-[var(--border-subtle)] pt-4">
-            <Button type="button" variant="ghost" onClick={onBack}>
-              <ArrowLeft aria-hidden="true" size={16} />
-              Back
-            </Button>
-            <Button type="button" disabled={!canContinue} onClick={onContinue}>
-              Set target role
-              <ArrowRight aria-hidden="true" size={16} />
-            </Button>
-          </footer>
-        </Panel>
-      </section>
-    </>
-  )
-}
-
-function ModuleTabs({
-  sections,
-  activeModule,
-  moduleItems,
-  onSelectModule
-}: {
-  sections: Record<ResumeModuleKey, ExtractedResumeSection>
-  activeModule: ResumeModuleKey
-  moduleItems: Array<{ label: string; detail: string; state: SignalState }>
-  onSelectModule: (key: ResumeModuleKey) => void
-}) {
-  const tabs: Array<{ key: ResumeModuleKey; label: string; icon: typeof FileText }> = [
-    { key: "work", label: "Experience", icon: BriefcaseBusiness },
-    { key: "skills", label: "Skills", icon: Wrench },
-    { key: "education", label: "Education", icon: GraduationCap },
-    { key: "projects", label: "Projects", icon: Sparkles },
-    { key: "summary", label: "Summary", icon: FileText }
-  ]
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tabs.map((tab) => {
-        const Icon = tab.icon
-        const active = activeModule === tab.key
-        const status = moduleItems.find((item) => item.label === sections[tab.key].label)?.state
-        return (
-          <button
-            key={tab.key}
-            type="button"
-            className={cn(
-              "inline-flex h-10 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors duration-base shadow-[inset_0_0_0_1px_var(--border-default)]",
-              active
-                ? "bg-[var(--accent-action)] text-[var(--text-inverse)] shadow-none"
-                : "bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--state-hover-bg)]",
-              status === "warning" && !active ? "shadow-[inset_0_0_0_1px_var(--border-warning)]" : ""
-            )}
-            onClick={() => onSelectModule(tab.key)}
-          >
-            <Icon aria-hidden="true" size={16} />
-            {tab.label}
-            <span className={cn(active ? "text-[var(--text-inverse)]" : "text-[var(--text-muted)]")}>
-              {sections[tab.key].count}
-            </span>
-          </button>
-        )
-      })}
+      ) : null}
     </div>
   )
 }
 
-function ProgressRail({
-  currentStage,
-  canContinue
+function StepConnector({ muted }: { muted?: boolean }) {
+  return (
+    <div className="hidden h-10 pl-[11px] sm:flex">
+      <span className={cn("w-px", muted ? "bg-[var(--border-subtle)]" : "bg-[var(--border-default)]")} />
+    </div>
+  )
+}
+
+function ConfirmedSummary({
+  icon: Icon,
+  title,
+  label
 }: {
-  currentStage: SetupStage
-  canContinue: boolean
+  icon: typeof FileText
+  title: string
+  label: string
 }) {
-  const steps = [
-    {
-      id: "resume",
-      title: "Resume",
-      description: "Select and confirm resume",
-      status: currentStage === "review" ? "complete" : "current",
-      icon: FileText
-    },
-    {
-      id: "review",
-      title: "Review",
-      description: "Verify extracted content",
-      status: currentStage === "review" ? "current" : "upcoming",
-      icon: Check
-    },
-    {
-      id: "target",
-      title: "Target Role",
-      description: "Set role or paste JD",
-      status: "upcoming",
-      icon: BriefcaseBusiness
-    },
-    {
-      id: "start",
-      title: "Start",
-      description: "Review and begin interview",
-      status: "upcoming",
-      icon: ArrowRight
-    }
-  ] as const
+  return (
+    <div className="flex items-center gap-3 rounded-md border border-[var(--border-success)] bg-[var(--bg-success)] px-4 py-3">
+      <Icon aria-hidden="true" size={16} className="text-[var(--text-success)]" />
+      <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[var(--text-primary)]">{title}</span>
+      <Badge variant="strong">{label}</Badge>
+    </div>
+  )
+}
+
+function ResumeStep({
+  selectedResume,
+  resumeSignals,
+  isParsing,
+  parsePhase,
+  parseStep,
+  fileInputRef,
+  onUpload,
+  onOpenPicker,
+  onDelete,
+  onConfirm
+}: {
+  selectedResume: ResumeAsset
+  resumeSignals: ReturnType<typeof parseResumeSignals>
+  isParsing: boolean
+  parsePhase: ParsePhase
+  parseStep: number
+  fileInputRef: RefObject<HTMLInputElement>
+  onUpload: (file: File | undefined) => void
+  onOpenPicker: () => void
+  onDelete: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <div className="grid gap-3">
+      <div className="flex items-center justify-between gap-4 rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[var(--bg-success)] text-[var(--text-success)]">
+            <FileText aria-hidden="true" size={17} />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">{selectedResume.title}</span>
+            <span className="mt-1 block font-mono text-[10px] text-[var(--text-muted)]">{selectedResume.meta}</span>
+          </span>
+        </div>
+        <Button type="button" variant="secondary" size="sm" onClick={onOpenPicker} disabled={isParsing}>
+          {isParsing ? "Processing" : "Change"}
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
+          <RefreshCcw aria-hidden="true" size={15} />
+          Upload new
+        </Button>
+        <Button type="button" variant="secondary" size="sm" onClick={onOpenPicker}>
+          <Library aria-hidden="true" size={15} />
+          Resume history
+        </Button>
+        {selectedResume.source === "uploaded" ? (
+          <Button type="button" variant="danger" size="sm" onClick={onDelete}>
+            <Trash2 aria-hidden="true" size={15} />
+            Remove
+          </Button>
+        ) : null}
+        <input
+          ref={fileInputRef}
+          className="sr-only"
+          type="file"
+          accept=".txt,.md,.pdf,.doc,.docx"
+          onChange={(event) => onUpload(event.target.files?.[0])}
+        />
+      </div>
+
+      {isParsing ? (
+        <ParsingSteps phase={parsePhase} parseStep={parseStep} />
+      ) : (
+        <ResumeSignalCard resumeSignals={resumeSignals} />
+      )}
+
+      <Button type="button" className="w-fit px-6" disabled={isParsing} onClick={onConfirm}>
+        Confirm resume
+        <ChevronRight aria-hidden="true" size={15} />
+      </Button>
+    </div>
+  )
+}
+
+function ParsingSteps({
+  phase,
+  parseStep
+}: {
+  phase: ParsePhase
+  parseStep: number
+}) {
+  return (
+    <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Loader2 aria-hidden="true" className="animate-spin text-[var(--text-primary)]" size={15} />
+        <span className="text-sm font-semibold text-[var(--text-primary)]">
+          {phase === "uploading" ? "Uploading resume" : "Extracting interview signals"}
+        </span>
+      </div>
+      <div className="grid gap-2">
+        {parseSteps.slice(0, parseStep + 1).map((step, index) => {
+          const done = index < parseStep
+          const active = index === parseStep
+          return (
+            <div
+              key={step}
+              className={cn("flex items-center gap-2 text-sm transition-opacity", done ? "opacity-55" : "opacity-100")}
+            >
+              {done ? (
+                <CheckCircle2 aria-hidden="true" size={14} className="text-[var(--text-success)]" />
+              ) : active ? (
+                <Loader2 aria-hidden="true" className="animate-spin text-[var(--text-primary)]" size={14} />
+              ) : null}
+              <span className={active ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}>{step}</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ResumeSignalCard({ resumeSignals }: { resumeSignals: ReturnType<typeof parseResumeSignals> }) {
+  const rows = [
+    { label: "Roles", values: resumeSignals.roles },
+    { label: "Companies", values: resumeSignals.companies },
+    { label: "Key skills", values: resumeSignals.skills },
+    { label: "Projects", values: resumeSignals.projects }
+  ]
 
   return (
-    <aside className="sticky top-5 grid h-fit gap-4">
-      <Panel className="grid gap-5 border border-[var(--border-default)] bg-[rgba(255,255,255,0.34)]">
-        <div>
-          <h2 className="font-mono text-[length:var(--text-label)] uppercase tracking-[0.12em] text-[var(--text-muted)]">
-            Setup progress
-          </h2>
-        </div>
-
-        <div className="grid gap-2">
-          {steps.map((step) => {
-            const active = step.status === "current"
-            return (
-              <div
-                key={step.id}
-                className="grid grid-cols-[auto_1fr] gap-3 rounded-md px-3 py-2"
-              >
+    <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4">
+      <div className="mb-4 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+        Extracted for AI - what the interviewer will know about you
+      </div>
+      <div className="grid gap-3">
+        {rows.map((row) => (
+          <div key={row.label} className="grid gap-2 sm:grid-cols-[86px_1fr]">
+            <span className="pt-0.5 text-sm text-[var(--text-secondary)]">{row.label}</span>
+            <span className="flex flex-wrap gap-1.5">
+              {row.values.map((value) => (
                 <span
-                  className={cn(
-                    "mt-0.5 flex size-6 items-center justify-center rounded-pill",
-                    step.status === "complete"
-                      ? "bg-[var(--accent-action)] text-[var(--text-inverse)]"
-                      : active
-                        ? "border-2 border-[var(--accent-action)] bg-[var(--bg-surface)] text-[var(--accent-action)]"
-                        : "border-2 border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-muted)]"
-                  )}
+                  key={value}
+                  className="rounded-[var(--radius-xs)] bg-[var(--color-paper-deep)] px-2 py-1 text-sm leading-none text-[var(--text-primary)]"
                 >
-                  {step.status === "complete" ? <Check aria-hidden="true" size={13} /> : active ? <span className="size-2 rounded-pill bg-[var(--accent-action)]" /> : null}
+                  {value}
                 </span>
-                <span>
-                  <span className="block text-sm font-semibold text-[var(--text-primary)]">{step.title}</span>
-                  <span className="mt-0.5 block text-xs leading-body text-[var(--text-secondary)]">{step.description}</span>
-                </span>
+              ))}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 grid gap-3 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-page-soft)] p-4 sm:grid-cols-[auto_1fr]">
+        <ShieldCheck aria-hidden="true" className="mt-0.5 text-[var(--text-success)]" size={16} />
+        <div>
+          <p className="text-sm font-medium leading-body text-[var(--text-secondary)]">
+            Private-looking fields are excluded from this interview preview.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {resumeSignals.stripped.map((field) => (
+              <span
+                key={field}
+                className="rounded-[var(--radius-xs)] border border-[var(--border-subtle)] bg-[var(--color-paper-deep)] px-2 py-1 text-xs text-[var(--text-muted)]"
+              >
+                {field}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TargetRoleStep({
+  roleMode,
+  jdText,
+  companyName,
+  quickRole,
+  roleValid,
+  onRoleModeChange,
+  onJdTextChange,
+  onCompanyNameChange,
+  onQuickRoleChange,
+  onOpenJdPicker,
+  onConfirm
+}: {
+  roleMode: RoleMode
+  jdText: string
+  companyName: string
+  quickRole: string
+  roleValid: boolean
+  onRoleModeChange: (mode: RoleMode) => void
+  onJdTextChange: (value: string) => void
+  onCompanyNameChange: (value: string) => void
+  onQuickRoleChange: (value: string) => void
+  onOpenJdPicker: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <div className="grid gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-[var(--text-secondary)]">
+          {roleMode === "quick"
+            ? "Select a role. OfferUp will use a general benchmark."
+            : "Paste the JD for more precise, personalized questions."}
+        </p>
+        <button
+          type="button"
+          className="shrink-0 text-sm font-semibold text-[var(--text-success)]"
+          onClick={() => onRoleModeChange(roleMode === "quick" ? "jd" : "quick")}
+        >
+          {roleMode === "quick" ? "Paste JD" : "No JD"} <span aria-hidden="true">→</span>
+        </button>
+      </div>
+
+      {roleMode === "quick" ? (
+        <div className="flex flex-wrap gap-2">
+          {genericRoles.map((role) => {
+            const selected = quickRole === role
+            return (
+              <button
+                key={role}
+                type="button"
+                className={cn(
+                  "rounded-pill border px-4 py-2 text-sm font-medium transition-colors",
+                  selected
+                    ? "border-[var(--accent-action)] bg-[var(--accent-action)] text-[var(--text-inverse)]"
+                    : "border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--state-hover-bg)] hover:text-[var(--text-primary)]"
+                )}
+                onClick={() => onQuickRoleChange(role)}
+              >
+                {role}
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="grid gap-2">
+          <div className="flex items-center justify-between gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[var(--text-muted)]">Job description</span>
+            <button
+              type="button"
+              className="text-sm font-semibold text-[var(--text-success)]"
+              onClick={onOpenJdPicker}
+            >
+              Previous <span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <Textarea
+            value={jdText}
+            rows={5}
+            maxLength={3000}
+            className="min-h-[150px] resize-none bg-[var(--bg-surface)]"
+            placeholder="Paste job description from LinkedIn, Stepstone, or company site..."
+            onChange={(event) => onJdTextChange(event.target.value.slice(0, 3000))}
+          />
+          {jdText.trim().length >= 50 ? (
+            <input
+              value={companyName}
+              className="h-10 rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-sm outline-none transition-[border-color,box-shadow] focus:border-[var(--border-success)] focus:shadow-[var(--focus-ring)]"
+              placeholder="Company name (optional - used in interview intro)"
+              onChange={(event) => onCompanyNameChange(event.target.value)}
+            />
+          ) : null}
+          <div className="text-right font-mono text-[10px] text-[var(--text-muted)]">{jdText.length} / 3,000</div>
+        </div>
+      )}
+
+      <Button type="button" className="w-fit px-6" disabled={!roleValid} onClick={onConfirm}>
+        Confirm role
+        <ChevronRight aria-hidden="true" size={15} />
+      </Button>
+    </div>
+  )
+}
+
+function SessionSettingsStep({
+  focusType,
+  level,
+  intensity,
+  onFocusTypeChange,
+  onLevelChange,
+  onIntensityChange
+}: {
+  focusType: string
+  level: string
+  intensity: string
+  onFocusTypeChange: (value: string) => void
+  onLevelChange: (value: string) => void
+  onIntensityChange: (value: string) => void
+}) {
+  const selectedFocus = focusTypes.find((focus) => focus.id === focusType) ?? focusTypes[0]
+
+  return (
+    <div className="grid gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="rounded-md border-2 border-[var(--border-success)] bg-[var(--bg-success)] p-4">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="text-sm font-semibold text-[var(--text-primary)]">Focused Practice</span>
+            <span className="font-mono text-[10px] text-[var(--text-success)]">~12-18 min</span>
+          </div>
+          <p className="mt-2 font-mono text-[10px] leading-body text-[var(--text-success)]">
+            3 main questions · AI follow-ups based on your answers
+          </p>
+        </div>
+        <div className="relative rounded-md border-2 border-[var(--border-subtle)] p-4 opacity-[var(--state-locked-opacity)]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <span className="text-sm font-semibold text-[var(--text-muted)]">Full Interview Sim</span>
+              <p className="mt-2 font-mono text-[10px] text-[var(--text-muted)]">Coming soon</p>
+            </div>
+            <Lock aria-hidden="true" size={13} className="text-[var(--text-muted)]" />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="mb-3 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+          Question focus
+        </div>
+        <div className="grid gap-1">
+          {focusTypes.map((focus) => {
+            const selected = focusType === focus.id && !focus.locked
+            return (
+              <div key={focus.id} className={cn(focus.locked ? "opacity-40" : "")}>
+                <button
+                  type="button"
+                  className={cn(
+                    "flex w-full items-center justify-between gap-4 rounded-md px-3 py-2.5 text-left transition-colors",
+                    selected ? "bg-[var(--accent-action)] text-[var(--text-inverse)]" : "hover:bg-[var(--state-hover-bg)]"
+                  )}
+                  disabled={focus.locked}
+                  onClick={() => onFocusTypeChange(focus.id)}
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className="truncate text-sm font-semibold">{focus.label}</span>
+                    {!focus.locked ? (
+                      <span className={cn("font-mono text-[10px]", selected ? "text-[rgba(240,233,222,0.58)]" : "text-[var(--text-muted)]")}>
+                        {focus.interviewer}
+                      </span>
+                    ) : null}
+                  </span>
+                  {focus.locked ? <Lock aria-hidden="true" size={13} /> : selected ? <CheckCircle2 aria-hidden="true" size={15} /> : null}
+                </button>
+                {selected ? (
+                  <p className="px-3 pb-3 pt-1 text-sm leading-body text-[var(--text-secondary)]">
+                    {focus.description}
+                  </p>
+                ) : null}
               </div>
             )
           })}
         </div>
-      </Panel>
+      </div>
 
-      <Button asChild variant="ghost" className="justify-start">
-        <a href="/home">
-          <Home aria-hidden="true" size={16} />
-          Return home
-        </a>
-      </Button>
-    </aside>
-  )
-}
-
-function ParsingState({
-  phase,
-  analysis,
-  scanProgress
-}: {
-  phase: ParsePhase
-  analysis: ReturnType<typeof analyzeResume>
-  scanProgress: number
-}) {
-  const modules = moduleItemsFromAnalysis(analysis, scanProgress)
-
-  return (
-    <section className="grid gap-5 rounded-md bg-[var(--bg-info)] p-5 shadow-[inset_0_0_0_1px_var(--border-info)]">
-      <div className="grid gap-4 md:grid-cols-[auto_1fr] md:items-center">
-        <div className="flex size-12 items-center justify-center rounded-md bg-[var(--bg-surface)] text-[var(--text-info)] shadow-[inset_0_0_0_1px_var(--border-info)]">
-          <Loader2 aria-hidden="true" className="animate-spin" size={22} />
+      <div className="rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="mb-3 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+          Experience level
         </div>
-        <div>
-          <Badge variant="neutral">{phase === "uploading" ? "Uploading" : "Extracting"}</Badge>
-          <h2 className="mt-3 font-display text-xl leading-heading">
-            {phase === "uploading" ? "Uploading your resume" : "Extracting resume modules"}
-          </h2>
-          <p className="mt-2 max-w-readable text-sm leading-body text-[var(--text-info)]">
-            {phase === "uploading"
-              ? "Saving the resume to the local library and preparing it for parsing."
-              : "Checking summary, working experience, education, skills, and projects. Private details stay out of the interview context."}
-          </p>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {levels.map((item) => {
+            const selected = level === item.id
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={cn(
+                  "rounded-md border px-3 py-3 text-center transition-colors",
+                  selected
+                    ? "border-[var(--accent-action)] bg-[var(--accent-action)] text-[var(--text-inverse)]"
+                    : "border-[var(--border-default)] hover:bg-[var(--state-hover-bg)]"
+                )}
+                onClick={() => onLevelChange(item.id)}
+              >
+                <span className="block text-sm font-semibold">{item.label}</span>
+                <span className={cn("mt-1 block font-mono text-[10px]", selected ? "text-[rgba(240,233,222,0.58)]" : "text-[var(--text-muted)]")}>
+                  {item.years}
+                </span>
+              </button>
+            )
+          })}
         </div>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-pill bg-[var(--bg-surface-muted)]">
-        <div
-          className="h-full rounded-pill bg-[var(--accent-role)] transition-all duration-slow ease-standard"
-          style={{ width: `${phase === "uploading" ? 24 : 24 + (scanProgress / resumeModuleDefinitions.length) * 76}%` }}
-        />
-      </div>
-      <SignalList items={modules} compact />
-    </section>
-  )
-}
 
-function SignalList({
-  items,
-  compact = false
-}: {
-  items: Array<{ label: string; detail: string; state: SignalState }>
-  compact?: boolean
-}) {
-  return (
-    <div className="grid gap-2">
-      {items.map((item) => (
-        <div
-          key={item.label}
-          className={cn(
-            "grid grid-cols-[auto_1fr] gap-3 rounded-md bg-[var(--bg-surface-muted)] px-3 shadow-[inset_0_0_0_1px_var(--border-subtle)]",
-            compact ? "py-2" : "py-2.5"
-          )}
-        >
-          <StatusDot state={item.state} />
-          <span>
-            <span className="block text-sm font-medium text-[var(--text-primary)]">{item.label}</span>
-            <span className="mt-0.5 block text-xs leading-body text-[var(--text-secondary)]">{item.detail}</span>
+      <div className="rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
+            Follow-up intensity
           </span>
+          <span className="text-xs text-[var(--text-secondary)]">{selectedFocus.interviewer}</span>
         </div>
-      ))}
+        <div className="grid gap-2 sm:grid-cols-4">
+          {intensities.map((item) => {
+            const selected = intensity === item.id
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={cn(
+                  "rounded-md border px-3 py-3 text-left transition-colors",
+                  selected
+                    ? "border-[var(--accent-action)] bg-[var(--accent-action)] text-[var(--text-inverse)]"
+                    : "border-[var(--border-default)] hover:bg-[var(--state-hover-bg)]"
+                )}
+                onClick={() => onIntensityChange(item.id)}
+              >
+                <span className="block text-sm font-semibold">{item.label}</span>
+                <span className={cn("mt-1 block text-xs", selected ? "text-[rgba(240,233,222,0.58)]" : "text-[var(--text-muted)]")}>
+                  {item.sub}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
 
-function StatusDot({ state }: { state: SignalState }) {
+function SetupSummaryBar({
+  canStart,
+  focus,
+  level,
+  duration,
+  disabledReason,
+  onStart
+}: {
+  canStart: boolean
+  focus: string
+  level: string
+  duration: string
+  disabledReason: string
+  onStart: () => void
+}) {
+  const items = [
+    { label: "Mode", value: "Focused Practice" },
+    { label: "Focus", value: focus },
+    { label: "Level", value: level },
+    { label: "Time", value: duration }
+  ]
+
   return (
-    <span
-      className={cn(
-        "mt-0.5 flex size-4 items-center justify-center rounded-pill border",
-        state === "ready"
-          ? "border-[var(--border-success)] bg-[var(--bg-success)] text-[var(--text-success)]"
-          : state === "scanning"
-            ? "border-[var(--border-info)] bg-[var(--bg-info)] text-[var(--text-info)]"
-          : state === "warning"
-            ? "border-[var(--border-warning)] bg-[var(--bg-warning)] text-[var(--text-warning)]"
-            : "border-[var(--border-subtle)] text-[var(--text-muted)]"
-      )}
-    >
-      {state === "ready" ? <Check aria-hidden="true" size={11} /> : null}
-      {state === "scanning" ? <Loader2 aria-hidden="true" className="animate-spin" size={10} /> : null}
-    </span>
+    <div className="sticky bottom-0 z-20 border-t border-[var(--border-default)] bg-[var(--bg-page-soft)] px-5 py-4 sm:px-8">
+      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:flex sm:items-center sm:gap-8">
+          {items.map((item) => (
+            <div key={item.label}>
+              <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--text-muted)]">{item.label}</div>
+              <div className={cn("mt-1 text-sm font-semibold", canStart ? "text-[var(--text-primary)]" : "text-[var(--text-muted)]")}>
+                {item.value}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-col items-start gap-1 sm:items-end">
+          <Button type="button" className="h-12 px-7" disabled={!canStart} onClick={onStart}>
+            <Sparkles aria-hidden="true" size={16} />
+            Start interview
+          </Button>
+          {!canStart ? (
+            <span className="text-xs text-[var(--text-secondary)]">{disabledReason}</span>
+          ) : null}
+        </div>
+      </div>
+    </div>
   )
 }
 
-function ResumeLibraryDrawer({
+function ResumePickerModal({
   open,
   resumes,
   selectedResumeId,
   onClose,
-  onSelect
+  onSelect,
+  onUpload
 }: {
   open: boolean
   resumes: ResumeAsset[]
   selectedResumeId: string
   onClose: () => void
   onSelect: (resumeId: string) => void
+  onUpload: () => void
 }) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-end bg-[rgba(41,36,31,0.18)] p-3 sm:p-5">
-      <aside className="grid max-h-[calc(100vh-2rem)] w-full max-w-[520px] gap-4 overflow-y-auto rounded-lg bg-[var(--bg-surface)] p-5 shadow-float">
-        <div className="flex items-start justify-between gap-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[rgba(41,36,31,0.28)] p-4 backdrop-blur-[3px]" onClick={onClose}>
+      <div
+        className="w-full max-w-[420px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-page-soft)] p-6"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <Badge variant="neutral">Resume history</Badge>
-            <h2 className="mt-3 font-display text-xl leading-heading">Choose from history</h2>
+            <h2 className="font-display text-lg leading-heading">Choose resume</h2>
             <p className="mt-1 text-sm leading-body text-[var(--text-secondary)]">
-              The selected resume becomes the source material for this interview setup.
+              Previously saved resumes for this setup.
             </p>
           </div>
-          <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close resume library">
-            Close
+          <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close resume picker">
+            <X aria-hidden="true" size={15} />
           </Button>
         </div>
 
-        <div className="grid gap-3">
-          {resumes.map((resume) => (
-            <button
-              key={resume.id}
-              type="button"
-              className={cn(
-                "grid gap-2 rounded-md border p-4 text-left transition-colors duration-base",
-                selectedResumeId === resume.id
-                  ? "border-[var(--border-success)] bg-[var(--bg-success)]"
-                  : "border-[var(--border-subtle)] bg-[var(--bg-surface-muted)] hover:bg-[var(--state-hover-bg)]"
-              )}
-              onClick={() => onSelect(resume.id)}
-            >
-              <span className="flex items-center justify-between gap-3">
-                <span className="text-sm font-semibold">{resume.title}</span>
-                {selectedResumeId === resume.id ? <Check aria-hidden="true" size={15} /> : null}
-              </span>
-              <span className="text-xs text-[var(--text-muted)]">{resume.meta}</span>
-              <span className="line-clamp-2 text-sm leading-body text-[var(--text-secondary)]">
-                {summarizeContent(resume.content)}
-              </span>
-            </button>
-          ))}
+        <div className="grid gap-2">
+          {resumes.map((resume) => {
+            const selected = selectedResumeId === resume.id
+            return (
+              <button
+                key={resume.id}
+                type="button"
+                className={cn(
+                  "flex items-center justify-between gap-3 rounded-md border px-4 py-3 text-left transition-colors",
+                  selected ? "border-[var(--border-success)] bg-[var(--bg-success)]" : "border-[var(--border-default)] bg-[var(--bg-surface)] hover:bg-[var(--state-hover-bg)]"
+                )}
+                onClick={() => onSelect(resume.id)}
+              >
+                <span>
+                  <span className="block text-sm font-semibold text-[var(--text-primary)]">{resume.title}</span>
+                  <span className="mt-1 block font-mono text-[10px] text-[var(--text-muted)]">{resume.meta}</span>
+                </span>
+                {selected ? <Badge variant="strong">Active</Badge> : null}
+              </button>
+            )
+          })}
         </div>
-      </aside>
+
+        <Button type="button" variant="secondary" className="mt-4 w-full border border-dashed border-[var(--border-default)]" onClick={onUpload}>
+          Upload new resume
+        </Button>
+      </div>
     </div>
   )
 }
 
-function analyzeResume(text: string) {
-  const trimmed = text.trim()
-  const words = trimmed ? trimmed.split(/\s+/).filter(Boolean) : []
+function JdPickerModal({
+  open,
+  onClose,
+  onSelect
+}: {
+  open: boolean
+  onClose: () => void
+  onSelect: (content: string) => void
+}) {
+  if (!open) return null
 
-  return {
-    wordCount: words.length,
-    hasSummary: resumeKeywords.summary.test(trimmed),
-    hasWork: resumeKeywords.work.test(trimmed),
-    hasEducation: resumeKeywords.education.test(trimmed),
-    hasSkill: resumeKeywords.skill.test(trimmed),
-    hasProject: resumeKeywords.project.test(trimmed)
-  }
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[rgba(41,36,31,0.28)] p-4 backdrop-blur-[3px]" onClick={onClose}>
+      <div
+        className="w-full max-w-[420px] rounded-lg border border-[var(--border-default)] bg-[var(--bg-page-soft)] p-6"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 className="font-display text-lg leading-heading">Previous JDs</h2>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close JD picker">
+            <X aria-hidden="true" size={15} />
+          </Button>
+        </div>
+        <div className="grid gap-2">
+          {savedJds.map((jd) => (
+            <button
+              key={jd.id}
+              type="button"
+              className="flex items-center justify-between gap-4 rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-3 text-left transition-colors hover:bg-[var(--state-hover-bg)]"
+              onClick={() => onSelect(jd.content)}
+            >
+              <span className="text-sm font-semibold text-[var(--text-primary)]">{jd.label}</span>
+              <span className="font-mono text-[10px] text-[var(--text-muted)]">{jd.updated}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
-function moduleItemsFromAnalysis(
-  analysis: ReturnType<typeof analyzeResume>,
-  scanProgress: number
-) {
-  const values = {
-    summary: analysis.hasSummary,
-    work: analysis.hasWork,
-    education: analysis.hasEducation,
-    skills: analysis.hasSkill,
-    projects: analysis.hasProject
+function parseResumeSignals(content: string) {
+  const extractedText = buildExtractedText(content)
+  const skills = extractSkillTags(extractedText)
+  const projects = extractProjectTags(extractedText)
+  const roles = extractRoleTags(extractedText)
+  const companies = extractCompanyTags(extractedText)
+
+  return {
+    roles: roles.length > 0 ? roles.slice(0, 3) : ["Product-minded builder"],
+    companies: companies.length > 0 ? companies.slice(0, 3) : ["OfferUp", "Semester project"],
+    skills: skills.length > 0 ? skills.slice(0, 6) : ["Product discovery", "AI product strategy", "React"],
+    projects: projects.length > 0 ? projects.slice(0, 4) : ["Interview practice workflow"],
+    stripped: ["Email address", "Phone number", "Home address", "Social profile URLs"]
   }
-
-  return resumeModuleDefinitions.map((module, index): { label: string; detail: string; state: SignalState } => {
-    const finished = index < scanProgress
-    const found = values[module.key]
-
-    return {
-      label: module.label,
-      detail: finished ? (found ? module.ready : module.missing) : module.scanning,
-      state: finished ? (found ? "ready" : "warning") : "scanning"
-    }
-  })
 }
 
 function buildExtractedText(content: string) {
-  const lines = content
+  return content
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
     .filter((line) => !/(email|phone|tel|address|linkedin|github|portfolio|@)/i.test(line))
-
-  return lines.join("\n")
+    .join("\n")
 }
 
-function extractResumeSections(content: string): Record<ResumeModuleKey, ExtractedResumeSection> {
-  const cleanText = buildExtractedText(content)
-  const summaryLines = linesBetween(cleanText, ["PROFILE SUMMARY", "SUMMARY"], ["WORK EXPERIENCE", "EXPERIENCE", "SELECTED PROJECTS", "PROJECTS", "EDUCATION", "SKILLS"])
-  const workLines = linesBetween(cleanText, ["WORK EXPERIENCE", "EXPERIENCE"], ["SELECTED PROJECTS", "PROJECTS", "EDUCATION", "SKILLS", "RESULTS"])
-  const projectLines = linesBetween(cleanText, ["SELECTED PROJECTS", "PROJECTS"], ["EDUCATION", "SKILLS", "RESULTS"])
-  const educationLines = linesBetween(cleanText, ["EDUCATION"], ["SKILLS", "RESULTS"])
-  const skillLines = linesBetween(cleanText, ["SKILLS"], ["RESULTS"])
+function extractSkillTags(text: string) {
+  const skillLine = linesBetween(text, ["SKILLS"], ["RESULTS", "EDUCATION", "WORK EXPERIENCE"]).join(" ")
+  const source = skillLine || text
+  return source
+    .split(/,|·|;|\n/)
+    .map((skill) => skill.replace(/^-\s*/, "").trim())
+    .filter((skill) => /(product|research|strategy|react|typescript|figma|analysis|communication|design|stakeholder|workflow|data)/i.test(skill))
+    .slice(0, 8)
+}
 
-  return {
-    summary: {
-      key: "summary",
-      label: "Summary",
-      count: summaryLines.length > 0 ? 1 : 0,
-      items: summaryLines.length > 0
-        ? [{ title: "Positioning summary", points: summaryLines }]
-        : []
-    },
-    work: {
-      key: "work",
-      label: "Working experience",
-      count: groupedResumeItems(workLines, "Experience").length,
-      items: groupedResumeItems(workLines, "Experience")
-    },
-    skills: {
-      key: "skills",
-      label: "Skills",
-      count: splitSkills(skillLines).length,
-      items: splitSkills(skillLines).map((skill) => ({ title: skill, points: ["Used as interview signal for role fit and follow-up questions."] }))
-    },
-    education: {
-      key: "education",
-      label: "Education experience",
-      count: groupedResumeItems(educationLines, "Education").length,
-      items: groupedResumeItems(educationLines, "Education")
-    },
-    projects: {
-      key: "projects",
-      label: "Projects",
-      count: groupedResumeItems(projectLines, "Project").length,
-      items: groupedResumeItems(projectLines, "Project")
-    }
-  }
+function extractProjectTags(text: string) {
+  return linesBetween(text, ["SELECTED PROJECTS", "PROJECTS"], ["EDUCATION", "SKILLS", "RESULTS"])
+    .filter((line) => !line.startsWith("-"))
+    .slice(0, 5)
+}
+
+function extractRoleTags(text: string) {
+  const matches = text.match(/\b(Product Manager|UX Researcher|Product Designer|Frontend Engineer|Backend Engineer|Data Analyst|Operations)\b/gi) ?? []
+  return Array.from(new Set(matches.map((match) => titleCase(match))))
+}
+
+function extractCompanyTags(text: string) {
+  const candidates = ["OfferUp", "Figma", "Personio", "Alibaba Cloud", "WPS Office"]
+  return candidates.filter((company) => text.toLowerCase().includes(company.toLowerCase()))
 }
 
 function linesBetween(text: string, startHeadings: string[], endHeadings: string[]) {
@@ -962,39 +1168,12 @@ function linesBetween(text: string, startHeadings: string[], endHeadings: string
   return lines.slice(startIndex + 1, endIndex === -1 ? lines.length : endIndex)
 }
 
-function groupedResumeItems(lines: string[], fallbackTitle: string): ExtractedResumeItem[] {
-  const groups: ExtractedResumeItem[] = []
-  let current: ExtractedResumeItem | null = null
-
-  lines.forEach((line) => {
-    if (line.startsWith("-")) {
-      const point = line.replace(/^-\s*/, "").trim()
-      if (!current) current = { title: fallbackTitle, points: [] }
-      current.points.push(point)
-      return
-    }
-
-    if (current) groups.push(current)
-    current = { title: line, points: [] }
-  })
-
-  if (current) groups.push(current)
-
-  return groups
-    .map((group) => ({
-      ...group,
-      meta: group.points.length > 0 ? undefined : "Extracted from resume",
-      points: group.points.length > 0 ? group.points : ["This section was detected and can shape interview context."]
-    }))
-    .filter((group) => group.title.trim().length > 0)
-}
-
-function splitSkills(lines: string[]) {
-  return lines
+function titleCase(value: string) {
+  return value
+    .toLowerCase()
+    .split(" ")
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
     .join(" ")
-    .split(/,|·|;/)
-    .map((skill) => skill.trim())
-    .filter(Boolean)
 }
 
 async function readResumeFile(file: File) {
@@ -1018,9 +1197,4 @@ EDUCATION
 SKILLS
 - Add skills, tools, methods, and strengths from the uploaded resume.
 `
-}
-
-function summarizeContent(content: string) {
-  const compact = content.replace(/\s+/g, " ").trim()
-  return compact.length > 150 ? `${compact.slice(0, 150)}...` : compact
 }
