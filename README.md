@@ -1,47 +1,40 @@
 # OfferUp
 
-OfferUp is an interview training product for non-native technology candidates. The current MVP focuses on one complete practice loop: configure a target role, run a short mock interview, and review the answers afterward.
+OfferUp is an interview training product for non-native technology candidates. The MVP focuses on one complete practice loop: configure a target role, run a short mock interview, review the answers, polish selected answers, and save useful versions to Answer Bank.
 
-## Product Areas
+## Current Development Contract
 
-- Home / Dashboard: entry point for practice, recent rounds, saved answers, and next recommended action.
-- Practice: setup, live mock interview, and round review.
-- Question Bank: saved questions, polished answers, answer skeletons, and role/company tags.
-- Materials: reusable resume, target JD, project stories, and role preferences.
-- Progress: past rounds, weak areas, and improvement signals over time.
+For new development, use these files as the source of truth:
 
-## Current Structure
+```text
+docs/HANDOFF.md
+docs/README.md
+docs/product_spec/
+docs/offerup-design-system-preview.html
+```
+
+Do not use archived early PRDs or the old static demo as implementation authority. They remain available for context and visual memory only.
+
+## Project Structure
 
 ```text
 .
 ├── docs/
-│   └── product/
-│       ├── mvp-prd.md
-│       ├── mvp-plan-aha.md
-│       ├── product-brief-en.md
-│       ├── semester-project-ai-interview.md
-│       └── ui-style.md
-├── prototypes/
-│   ├── calm-ui.html
-│   └── calm-ui.svg
-└── demo-mvp/
-    ├── API-SETUP.md
-    ├── OPENAI_CONFIG_TEMPLATE.txt
-    ├── server.js
-    └── public/
-        ├── index.html
-        └── feedback.html
+│   ├── README.md
+│   ├── HANDOFF.md
+│   ├── offerup-design-system-preview.html
+│   ├── product_spec/          # Current authoritative product, design, tech, and implementation specs
+│   └── archive/               # Historical references and design explorations
+└── demo-mvp/                  # Historical runnable prototype; reference only, not production architecture
 ```
 
-## MVP Flow
+## Next Build Direction
 
-```text
-Home / Setup -> Live Mock Interview -> Round Review -> Next Round or Question Bank
-```
+The production rebuild should follow `docs/product_spec/OfferUp-Implementation-Plan.md`.
 
-`demo-mvp/public/index.html` currently contains the setup and live practice flow. `demo-mvp/public/feedback.html` contains the round review. The next structural step is to split shared styles, speech logic, API calls, and interview flow state into separate files under `demo-mvp/src/`.
+The intended production architecture is a new Next.js App Router app using Tailwind, Supabase, and shared OfferUp design tokens/components. The old `demo-mvp/` Node/static prototype should not be extended into the production app.
 
-## Run Locally
+## Run Historical Prototype
 
 ```bash
 PORT=8790 node demo-mvp/server.js

@@ -1,4 +1,4 @@
-# Interview Mentor — Multi-Agent 反馈系统设计规格
+# OfferUp — Multi-Agent 反馈系统设计规格
 
 **文档性质** PRD 附录，与主 PRD 配套使用  
 **更新时间** 2026-06-08（v1.2：并行改串行；成本表统一为 DeepSeek）
@@ -346,4 +346,4 @@ A2: {user_answer}
 
 ---
 
-*本文档配合《Interview Mentor MVP PRD》使用，专注 Agent 层设计细节。*
+*本文档配合《OfferUp MVP PRD》使用，专注 Agent 层设计细节。*

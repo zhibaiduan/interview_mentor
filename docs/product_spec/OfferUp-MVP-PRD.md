@@ -1,7 +1,7 @@
-# Interview Mentor — MVP Product Requirements Document
+# OfferUp — MVP Product Requirements Document
 
-**版本** v1.3  
-**状态** In Progress（评审意见已合并）  
+**版本** v1.4  
+**状态** In Progress（readiness 决策已合并）  
 **负责人** Miumiu (Xiaoyan Duan)  
 **目标 Deadline** 2026 年 6 月 20 日  
 **文档目的** 指导 MVP 开发落地，覆盖用户流程、功能模块定义、优先级边界、技术决策建议
@@ -26,12 +26,12 @@
 ## 1. 产品全景：功能模块地图
 
 ```
-Interview Mentor  （10 个模块，4 层结构）
+OfferUp  （10 个模块，4 层结构）
 │
 ├── 入口层
 │   ├── [P0] M1 · Landing Page       ← 价值传递，新用户转化
 │   ├── [P0] M2 · 认证               ← 登录/注册，头像下拉含退出
-│   └── [P1] M9 · 个人主页           ← 复访驱动，训练记录，资产管理
+│   └── [P0] M9 · 个人主页           ← 复访驱动，训练记录，资产管理
 │
 ├── 核心流程层
 │   ├── [P0] M3 · 面试前设置         ← 简历、岗位、模式、题型、追问强度
@@ -41,8 +41,8 @@ Interview Mentor  （10 个模块，4 层结构）
 │   └── [P0] M6 · 面试反馈           ← 全局+单题，面试官视角+Mentor视角
 │
 ├── 资产层
-│   ├── [占位] M7 · Answer Polish    ← 即将开放，数据结构预留
-│   ├── [P1] M8 · 我的答案库         ← 保存、编辑、分组搜索
+│   ├── [P0] M7 · Answer Polish    ← 点击生成更强版本，可保存到 Answer Bank
+│   ├── [P0/P1] M8 · Answer Bank   ← P0 保存动作；P1 完整资产库体验
 │   └── [P1] M10 · 题库              ← 公共分类题目，AI 抽题参考
 │
 └── 账户层（合并入 M9，无独立页面）
@@ -68,7 +68,7 @@ Landing Page → 登录验证 → 面试前设置 → 专项练习 → 模拟面
 [3b] 已登录 → 直接进入
     ↓
 [4] 面试前设置页
-    ├── 上传/粘贴简历
+    ├── 选择已保存简历或粘贴新简历
     ├── 输入目标岗位信息（粘贴 LinkedIn JD 或手动填写）
     └── 选择训练模式
         ├── Mode 1：专项练习（可选题型：行为题 / 简历问题 / HR 动机）
@@ -78,14 +78,14 @@ Landing Page → 登录验证 → 面试前设置 → 专项练习 → 模拟面
     ↓
 [6] 沉浸式面试会话页
     ├── AI 面试官自我介绍
-    ├── 基于简历和 JD 逐题提问（默认固定 3 道主问题）
-    └── 用户回答（MVP 支持文字；语音录入作为 P1）
+    ├── 基于简历和 JD 逐题提问（3–5 题 + 最多 2 个追问）
+    └── 用户回答（P0 文字输入；P1 Push to Talk 录音 + Whisper 转写）
     ↓
 [7] 面试结束（主动触发 or 用户退出）
     ↓
 [8] 反馈页面
     ├── 全局反馈：HR 视角评分 + Mentor 成长建议
-    └── 单题反馈：每题 HR 评估 + 「Answer Polish」（即将开放）+ 保存到 Answer Bank
+    └── 单题反馈：每题 HR 评估 + Answer Polish + 保存到 Answer Bank
     ↓
 [9] 结束 → 跳转个人主页 / 历史记录
 ```
@@ -107,46 +107,87 @@ Landing Page → 登录验证 → 面试前设置 → 专项练习 → 模拟面
 
 ### 3.1 Landing Page
 
-**目的**：传达产品价值主张，引导用户开始，验证登录状态。
+**目的：** 新用户进来 10 秒内明白「这个产品为我解决什么问题」，然后愿意试一次。
 
-**P0 功能：**
-- 产品 Headline + 一句话定位（直接用 Brief 里的定位）
-- CTA 按钮：「开始模拟面试」
-- 登录状态检查：
-  - 已登录 → 直接进入面试前设置
-  - 未登录 → 跳转登录页，完成后 redirect 回来
-- 产品核心价值简介（3 个要点，可以是 icon + 文字）
+**核心信息结构（从上到下）：**
+
+```
+① Headline（最重要，1句话）
+   面向谁 + 解决什么问题
+   建议：「Practice job interviews in English —
+          and finally sound as capable as you actually are.」
+
+② 副标题（1-2句，扩展 Headline）
+   「OfferUp gives non-native candidates
+     personalized questions based on their resume and JD,
+     with feedback that shows exactly what the interviewer heard.」
+
+③ 主 CTA
+   已登录 → 「Start practicing →」→ 直接进设置页
+   未登录 → 「Try for free →」→ 注册页，完成后 redirect 回来
+
+④ 三个核心价值点（icon + 标题 + 1句话）
+   · Questions from your resume and target role, not generic prompts
+   · Feedback from a Hiring Manager and a Mentor — not just a score
+   · Built for non-native speakers preparing for European tech roles
+
+⑤ 产品截图或简单的流程示意（可选，P1）
+   展示设置页 → 面试页 → 反馈页的视觉流
+
+⑥ 次 CTA（页面底部重复）
+   「Start your first session →」
+```
+
+**已登录 vs 未登录的差异：**
+- 未登录：CTA 文字「Try for free」，点击进注册页
+- 已登录：CTA 文字「Start practicing」，点击进设置页，顶部显示用户头像
 
 **P1 功能：**
-- 用户评价 / 社交证明（demo 阶段可用虚构内容占位）
-- FAQ 简版
+- 社交证明 / 用户评价（demo 阶段用虚构内容占位）
+- FAQ（2-3 个最常见问题）
 
 **验收标准：**
-- [ ] 未登录用户点击 CTA → 跳转登录页，登录后自动回到原流程
-- [ ] 已登录用户点击 CTA → 直接进入设置页，无需再次确认
-- [ ] 页面在移动端可正常浏览（不要求完美，能用即可）
+- [ ] 未登录用户点击 CTA → 注册页，完成后 redirect 回设置页
+- [ ] 已登录用户点击 CTA → 直接进设置页
+- [ ] 三个价值点正确显示
+- [ ] 移动端可正常浏览（不要求完美）
 
 ---
 
 ### 3.2 认证模块（登录/注册）
 
+**技术方案：** Supabase Auth（不用 NextAuth，两套不能混用）
+
 **P0 功能：**
-- Email + 密码注册/登录
-- Google OAuth（P0，减少用户摩擦）
-- 登录后 redirect 到原来的目标页面
+- Email + 密码注册 / 登录
+- Google OAuth
+- 登录后 redirect 到原目标页面（`redirectTo` 参数）
+
+**注册字段：**
+- Email（必填）
+- Password（必填，≥8位）
+- Display name（必填，用于个人主页欢迎语）
+
+**首次注册后的处理：**
+- 不做 onboarding 引导（MVP 阶段，直接进入设置页）
+- 个人主页显示「Welcome, [name]! Start your first session.」
 
 **P2 功能（本期不做）：**
-- 忘记密码
+- 忘记密码 / 重置密码
 - 邮件验证
-- 第三方 OAuth（GitHub 等）
+- GitHub OAuth
 
-**技术建议：** 统一使用 Supabase Auth，不使用 NextAuth，不自己实现认证。
+**账户操作入口（个人主页右上角下拉菜单）：**
+- 显示登录邮箱
+- 退出登录
+- 修改密码（P2）
 
 **验收标准：**
-- [ ] 用户可以用 Email 完成注册和登录
-- [ ] 用户可以用 Google OAuth 完成登录/注册
+- [ ] Email 注册 + 登录正常工作
+- [ ] Google OAuth 正常工作
 - [ ] 登录后 session 持久化（刷新页面不退出）
-- [ ] 未登录访问需要登录的页面 → 自动跳转登录页
+- [ ] 未登录访问需要登录的页面 → 自动跳转登录页，完成登录后 redirect 回来
+- [ ] 有未完成 session 时，进入设置页前显示恢复提示
 
 ---
 
@@ -157,8 +198,8 @@ Landing Page → 登录验证 → 面试前设置 → 专项练习 → 模拟面
 **P0 功能：**
 
 **Step 1 — 简历信息**
-- 文本框粘贴简历内容（MVP 优先，不要求 PDF 解析）
-- 如果个人主页已有保存的简历 → 提供「使用已保存简历」快捷选项
+- 文本框粘贴简历内容（P0，不要求 PDF 解析）
+- 如果个人主页已有保存的简历 → 提供「使用已保存简历」快捷选项（P0）
 - 字数提示（建议 200–2000 字）
 
 **Step 2 — 目标岗位信息**
@@ -181,6 +222,7 @@ Landing Page → 登录验证 → 面试前设置 → 专项练习 → 模拟面
 
 **验收标准：**
 - [ ] 简历和岗位信息至少填写一项才能继续（不能空提交）
+- [ ] 已保存简历可在设置页选择并自动填入简历内容
 - [ ] 选择 Mode 2 时无法继续，显示「即将开放」提示
 - [ ] 确认后，设置信息传入 AI 问题生成模块
 
@@ -211,15 +253,21 @@ Landing Page → 登录验证 → 面试前设置 → 专项练习 → 模拟面
 **AI 面试官行为：**
 - 开场白：AI 自我介绍（「你好，我是 [公司] 的 HR，今天我们做一个 [X] 分钟的专项练习...」）
 - 逐题提问，每题一屏，不一次性展示所有问题
-- 根据用户回答触发 0–5 个追问（基于回答质量动态判断，不强制追问）
+- 根据用户回答触发 1–2 个追问（基于回答内容生成，非固定）
 - 问题个性化：基于用户简历和 JD 生成，不使用通用题库
 
-**回答方式（MVP 关键技术决策，见第 5 节）：**
-- 方案 A（推荐 MVP）：文字输入 + 语音输入二选一
-  - 用户可以打字回答，也可以点击录音
-  - 录音完成后转文字显示，用户可编辑后提交
-- 方案 B：纯文字输入（最低成本，体验最弱）
-- 方案 C：实时语音流（最佳体验，成本最高，建议 V2）
+**回答方式：**
+- P0：文字输入，作为稳定兜底
+- P1：Push to Talk 录音 + Whisper 转写
+  - 用户按住录音，松开后触发转写
+  - 转写结果短暂显示作为视觉回执，然后直接提交
+  - 转写失败时自动回退到文字输入
+- 不做：实时语音流、自动停顿检测、视频/表情分析
+
+**面试官语音：**
+- 不使用浏览器默认 TTS 或机械感低质量 TTS
+- 如果面试官要播放声音，必须使用高自然度 voice model 或预生成自然音频
+- 如果高自然度面试官语音来不及实现，则 MVP 先只展示文字问题
 
 **会话结束：**
 - 自然结束：AI 在最后一题后说「感谢参与，我们稍后给你反馈」
@@ -277,22 +325,13 @@ Landing Page → 登录验证 → 面试前设置 → 专项练习 → 模拟面
 - **Next Version Should Include**：1–2 条具体可执行的改进，不是泛泛建议
 - 「保存到答案库」按钮 → 保存成功 toast（P0），完整答案库列表 P1
 
-**三段式案例：**
-
-用户回答：
-> We built a dashboard for the operations team. I helped define some metrics and worked with engineering. It made the process more efficient.
-
-Your Answer Signal：
-> 你传递出的信号是：参与过一个 dashboard 项目，理解指标定义，也有跨职能协作经验。但回答主要使用 "we"，个人职责边界不清晰，结果只说了 "more efficient"，没有证明影响力。
-
-Interviewer Heard：
-> 面试官听到的是：这是一个团队项目，候选人可能参与了需求整理，但暂时看不出是否拥有 ownership，也听不到具体决策、trade-off 或量化结果。因此会担心你是在执行，而不是主导。
-
-Next Version Should Include：
-> 下一版回答应加入三件事：1）用 "I led the metric definition..." 明确你的个人职责；2）说出一个你做过的关键取舍，例如为什么选择 activation rate 而不是 page views；3）补一个结果数字，例如 "reduced weekly reporting time by 30%"。
+**P0 功能（每道题）：**
+- Answer Polish 按钮：用户点击后，为当前题生成一版完整 polished answer
+- Polish 结果优先展示完整改写答案，解释说明作为次级信息渐进展示
+- 用户可将 polished answer 保存到 Answer Bank
+- 如果该题已经存在 Answer Bank 记录，保存 Polish 时创建新的版本，不覆盖已有版本
 
 **P1 功能（每道题）：**
-- Answer Polish 按钮（灰色占位，点击提示「即将开放」）
 - 缺失信号标签：ownership / impact / decision / language 等可视化标签
 
 #### 3.5.2 全局反馈区
@@ -317,7 +356,8 @@ Next Version Should Include：
 - [ ] Interviewer Heard 明确指出感知偏差，而非重复用户的话
 - [ ] Next Version 建议具体到行为级别，不出现「更具体」「更自信」等无效建议
 - [ ] 保存按钮 → 成功 toast，数据写入数据库
-- [ ] Answer Polish 按钮显示「即将开放」，不报错
+- [ ] Answer Polish 可对单题回答生成一版完整 polished answer
+- [ ] Polish 结果可保存到 Answer Bank；如已有记录，则保存为新版本
 - [ ] 全局面试官视角包含 would_advance 判断
 - [ ] Mentor 建议包含至少 1 个可立即执行的动作
 
@@ -328,32 +368,38 @@ Next Version Should Include：
 **目的：** 用户主动打磨和积累的个人答案资产库，产品留存的核心钩子。
 
 **定位说明：**
-答案库不是自动归档的练习日志，而是用户**主动认可并保存**的答案集合。每条记录保存三层答案，职责分离：
+答案库不是自动归档的练习日志，而是用户**主动认可并保存**的答案集合。MVP 中，Answer Bank 的范围拆成两层：
 
-| 字段 | 含义 | 是否只读 |
-|------|------|---------|
-| `original_answer` | 面试时的原始回答，永不修改 | ✅ 只读 |
-| `polished_answer` | AI Polish 后的版本，Answer Polish 开放后才有值 | ✅ 只读 |
-| `saved_answer` | 用户在答案库里维护的「最终版」，可自由编辑 | ❌ 可编辑 |
+- **P0：保存动作**。用户可以从反馈页或 Polish 结果保存答案，写入数据库，显示成功 toast。
+- **P1：完整资产库体验**。列表、搜索、筛选、详情页、编辑 `bank_answer`、删除、重置等。
 
-`saved_answer` 的操作逻辑：
-- 保存时默认 = `original_answer`
-- Answer Polish 开放后，用户可一键「采用 Polish 版本」→ `saved_answer` 更新
-- 用户也可以直接手动编辑 `saved_answer`
-- `original_answer` 永远作为对照参考，不受影响
+每条保存版本保存三层答案，职责分离：
 
-**P0 功能（MVP 范围）：**
-- 从反馈页「保存到答案库」→ 创建记录，显示成功 toast
-- `saved_answer` 初始化为 `original_answer`
-- 答案库列表页基础版本：按题型分组展示已保存答案
-- 点击单条 → 展开查看完整问题 + 三层答案
-- 编辑 `saved_answer`：纯文本编辑，保存更新
+| 字段 | 含义 | 数据类型 | 是否只读 |
+|------|------|---------|---------|
+| `original_answer` | 面试时的完整对话链（含追问），永不修改 | jsonb（exchanges 数组） | ❌ 永远只读 |
+| `polished_answer` | AI 重新设计的更强版本，点击 Answer Polish 后生成 | jsonb（exchanges 数组 + polish_note） | ❌ 只读 |
+| `bank_answer` | 用户在 Bank 页面维护的最终版，可编辑 | jsonb（exchanges 数组） | ✅ 可编辑 |
+
+`bank_answer` 的初始值规则：
+- 从反馈页「Save to Bank」→ `bank_answer` = `original_answer`
+- 从 Polish 结果「Save to Bank」→ 创建一个新版本，`bank_answer` = `polished_answer`
+- 用户只能编辑候选人回答（role=candidate），面试官问题不可编辑
+- `original_answer` 永远保持保存时的状态，作为对照参考
+
+**P0 功能（MVP 范围收紧）：**
+- 从反馈页「Save to Bank」→ 创建记录，toast 提示成功
+- `bank_answer` 初始化为 `original_answer`
+- 重复保存同一题的原始回答 → 按钮变为「Saved ✓」，不创建重复记录
+- 从 Polish 结果保存 → 创建一个新的 Answer Bank 版本，不覆盖已有版本
 
 **P1 功能：**
-- 搜索：按关键词搜索问题文本
-- 删除记录
-- 添加个人备注（`note` 字段）
-- Answer Polish 开放后：显示「采用 Polish 版本」按钮
+- Answer Bank 列表页：平铺列表，tag 筛选（Resume Deep Dive / Behavioral / Motivation & Fit / Culture）
+- 搜索：纯前端，对问题文本和候选人回答匹配
+- 详情页：不同保存版本切换；每个版本内支持 Original / Polished / Your version 三视图
+- 编辑 `bank_answer`：候选人回答可编辑，面试官问题只读
+- Save changes / Reset to original（有确认弹窗）
+- 删除记录（有确认弹窗）
 
 **P2 功能：**
 - 导出为 PDF
@@ -361,9 +407,10 @@ Next Version Should Include：
 
 **验收标准：**
 - [ ] 从反馈页保存 → 显示成功 toast，数据写入数据库
-- [ ] `saved_answer` = `original_answer`（初始值正确）
+- [ ] `bank_answer` = `original_answer`（初始值正确）
+- [ ] 从 Polish 结果保存已有题目 → 创建新版本，不覆盖旧版本
 - [ ] P1：列表按题型分组正确
-- [ ] P1：编辑 `saved_answer` 后保存 → 刷新页面内容不丢失
+- [ ] P1：编辑 `bank_answer` 后保存 → 刷新页面内容不丢失
 - [ ] P1：`original_answer` 始终显示面试时的原始内容，不随编辑变化
 
 ---
@@ -394,17 +441,22 @@ Next Version Should Include：
 **P0 功能：**
 - 复访驱动区完整展示
 - 历史面试记录列表（最近 5 条，「查看更多」展开全部）
-- 简历管理（查看 + 删除）
-
-**P1 功能：**
+- 简历管理（查看 + 删除 + 被设置页复用）
 - JD 历史管理
 - 练习次数统计
+- 答案库入口和题库入口
+
+**P1 功能：**
+- 高级筛选 / 日历筛选
+- 更丰富的趋势图表和资产分析
 
 **验收标准：**
 - [ ] 「开始新的练习」CTA 跳转设置页
 - [ ] 历史记录按时间倒序，显示关键信息
 - [ ] 点击历史记录 → 进入对应反馈页（只读）
 - [ ] 已保存简历可在设置页直接调用
+- [ ] JD 历史可展示并快速复用
+- [ ] 答案库入口和题库入口正常跳转
 - [ ] 头像下拉显示邮箱 + 退出登录功能正常
 
 ---
@@ -415,8 +467,9 @@ Next Version Should Include：
 |------|------|--------|-----------|------|
 | M1 Landing Page | 完整页面 | P0 | ✅ | 价值传递 + 转化 |
 | M2 认证 | Email 登录/注册 | P0 | ✅ | 基础能力 |
-| M2 认证 | Google OAuth | P0 | ✅ | 降低登录摩擦 |
+| M2 认证 | Google OAuth | P0 | ✅ | 降低注册/登录摩擦 |
 | M3 面试前设置 | 完整设置流程 | P0 | ✅ | 已有详细规格 |
+| M3 面试前设置 | 已保存简历复用 | P0 | ✅ | 登录后核心复访能力 |
 | M4a Mode 1 | 专项练习 | P0 | ✅ | 核心功能 |
 | M4b Mode 2 | 占位 UI | P0 | ✅ | 展示产品愿景 |
 | M5 面试会话 | 来电过渡动画 | P0 | ✅ | 体验差异化 |
@@ -425,25 +478,49 @@ Next Version Should Include：
 | M5 面试会话 | 问题链追问 | P0 | ✅ | 核心差异化 |
 | M6 反馈页 | 全局反馈双视角 | P0 | ✅ | 核心差异化 |
 | M6 反馈页 | 单题反馈 | P0 | ✅ | 核心差异化 |
-| M7 Answer Polish | 占位按钮 + 数据结构预留 | P0 | ✅ | 展示愿景，V2 接入 |
-| M8 答案库 | 保存 + 基础列表 + 查看详情 | P0 | ✅ | 资产模块架构就位 |
-| M8 答案库 | 编辑 saved_answer | P0 | ✅ | 用户可维护最终版答案 |
-| M8 答案库 | 搜索 / 删除 / note | P1 | — | Demo 后增强 |
-| M9 个人主页 | 复访驱动区 + 资产管理区 | P0 | ✅ | 复访入口和资产入口 |
+| M7 Answer Polish | 单题点击生成 polished answer + 保存到 Answer Bank | P0 | ✅ | MVP 功能，降低承诺但必须可用 |
+| M8 Answer Bank | 从反馈页/Polish 保存答案 | P0 | ✅ | 保存动作必须可用 |
+| M8 Answer Bank | Polish 保存为新版本 | P0 | ✅ | 不覆盖已有版本 |
+| M8 Answer Bank | 列表 + 分组搜索 | P1 | — | 完整资产库体验 |
+| M8 Answer Bank | 编辑 bank_answer | P1 | — | 完整资产库体验 |
+| M9 个人主页 | 复访驱动区 + 资产管理区 | P0 | ✅ | 登录后完整 Home/Dashboard |
 | M9 个人主页 | 头像下拉（退出登录） | P0 | ✅ | 基础账户操作 |
 | M10 题库 | 公共题库列表 + 分类 | P1 | — | Demo 后加 |
 
 **Demo 必须跑通的最短链路（8 个 P0 环节）：**
 ```
-Landing → Auth（Email + Google）→ Setup → Call → Interview → Feedback → Answer Bank / Home
-（主流程必须完成；Question Bank / Answer Bank / Home 架构必须就位，后续可持续调 prompt、skills 和内容质量）
+Landing → Auth → Setup → Call → Interview → Feedback
+（登录后 Home/Dashboard、已保存简历复用、答案保存、Polish 保存新版本都属于 P0；完整 Answer Bank 列表/搜索/编辑降为 P1）
 ```
 
 ---
 
 ## 5. 技术架构与数据库设计
 
-> 详细内容已独立成文档，本节仅做摘要。完整规格见《Interview Mentor — 技术架构与数据库设计》。
+> 详细内容已独立成文档，本节仅做摘要。完整规格见《OfferUp — 技术架构与数据库设计》。
+>
+> 产品质量评估另见《OfferUp — Product Evaluation Metrics》。该文档定义 MVP 是否达到“合格 / 有效 / 优秀”的分级门槛，主 PRD 的模块验收标准只判断功能是否完成，不替代产品有效性评估。
+
+### 5.0 产品质量评估门槛
+
+MVP 发布不只看 P0 功能是否完成，还必须通过三层产品质量门槛：
+
+| 层级 | 判断问题 | 最低要求 |
+|---|---|---|
+| 合格 | 产品是否能稳定跑通，不误导用户？ | 核心链路可完成；反馈有 evidence；Polish 不编造事实；错误可恢复 |
+| 有效 | 产品是否真的交付核心价值？ | 用户认为问题相关、反馈具体、建议可行动，并愿意保存或重写至少一条答案 |
+| 优秀 | 产品是否值得继续投入？ | 出现 aha moment、二次练习、答案资产化或推荐意愿等复访/传播信号 |
+
+北极星指标：
+
+```text
+Diagnostic Action Rate
+= 完成反馈后产生诊断后行动的用户数 / 打开反馈页的用户数
+```
+
+一次“诊断后行动”包括：完成至少 1 次 Answer Polish、保存至少 1 条答案到 Answer Bank、在反馈页确认知道下一步怎么改，或点击 Start new session。
+
+辅助漏斗指标是 `Qualified Practice Completion Rate`：完成 Setup、生成至少 3 道主问题、回答至少 2 道主问题、打开反馈页，并看到总体反馈与至少 2 道单题反馈。
 
 ### 5.1 技术栈（已确认）
 
@@ -466,7 +543,7 @@ jd_history        ← 使用过的 JD 历史
 interview_sessions ← 每次面试的配置和状态
 question_chains   ← 每道主问题 + 完整追问链 + 双视角反馈
 session_feedback  ← 每次面试的全局反馈
-answer_bank       ← 用户答案库（original / polished / saved 三层）
+answer_bank       ← 用户答案库（original / polished / bank 三层）
 question_library  ← 公共题库（AI 抽题参考）
 ```
 
@@ -477,8 +554,10 @@ question_library  ← 公共题库（AI 抽题参考）
 | 字段 | 含义 | 可否编辑 |
 |------|------|---------|
 | `original_answer` | 面试原始回答，永久只读 | ❌ |
-| `polished_answer` | AI Polish 版本，Answer Polish 开放后才有值 | ❌ |
-| `saved_answer` | 用户维护的最终版，可自由编辑 | ✅ |
+| `polished_answer` | AI Polish 版本，用户点击 Answer Polish 后生成 | ❌ |
+| `bank_answer` | 用户维护的最终版，可自由编辑 | ✅ |
+
+Polish 保存到已有题目时，创建新的保存版本，不覆盖旧版本。技术结构使用 `answer_group_id` + `version_number` 将同一题的多个 `answer_bank` 记录归组。
 
 ### 5.4 单次面试成本估算
 
@@ -494,8 +573,7 @@ question_library  ← 公共题库（AI 抽题参考）
 | 追问质量差（追问变成重复问题） | 中 | 在追问 prompt 中明确禁止重复，给 3–5 个好追问示例 |
 | Whisper 识别非英语效果不稳定 | 中 | 支持文字输入兜底；指定 language 参数给 Whisper |
 | Demo 时 API 超时或失败 | 高 | 准备 fallback 静态数据（hardcode 一套完整的 demo 数据） |
-| 成本超支 | 低 | MVP 统一 DeepSeek V3；seed user 限制每天次数 |
-| 反馈没有 aha moment | 高 | 准备 5 个 golden cases，持续评估 Signal / Heard / Next Version 是否具体、尖锐、可执行 |
+| 成本超支 | 低 | DeepSeek 轻量步骤用 V3，推理步骤用 R1；seed user 限制每天次数 |
 | 时间不足 | 高 | 严格按 P0 清单执行，P1 全部砍掉，Demo 后再补 |
 
 ---
@@ -518,7 +596,7 @@ Demo 必须准备以下固定数据（fallback 保底用）：
 4. 面试会话：展示 2–3 道问题 + AI 追问（90 秒）
 5. 反馈页：重点展示单题 HR 评估（60 秒）
 6. 保存到 Answer Bank（15 秒）
-7. 指向「即将开放」的 Mode 2 和 Answer Polish（20 秒）
+7. 展示 Answer Polish 生成 polished answer，并说明 Mode 2 即将开放（20 秒）
 
 **总 Demo 时长：约 4 分钟。**
 
@@ -593,11 +671,9 @@ MVP 阶段的优先级顺序：**功能正确 > 体验流畅 > 视觉精致 > �
 
 | # | 问题 | 影响 | 是否阻塞开发 | 备注 |
 |---|------|------|------------|------|
-| 1 | 语音输入：MVP 阶段做文字 + 录音双轨，还是纯文字先跑通 | 高 | ⚠️ 影响 M5 开发方式 | 建议：先做纯文字跑通流程，录音作为 P1 补充 |
-| 2 | 面试官 HR 风格：正式严肃 vs 专业友好 | 中 | 否，可后期调 prompt | 建议：默认「专业友好」，更接近 B2B SaaS 真实面试风格 |
-| 3 | Google OAuth：一期是否实现 | 已决策 | 否 | P0 实现，统一走 Supabase Auth |
-| 4 | Demo 界面语言：全英文还是中英双语 | 中 | 否，但尽早决定 | 建议：全英文，目标用户是准备英文面试的人，界面语言本身就是产品信号 |
-| 5 | GDPR / EU AI Act 合规：demo 阶段需要做到什么程度 | 中 | 否 | 建议：demo 阶段在 Landing Page 底部加简单 Privacy Notice，声明数据用途和不转售；正式上线前需要完整 GDPR 合规评估 |
+| 1 | 面试官 HR 风格：正式严肃 vs 专业友好 | 中 | 否，可后期调 prompt | 建议：默认「专业友好」，更接近 B2B SaaS 真实面试风格 |
+| 2 | Demo 界面语言：全英文还是中英双语 | 中 | 否，但尽早决定 | 建议：全英文，目标用户是准备英文面试的人，界面语言本身就是产品信号 |
+| 3 | GDPR / EU AI Act 合规：demo 阶段需要做到什么程度 | 中 | 否 | 建议：demo 阶段在 Landing Page 底部加简单 Privacy Notice，声明数据用途和不转售；正式上线前需要完整 GDPR 合规评估 |
 
 ---
 
@@ -605,7 +681,7 @@ MVP 阶段的优先级顺序：**功能正确 > 体验流畅 > 视觉精致 > �
 
 以下功能已识别价值，明确延后：
 
-- **Answer Polish 功能完整实现**：AI 润色答案，展示优化前后对比（数据结构已预留）
+- **Answer Polish 高级能力**：复杂版本对比编辑、重新生成策略、批量 Polish
 - **Mode 2 全流程模拟**：多轮面试 + AI 公司调研
 - **实时语音流**：WebSocket 双向语音，零延迟体验
 - **Deutsch 面试语言**：德语问题生成和评估
@@ -616,5 +692,5 @@ MVP 阶段的优先级顺序：**功能正确 > 体验流畅 > 视觉精致 > �
 
 ---
 
-*文档最后更新：2026-06-08（v1.2）*  
+*文档最后更新：2026-06-18（v1.4）*  
 *关联文档：技术架构文档 · Agent 设计规格 · 设置页规格*

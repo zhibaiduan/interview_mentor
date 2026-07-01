@@ -1,0 +1,2216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OfferUp Design System Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=Libre+Baskerville:wght@400;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Noto+Sans+SC:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-paper: #faf7f1;
+      --color-paper-soft: #f6f1e8;
+      --color-paper-deep: #eee7dc;
+      --color-surface: #fffaf2;
+      --color-surface-muted: rgba(255, 250, 242, 0.72);
+
+      --color-ink: #29241f;
+      --color-ink-2: #3a342d;
+      --color-ink-soft: #6f665e;
+      --color-muted: #8a8178;
+      --color-muted-soft: #b4aaa0;
+
+      --color-line: #ddd5ca;
+      --color-line-soft: #ebe4da;
+      --color-line-strong: #c8beb1;
+
+      --color-sage: #3f6b52;
+      --color-sage-soft: #e6f0e9;
+      --color-sage-border: #b9d3c1;
+      --color-sage-text: #2f5842;
+
+      --color-blue-gray: #4a647a;
+      --color-blue-gray-soft: #e6edf2;
+      --color-blue-gray-border: #becbd5;
+      --color-blue-gray-text: #334c60;
+
+      --color-amber: #9a6b2f;
+      --color-amber-soft: #f4eadb;
+      --color-amber-border: #dec796;
+      --color-amber-text: #6a4f28;
+
+      --color-clay-red: #9a4f4f;
+      --color-clay-red-soft: #f8eded;
+      --color-clay-red-border: #cfb1b1;
+      --color-clay-red-text: #884040;
+
+      --texture-paper-opacity: 0.035;
+      --gradient-page:
+        radial-gradient(44rem 28rem at 8% 8%, rgba(255, 253, 248, 0.78), transparent 64%),
+        radial-gradient(34rem 24rem at 92% 18%, rgba(230, 240, 233, 0.46), transparent 68%),
+        radial-gradient(30rem 22rem at 86% 86%, rgba(244, 234, 219, 0.38), transparent 70%);
+      --gradient-report:
+        radial-gradient(36rem 24rem at 90% 12%, rgba(230, 237, 242, 0.44), transparent 70%),
+        radial-gradient(30rem 20rem at 14% 88%, rgba(230, 240, 233, 0.36), transparent 72%);
+
+      --font-display: "Lora", "Iowan Old Style", "Palatino", "Times New Roman", serif;
+      --font-ui: "IBM Plex Sans", "Avenir Next", "SF Pro Text", "Inter", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --font-cjk: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+      --font-de: "IBM Plex Sans", "Avenir Next", "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "DM Mono", "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
+
+      --text-label: 11px;
+      --text-xs: 12px;
+      --text-sm: 14px;
+      --text-base: 16px;
+      --text-lg: 18px;
+      --text-xl: 24px;
+      --text-2xl: 32px;
+      --text-3xl: 48px;
+
+      --leading-tight: 1.08;
+      --leading-heading: 1.18;
+      --leading-body: 1.62;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --density-section-y: 32px;
+      --density-panel-pad: 18px;
+      --density-card-min: 150px;
+
+      --radius-xs: 4px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 14px;
+      --radius-pill: 999px;
+
+      --shadow-panel: 0 12px 30px rgba(38, 34, 28, 0.045);
+      --shadow-float: 0 24px 60px rgba(38, 34, 28, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--color-ink);
+      font-family: var(--font-ui);
+      background-color: var(--color-paper);
+      background-image:
+        linear-gradient(rgba(41, 36, 31, var(--texture-paper-opacity)) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41, 36, 31, 0.022) 1px, transparent 1px),
+        var(--gradient-page);
+      background-size: 72px 72px, 72px 72px, auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    .page {
+      width: min(1080px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 34px 0 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: var(--space-8);
+      align-items: end;
+      padding: 20px 0 32px;
+      border-bottom: 1px solid var(--color-line);
+      margin-bottom: var(--space-6);
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      max-width: 760px;
+      font-family: var(--font-display);
+      font-size: 42px;
+      line-height: var(--leading-tight);
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    h1 em {
+      color: var(--color-ink-soft);
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .hero p {
+      max-width: 660px;
+      margin-top: var(--space-4);
+      color: var(--color-ink-soft);
+      font-size: var(--text-base);
+      line-height: var(--leading-body);
+    }
+
+    .hero-note {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-lg);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .hero-note strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: var(--text-xl);
+      font-weight: 500;
+      margin-bottom: var(--space-2);
+    }
+
+    .hero-note span {
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+    }
+
+    .section {
+      padding: var(--density-section-y) 0;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-6);
+      align-items: end;
+      margin-bottom: var(--space-5);
+    }
+
+    .section h2 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      line-height: var(--leading-heading);
+      font-weight: 500;
+    }
+
+    .section-desc {
+      max-width: 450px;
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.65;
+      text-align: right;
+    }
+
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .principle-card {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      min-height: var(--density-card-min);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .principle-number {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      color: var(--color-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-5);
+    }
+
+    .principle-title {
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 500;
+      line-height: 1.18;
+      margin-bottom: var(--space-3);
+    }
+
+    .principle-copy {
+      color: var(--color-ink-soft);
+      font-size: var(--text-sm);
+      line-height: 1.65;
+    }
+
+    .reference-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--space-5);
+      border-top: 1px solid var(--color-line);
+      border-bottom: 1px solid var(--color-line);
+      font-size: var(--text-sm);
+    }
+
+    .reference-table th,
+    .reference-table td {
+      padding: var(--space-3) var(--space-3);
+      border-bottom: 1px solid var(--color-line-soft);
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.48;
+    }
+
+    .reference-table th {
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .reference-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .token-architecture {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .architecture-card {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      min-height: 210px;
+      box-shadow: var(--shadow-panel);
+    }
+
+    .architecture-card h3 {
+      margin: 0 0 var(--space-3);
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 500;
+      line-height: 1.18;
+    }
+
+    .architecture-card p {
+      margin: 0 0 var(--space-4);
+      color: var(--color-ink-soft);
+      font-size: var(--text-sm);
+      line-height: 1.65;
+    }
+
+    .token-list {
+      display: grid;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      color: var(--color-muted);
+    }
+
+    .token-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      border: 1px solid var(--color-line-soft);
+      border-radius: var(--radius-sm);
+      padding: 7px 8px;
+      background: rgba(255, 253, 248, 0.42);
+    }
+
+    .token-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--dot);
+      border: 1px solid rgba(41, 36, 31, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .state-demo {
+      display: grid;
+      gap: var(--space-2);
+      margin-top: var(--space-4);
+    }
+
+    .state-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      color: var(--color-ink-2);
+      background: rgba(255, 253, 248, 0.38);
+      font-size: var(--text-sm);
+    }
+
+    .state-row.hover { background: rgba(255, 253, 248, 0.58); }
+    .state-row.selected { background: var(--color-sage-soft); border-color: var(--color-sage-border); }
+    .state-row.locked { opacity: 0.58; }
+
+    .layout-preview {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-paper);
+      min-height: 132px;
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+    }
+
+    .layout-preview-sidebar {
+      border-right: 1px solid var(--color-line);
+      background: rgba(255, 253, 248, 0.42);
+    }
+
+    .layout-preview-main {
+      padding: var(--space-4);
+      display: grid;
+      gap: var(--space-3);
+      align-content: start;
+    }
+
+    .layout-preview-line {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--color-line-soft);
+    }
+
+    .layout-preview-line.dark {
+      width: 48%;
+      background: var(--color-ink);
+    }
+
+    .swatch {
+      min-height: 112px;
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--color-surface-muted);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .swatch-color {
+      height: 58px;
+      border-bottom: 1px solid rgba(41, 36, 31, 0.08);
+      background: var(--swatch);
+    }
+
+    .swatch-meta {
+      padding: var(--space-3);
+    }
+
+    .token-name {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-muted);
+      margin-bottom: var(--space-1);
+    }
+
+    .token-value {
+      display: block;
+      font-size: var(--text-sm);
+      color: var(--color-ink-2);
+    }
+
+    .type-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: var(--space-6);
+    }
+
+    .type-sample {
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-4);
+    }
+
+    .display-3xl {
+      font-family: var(--font-display);
+      font-size: 42px;
+      line-height: var(--leading-tight);
+      font-weight: 500;
+      margin-bottom: var(--space-4);
+    }
+
+    .display-2xl {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      line-height: var(--leading-heading);
+      font-weight: 500;
+      margin-bottom: var(--space-4);
+    }
+
+    .body-sample {
+      font-size: var(--text-base);
+      line-height: var(--leading-body);
+      color: var(--color-ink-soft);
+      max-width: 570px;
+    }
+
+    .label-sample {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: var(--space-3);
+    }
+
+    .scale-list {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    .language-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+    }
+
+    .language-card {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      min-height: 142px;
+    }
+
+    .language-card h3 {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin: 0 0 var(--space-3);
+    }
+
+    .language-card p {
+      font-size: var(--text-base);
+      line-height: var(--leading-body);
+      color: var(--color-ink-2);
+    }
+
+    .language-card.cjk p {
+      font-family: var(--font-cjk);
+      line-height: 1.72;
+    }
+
+    .language-card.de p {
+      font-family: var(--font-de);
+    }
+
+    .font-specimen-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+    }
+
+    .font-specimen {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      min-height: 184px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .font-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+      align-items: center;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .font-name {
+      font-size: 29px;
+      line-height: 1.05;
+      color: var(--color-ink);
+    }
+
+    .font-large {
+      font-size: 23px;
+      line-height: 1.16;
+      color: var(--color-ink-2);
+    }
+
+    .font-body {
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.55;
+      margin-top: auto;
+    }
+
+    .pairing-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+      margin-top: var(--space-5);
+    }
+
+    .pairing-card {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--space-6);
+      min-height: 292px;
+      box-shadow: var(--shadow-panel);
+    }
+
+    .pairing-card.recommended {
+      border-color: var(--color-line-strong);
+      background:
+        linear-gradient(rgba(255, 253, 248, 0.72), rgba(255, 253, 248, 0.72)),
+        var(--gradient-page);
+    }
+
+    .pairing-kicker {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    .pairing-title {
+      font-size: 32px;
+      line-height: 1.06;
+      font-weight: 500;
+      color: var(--color-ink);
+      margin-bottom: var(--space-4);
+    }
+
+    .pairing-body {
+      font-size: var(--text-base);
+      line-height: var(--leading-body);
+      color: var(--color-ink-soft);
+      margin-bottom: var(--space-5);
+    }
+
+    .pairing-ui-row {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-4);
+      align-items: center;
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-4);
+    }
+
+    .pairing-control {
+      border: 1px solid var(--color-line-strong);
+      border-radius: var(--radius-md);
+      padding: 9px 13px;
+      color: var(--color-ink);
+      background: rgba(255, 253, 248, 0.58);
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .font-note-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+    }
+
+    .font-note {
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-4);
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.65;
+    }
+
+    .font-note strong {
+      color: var(--color-ink);
+      font-weight: 600;
+    }
+
+    .scale-row {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: var(--space-3);
+      align-items: baseline;
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+
+    .scale-row span:first-child {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-muted);
+    }
+
+    .component-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+
+    .panel {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 21px;
+      line-height: var(--leading-heading);
+      font-weight: 500;
+      margin-bottom: var(--space-2);
+    }
+
+    .panel-copy {
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.62;
+      margin-bottom: var(--space-4);
+    }
+
+    .button-row, .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      align-items: center;
+    }
+
+    .btn {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-line-strong);
+      background: transparent;
+      color: var(--color-ink);
+      padding: 8px 13px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: default;
+    }
+
+    .btn.primary {
+      border-color: var(--color-ink);
+      background: var(--color-ink);
+      color: var(--color-paper);
+    }
+
+    .btn.sage {
+      border-color: var(--color-sage);
+      background: var(--color-sage);
+      color: var(--color-surface);
+    }
+
+    .btn.disabled {
+      opacity: 0.46;
+    }
+
+    .btn.danger {
+      border-color: var(--color-clay-red-border);
+      background: transparent;
+      color: var(--color-clay-red-text);
+    }
+
+    .btn.ghost {
+      border-color: transparent;
+      color: var(--color-ink-soft);
+      padding-inline: 4px;
+    }
+
+    .field-stack {
+      display: grid;
+      gap: var(--space-3);
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-ink);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    .field-focus {
+      border-color: var(--color-sage-border);
+      box-shadow: 0 0 0 4px rgba(63, 107, 82, 0.1);
+    }
+
+    .field-error {
+      border-color: var(--color-clay-red-border);
+      background: var(--color-clay-red-soft);
+    }
+
+    .field-helper {
+      margin-top: var(--space-2);
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.5;
+    }
+
+    .field-helper.error {
+      color: var(--color-clay-red-text);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--badge-border);
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 4px 9px;
+      font-size: var(--text-label);
+      font-weight: 600;
+    }
+
+    .badge.strong { --badge-bg: var(--color-sage-soft); --badge-border: var(--color-sage-border); --badge-text: var(--color-sage-text); }
+    .badge.role { --badge-bg: var(--color-blue-gray-soft); --badge-border: var(--color-blue-gray-border); --badge-text: var(--color-blue-gray-text); }
+    .badge.growing { --badge-bg: var(--color-amber-soft); --badge-border: var(--color-amber-border); --badge-text: var(--color-amber-text); }
+    .badge.concern { --badge-bg: var(--color-clay-red-soft); --badge-border: var(--color-clay-red-border); --badge-text: var(--color-clay-red-text); }
+    .badge.locked { --badge-bg: var(--color-line-soft); --badge-border: var(--color-line); --badge-text: var(--color-muted); }
+
+    .primitive-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+    }
+
+    .primitive-card {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      min-height: 210px;
+      box-shadow: var(--shadow-panel);
+    }
+
+    .primitive-title {
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 500;
+      line-height: 1.18;
+      margin-bottom: var(--space-3);
+    }
+
+    .primitive-copy {
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.6;
+      margin-bottom: var(--space-4);
+    }
+
+    .list-demo {
+      border-top: 1px solid var(--color-line);
+    }
+
+    .list-demo-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+
+    .list-demo-row strong {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-ink);
+      margin-bottom: 3px;
+    }
+
+    .list-demo-row span {
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+    }
+
+    .report-block-demo {
+      display: grid;
+      gap: 0;
+      border-top: 1px solid var(--color-line);
+    }
+
+    .report-mini-block {
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+
+    .report-mini-label {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    .report-mini-text {
+      color: var(--color-ink-2);
+      font-size: var(--text-sm);
+      line-height: 1.65;
+    }
+
+    .modal-demo {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-lg);
+      background: var(--color-paper-soft);
+      padding: var(--density-panel-pad);
+      box-shadow: var(--shadow-float);
+    }
+
+    .toast-demo {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      border: 1px solid var(--color-sage-border);
+      border-radius: var(--radius-md);
+      background: var(--color-sage-soft);
+      color: var(--color-sage-text);
+      padding: 10px 12px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .tooltip-demo {
+      display: inline-flex;
+      border-radius: var(--radius-sm);
+      background: var(--color-ink);
+      color: var(--color-paper);
+      padding: 7px 9px;
+      font-size: var(--text-xs);
+      line-height: 1.3;
+    }
+
+    .pattern-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .pattern-card {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      min-height: 190px;
+      box-shadow: var(--shadow-panel);
+    }
+
+    .pattern-card h3 {
+      font-family: var(--font-display);
+      font-size: 21px;
+      line-height: 1.18;
+      font-weight: 500;
+      margin: 0 0 var(--space-2);
+    }
+
+    .pattern-card p {
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.55;
+      margin: 0 0 var(--space-4);
+    }
+
+    .pattern-list {
+      display: grid;
+      gap: var(--space-2);
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-3);
+    }
+
+    .pattern-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-3);
+      align-items: center;
+      color: var(--color-ink-2);
+      font-size: var(--text-sm);
+    }
+
+    .pattern-row code {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      color: var(--color-muted);
+    }
+
+    .layer-map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .layer-step {
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-3);
+    }
+
+    .layer-step span {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    .layer-step strong {
+      display: block;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-ink);
+      line-height: 1.4;
+    }
+
+    .contract-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: var(--space-4);
+    }
+
+    .contract-panel {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .contract-panel h3 {
+      font-family: var(--font-display);
+      font-size: 21px;
+      line-height: 1.18;
+      font-weight: 500;
+      margin: 0 0 var(--space-3);
+    }
+
+    .contract-tree {
+      display: grid;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      color: var(--color-muted);
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-3);
+    }
+
+    .contract-tree strong {
+      color: var(--color-ink);
+      font-weight: 500;
+    }
+
+    .contract-checks {
+      display: grid;
+      gap: var(--space-2);
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-3);
+    }
+
+    .contract-check {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      gap: var(--space-2);
+      align-items: start;
+      color: var(--color-ink-2);
+      font-size: var(--text-sm);
+      line-height: 1.45;
+    }
+
+    .contract-check::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 50%;
+      border: 1px solid var(--color-sage-border);
+      background: var(--color-sage-soft);
+    }
+
+    .api-row {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: var(--space-3);
+      align-items: baseline;
+      padding: var(--space-2) 0;
+      border-top: 1px solid var(--color-line-soft);
+      font-size: var(--text-sm);
+    }
+
+    .api-row span {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      color: var(--color-muted);
+    }
+
+    .api-row code {
+      font-family: var(--font-mono);
+      font-size: var(--text-label);
+      color: var(--color-ink-2);
+      white-space: normal;
+    }
+
+    .freeze-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-4);
+    }
+
+    .freeze-panel {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-muted);
+      padding: var(--density-panel-pad);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .freeze-panel h3 {
+      font-family: var(--font-display);
+      font-size: 21px;
+      line-height: 1.18;
+      font-weight: 500;
+      margin: 0 0 var(--space-3);
+    }
+
+    .freeze-list {
+      display: grid;
+      gap: var(--space-2);
+      border-top: 1px solid var(--color-line);
+      padding-top: var(--space-3);
+    }
+
+    .freeze-item {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: var(--space-2);
+      align-items: start;
+      color: var(--color-ink-2);
+      font-size: var(--text-sm);
+      line-height: 1.45;
+    }
+
+    .freeze-mark {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      margin-top: 2px;
+      border: 1px solid var(--color-sage-border);
+      background: var(--color-sage-soft);
+      color: var(--color-sage-text);
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    .freeze-item.pending .freeze-mark {
+      border-color: var(--color-amber-border);
+      background: var(--color-amber-soft);
+      color: var(--color-amber-text);
+    }
+
+    .freeze-item.gate .freeze-mark {
+      border-color: var(--color-line);
+      background: rgba(255, 253, 248, 0.52);
+      color: var(--color-muted);
+    }
+
+    .radius-grid, .space-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: var(--space-3);
+    }
+
+    .radius-box {
+      height: 66px;
+      border: 1px solid var(--color-line);
+      background: var(--color-surface-muted);
+      border-radius: var(--radius);
+      padding: var(--space-3);
+      display: flex;
+      align-items: end;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    .space-box {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface-muted);
+      height: 66px;
+      padding: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+    }
+
+    .space-mark {
+      width: var(--mark);
+      height: 18px;
+      border-radius: 2px;
+      background: var(--color-ink);
+    }
+
+    .atmosphere-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .atmosphere {
+      min-height: 220px;
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      overflow: hidden;
+      position: relative;
+      background-color: var(--color-paper);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .atmosphere.page-bg {
+      background-image:
+        linear-gradient(rgba(41, 36, 31, var(--texture-paper-opacity)) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41, 36, 31, 0.022) 1px, transparent 1px),
+        var(--gradient-page);
+      background-size: 72px 72px, 72px 72px, auto;
+    }
+
+    .atmosphere.report-bg {
+      background-image:
+        linear-gradient(rgba(41, 36, 31, 0.026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41, 36, 31, 0.018) 1px, transparent 1px),
+        var(--gradient-report);
+      background-size: 72px 72px, 72px 72px, auto;
+    }
+
+    .mini-shell {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      min-height: 300px;
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--color-paper);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .mini-sidebar {
+      border-right: 1px solid var(--color-line);
+      padding: var(--density-panel-pad);
+      background: rgba(255, 253, 248, 0.35);
+    }
+
+    .mini-logo {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-5);
+    }
+
+    .mini-nav {
+      display: grid;
+      gap: var(--space-1);
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+    }
+
+    .mini-nav span {
+      padding: 8px 9px;
+      border-radius: var(--radius-sm);
+    }
+
+    .mini-nav span.active {
+      color: var(--color-ink);
+      background: var(--color-surface);
+      border: 1px solid var(--color-line);
+    }
+
+    .mini-main {
+      padding: var(--space-6);
+      background-image: var(--gradient-page);
+    }
+
+    .mini-title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      line-height: var(--leading-heading);
+      font-weight: 500;
+      margin-bottom: var(--space-5);
+    }
+
+    .mini-title em {
+      color: var(--color-ink-soft);
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .mini-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .mini-entry {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-md);
+      padding: var(--density-panel-pad);
+      background: var(--color-surface-muted);
+    }
+
+    .mini-entry.locked {
+      opacity: 0.58;
+    }
+
+    .mini-entry h3 {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 500;
+      margin-bottom: var(--space-2);
+    }
+
+    .mini-entry p {
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.55;
+    }
+
+    .mini-list {
+      border-top: 1px solid var(--color-line);
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-4);
+      align-items: center;
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--color-line-soft);
+    }
+
+    .mini-row strong {
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    .mini-row small {
+      display: block;
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      margin-top: 3px;
+    }
+
+    .report-sample {
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background-color: var(--color-paper);
+      background-image: var(--gradient-report);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .report-inner {
+      padding: var(--space-6);
+    }
+
+    .report-title {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      line-height: var(--leading-heading);
+      font-weight: 500;
+      margin-bottom: var(--space-2);
+    }
+
+    .report-meta {
+      color: var(--color-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-6);
+    }
+
+    .feedback-block {
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: var(--space-6);
+      padding: var(--space-4) 0;
+      border-top: 1px solid var(--color-line);
+    }
+
+    .feedback-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+    }
+
+    .feedback-text {
+      color: var(--color-ink-2);
+      font-size: var(--text-base);
+      line-height: var(--leading-body);
+    }
+
+    .feedback-block.next .feedback-label,
+    .feedback-block.next .feedback-text {
+      color: var(--color-amber-text);
+    }
+
+    .footer-note {
+      padding-top: var(--space-6);
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+      line-height: 1.65;
+    }
+
+    @media (max-width: 900px) {
+      .page { width: min(100% - 24px, 720px); padding-top: 28px; }
+      .hero, .type-grid, .component-grid, .atmosphere-grid { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-desc { text-align: left; margin-top: var(--space-3); }
+      .swatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .philosophy-grid { grid-template-columns: 1fr; }
+      .token-architecture { grid-template-columns: 1fr; }
+      .language-grid { grid-template-columns: 1fr; }
+      .font-specimen-grid, .pairing-grid, .font-note-grid { grid-template-columns: 1fr; }
+      .primitive-grid { grid-template-columns: 1fr; }
+      .pattern-grid, .layer-map { grid-template-columns: 1fr; }
+      .contract-grid { grid-template-columns: 1fr; }
+      .freeze-grid { grid-template-columns: 1fr; }
+      .radius-grid, .space-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .mini-shell { grid-template-columns: 1fr; }
+      .mini-sidebar { border-right: 0; border-bottom: 1px solid var(--color-line); }
+      .feedback-block { grid-template-columns: 1fr; gap: var(--space-2); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">OfferUp Design System</div>
+        <h1>Refined editorial workspace,<br><em>built from shared tokens.</em></h1>
+        <p>This preview shows the current core tokens as real UI material: colors, typography, spacing, radius, atmosphere, controls, and sample product surfaces.</p>
+      </div>
+      <aside class="hero-note">
+        <strong>Review target</strong>
+        <span>Check whether the palette feels premium, calm, and precise enough before we freeze it into production tokens.</span>
+      </aside>
+    </header>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">00 / Reference Layer</div>
+          <h2>Simple first, then hierarchy, warmth, and refinement.</h2>
+        </div>
+        <p class="section-desc">This layer is the judging standard for every token and component decision below.</p>
+      </div>
+
+      <div class="philosophy-grid">
+        <article class="principle-card">
+          <div class="principle-number">01</div>
+          <h3 class="principle-title">Simplicity first</h3>
+          <p class="principle-copy">Remove unrelated decoration, extra containers, redundant copy, and visual noise. Minimal should feel edited, not unfinished.</p>
+        </article>
+        <article class="principle-card">
+          <div class="principle-number">02</div>
+          <h3 class="principle-title">Hierarchy serves information</h3>
+          <p class="principle-copy">Spacing, type, color, and component weight must clarify what matters first, second, and third.</p>
+        </article>
+        <article class="principle-card">
+          <div class="principle-number">03</div>
+          <h3 class="principle-title">Warm refinement</h3>
+          <p class="principle-copy">Warmth comes from paper, limewash ink, Lora, and soft accents. Refinement comes from alignment, thin lines, and restraint.</p>
+        </article>
+        <article class="principle-card">
+          <div class="principle-number">04</div>
+          <h3 class="principle-title">Atmosphere after structure</h3>
+          <p class="principle-copy">Texture and gradients may add craft only after the layout hierarchy is clear. Mood must never compete with content.</p>
+        </article>
+      </div>
+
+      <table class="reference-table">
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Take</th>
+            <th>Do not take</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Current OfferUp landing</td>
+            <td>Warm paper, limewash black, serif headline, calm CTA.</td>
+            <td>Old score-first dashboard patterns.</td>
+          </tr>
+          <tr>
+            <td>Editorial AI sites</td>
+            <td>Quiet confidence, typography-led beauty, off-white canvas.</td>
+            <td>Floating gradient orbs, generic AI spectacle.</td>
+          </tr>
+          <tr>
+            <td>Workspace products</td>
+            <td>Precise spacing, low visual noise, clear hierarchy.</td>
+            <td>Cold monochrome sameness or generic productivity UI.</td>
+          </tr>
+          <tr>
+            <td>Editorial reports</td>
+            <td>Reading rhythm, hairline dividers, strong section hierarchy.</td>
+            <td>Decorative magazine layouts that weaken usability.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">01 / Color Tokens</div>
+          <h2>Canvas, ink, lines, and semantic accents.</h2>
+        </div>
+        <p class="section-desc">Hex values should live only in the token layer. Product pages should consume semantic names.</p>
+      </div>
+
+      <div class="swatch-grid">
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-paper)"></div><div class="swatch-meta"><span class="token-name">--color-paper</span><span class="token-value">#FAF7F1</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-paper-soft)"></div><div class="swatch-meta"><span class="token-name">--color-paper-soft</span><span class="token-value">#F6F1E8</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-surface)"></div><div class="swatch-meta"><span class="token-name">--color-surface</span><span class="token-value">#FFFAF2</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-ink)"></div><div class="swatch-meta"><span class="token-name">--color-ink</span><span class="token-value">#29241F</span></div></article>
+
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-ink-soft)"></div><div class="swatch-meta"><span class="token-name">--color-ink-soft</span><span class="token-value">#6F665E</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-line)"></div><div class="swatch-meta"><span class="token-name">--color-line</span><span class="token-value">#DDD5CA</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-sage)"></div><div class="swatch-meta"><span class="token-name">--color-sage</span><span class="token-value">#3F6B52</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-sage-soft)"></div><div class="swatch-meta"><span class="token-name">--color-sage-soft</span><span class="token-value">#E6F0E9</span></div></article>
+
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-blue-gray)"></div><div class="swatch-meta"><span class="token-name">--color-blue-gray</span><span class="token-value">#4A647A</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-blue-gray-soft)"></div><div class="swatch-meta"><span class="token-name">--color-blue-gray-soft</span><span class="token-value">#E6EDF2</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-amber)"></div><div class="swatch-meta"><span class="token-name">--color-amber</span><span class="token-value">#9A6B2F</span></div></article>
+        <article class="swatch"><div class="swatch-color" style="--swatch: var(--color-clay-red)"></div><div class="swatch-meta"><span class="token-name">--color-clay-red</span><span class="token-value">#9A4F4F</span></div></article>
+      </div>
+
+      <div class="font-note-grid">
+        <p class="font-note"><strong>Primary actions are ink:</strong> Start, Continue, Submit, Polish, and primary navigation actions should use limewash black by default.</p>
+        <p class="font-note"><strong>Sage is limited:</strong> use green for Save, Saved, Success, completed/progress signals, and small positive status accents. Avoid green-dominant pages.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">01B / Foundation Token Architecture</div>
+          <h2>Primitive tokens become semantic product decisions.</h2>
+        </div>
+        <p class="section-desc">Implementation should prefer semantic aliases, layout tokens, and state tokens instead of reaching for raw values in page code.</p>
+      </div>
+
+      <div class="token-architecture">
+        <article class="architecture-card">
+          <h3>Semantic aliases</h3>
+          <p>Components should use meaning first. Core action stays ink; sage is reserved for save, success, and completion states.</p>
+          <div class="token-list">
+            <div class="token-pill"><span>--text-primary</span><span class="token-dot" style="--dot: var(--color-ink)"></span></div>
+            <div class="token-pill"><span>--bg-surface</span><span class="token-dot" style="--dot: var(--color-surface)"></span></div>
+            <div class="token-pill"><span>--border-default</span><span class="token-dot" style="--dot: var(--color-line)"></span></div>
+            <div class="token-pill"><span>--accent-action</span><span class="token-dot" style="--dot: var(--color-ink)"></span></div>
+            <div class="token-pill"><span>--accent-save</span><span class="token-dot" style="--dot: var(--color-sage)"></span></div>
+            <div class="token-pill"><span>--accent-role</span><span class="token-dot" style="--dot: var(--color-blue-gray)"></span></div>
+            <div class="token-pill"><span>--accent-drill</span><span class="token-dot" style="--dot: var(--color-amber)"></span></div>
+          </div>
+        </article>
+
+        <article class="architecture-card">
+          <h3>Layout tokens</h3>
+          <p>Shells and pages share width, padding, sidebar, and readable measure decisions.</p>
+          <div class="layout-preview">
+            <div class="layout-preview-sidebar"></div>
+            <div class="layout-preview-main">
+              <div class="layout-preview-line dark"></div>
+              <div class="layout-preview-line" style="width: 82%;"></div>
+              <div class="layout-preview-line" style="width: 64%;"></div>
+              <div class="layout-preview-line" style="width: 92%; margin-top: 18px;"></div>
+              <div class="layout-preview-line" style="width: 74%;"></div>
+            </div>
+          </div>
+          <div class="token-list" style="margin-top: var(--space-4);">
+            <div class="token-pill"><span>--layout-sidebar</span><span>224px</span></div>
+            <div class="token-pill"><span>--layout-content-max</span><span>1080px</span></div>
+            <div class="token-pill"><span>--measure-readable</span><span>680px</span></div>
+          </div>
+        </article>
+
+        <article class="architecture-card">
+          <h3>State tokens</h3>
+          <p>Hover, selected, locked, disabled, skeleton, and focus states stay consistent.</p>
+          <div class="state-demo">
+            <div class="state-row hover"><span>Hover row</span><span>--state-hover-bg</span></div>
+            <div class="state-row selected"><span>Selected row</span><span>--state-selected-bg</span></div>
+            <div class="state-row locked"><span>Full simulation</span><span>Locked</span></div>
+            <div class="state-row"><span>Focus ring</span><span style="box-shadow: 0 0 0 4px rgba(63,107,82,.10); border-radius: 4px; padding: 2px 6px;">Visible</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">02 / Typography</div>
+          <h2>Editorial display, quiet UI text, tiny metadata.</h2>
+        </div>
+        <p class="section-desc">Serif creates the brand temperature. Sans keeps the workspace usable. Mono is only for labels and rhythm.</p>
+      </div>
+
+      <div class="type-grid">
+        <div>
+          <div class="label-sample">Display serif</div>
+          <div class="display-3xl">Good to see you, Miumiu.<br><em>6 sessions in. Keep going.</em></div>
+          <p class="body-sample">OfferUp should feel warm without becoming soft, precise without becoming cold. Feedback pages should read like a candid report, not an analytics dashboard.</p>
+        </div>
+        <div class="scale-list">
+          <div class="scale-row"><span>--text-3xl</span><span style="font-family: var(--font-display); font-size: var(--text-3xl);">48px</span></div>
+          <div class="scale-row"><span>--text-2xl</span><span style="font-family: var(--font-display); font-size: var(--text-2xl);">32px heading</span></div>
+          <div class="scale-row"><span>--text-xl</span><span style="font-size: var(--text-xl);">24px title</span></div>
+          <div class="scale-row"><span>--text-base</span><span style="font-size: var(--text-base);">16px body copy</span></div>
+          <div class="scale-row"><span>--text-sm</span><span style="font-size: var(--text-sm);">14px secondary text</span></div>
+          <div class="scale-row"><span>--text-label</span><span style="font-family: var(--font-mono); font-size: var(--text-label); letter-spacing: .13em; text-transform: uppercase;">Practice activity</span></div>
+        </div>
+      </div>
+
+      <div class="language-grid">
+        <article class="language-card">
+          <h3>English</h3>
+          <p>OfferUp helps you turn real experience into interview-ready answers while still sounding like yourself.</p>
+        </article>
+        <article class="language-card cjk">
+          <h3>Chinese</h3>
+          <p>这是一段中文说明文字，用来检查中英文混排时的字重、行高和阅读舒适度。</p>
+        </article>
+        <article class="language-card de">
+          <h3>German</h3>
+          <p>Ich habe das Onboarding-Projekt geleitet und die wichtigsten Entscheidungen mit dem Team abgestimmt.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">02B / Font Direction</div>
+          <h2>Serif and sans pairings with a real point of view.</h2>
+        </div>
+        <p class="section-desc">These are aesthetic candidates, not just fallbacks. Review them for brand feeling, German readability, Chinese fit, and UI practicality.</p>
+      </div>
+
+      <div class="font-specimen-grid">
+        <article class="font-specimen">
+          <div class="font-meta"><span>Serif</span><span>Current</span></div>
+          <div class="font-name" style="font-family: 'Lora', serif;">Lora</div>
+          <div class="font-large" style="font-family: 'Lora', serif;">Interview-ready answers</div>
+          <p class="font-body" style="font-family: 'Lora', serif;">Warm, literary, practical. Good for OfferUp's calm coaching tone without becoming too decorative.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Serif</span><span>Editorial</span></div>
+          <div class="font-name" style="font-family: 'Newsreader', serif;">Newsreader</div>
+          <div class="font-large" style="font-family: 'Newsreader', serif;">Feedback as a report</div>
+          <p class="font-body" style="font-family: 'Newsreader', serif;">More refined and bookish. Strong for feedback pages and report-like reading surfaces.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Serif</span><span>Expressive</span></div>
+          <div class="font-name" style="font-family: 'Fraunces', serif;">Fraunces</div>
+          <div class="font-large" style="font-family: 'Fraunces', serif;">A polished signal</div>
+          <p class="font-body" style="font-family: 'Fraunces', serif;">Distinctive and memorable. Use carefully; it can become too branded if overused.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Serif</span><span>Formal</span></div>
+          <div class="font-name" style="font-family: 'Source Serif 4', serif;">Source Serif 4</div>
+          <div class="font-large" style="font-family: 'Source Serif 4', serif;">Precise career notes</div>
+          <p class="font-body" style="font-family: 'Source Serif 4', serif;">Serious, readable, less romantic. Good when we need a mature academic/editorial tone.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Serif</span><span>Delicate</span></div>
+          <div class="font-name" style="font-family: 'Cormorant Garamond', serif;">Cormorant</div>
+          <div class="font-large" style="font-family: 'Cormorant Garamond', serif;">Calm but precise</div>
+          <p class="font-body" style="font-family: 'Cormorant Garamond', serif;">Beautiful and delicate, but risky for small UI and long German words. Best for rare large moments.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Serif</span><span>Classic</span></div>
+          <div class="font-name" style="font-family: 'IBM Plex Serif', serif;">IBM Plex Serif</div>
+          <div class="font-large" style="font-family: 'IBM Plex Serif', serif;">Structured judgment</div>
+          <p class="font-body" style="font-family: 'IBM Plex Serif', serif;">More technical and institutional. Useful if OfferUp should feel sharper and less soft.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Sans</span><span>Current</span></div>
+          <div class="font-name" style="font-family: 'DM Sans', sans-serif;">DM Sans</div>
+          <div class="font-large" style="font-family: 'DM Sans', sans-serif;">Start practice</div>
+          <p class="font-body" style="font-family: 'DM Sans', sans-serif;">Friendly and smooth. Works well for a warm SaaS/workspace interface.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Sans</span><span>Refined UI</span></div>
+          <div class="font-name" style="font-family: 'Manrope', sans-serif;">Manrope</div>
+          <div class="font-large" style="font-family: 'Manrope', sans-serif;">Save to Answer Bank</div>
+          <p class="font-body" style="font-family: 'Manrope', sans-serif;">Elegant, modern, and less default than Inter. Strong candidate for app UI.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Sans</span><span>Quiet Tech</span></div>
+          <div class="font-name" style="font-family: 'IBM Plex Sans', sans-serif;">IBM Plex Sans</div>
+          <div class="font-large" style="font-family: 'IBM Plex Sans', sans-serif;">Interviewer lens</div>
+          <p class="font-body" style="font-family: 'IBM Plex Sans', sans-serif;">Crisp and credible. Better for precise feedback than for warm landing copy.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Sans</span><span>Humanist</span></div>
+          <div class="font-name" style="font-family: 'Work Sans', sans-serif;">Work Sans</div>
+          <div class="font-large" style="font-family: 'Work Sans', sans-serif;">Practice activity</div>
+          <p class="font-body" style="font-family: 'Work Sans', sans-serif;">Open and practical. Good readability, but slightly plainer than Manrope.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>Sans</span><span>Modern</span></div>
+          <div class="font-name" style="font-family: 'Plus Jakarta Sans', sans-serif;">Plus Jakarta</div>
+          <div class="font-large" style="font-family: 'Plus Jakarta Sans', sans-serif;">Next version</div>
+          <p class="font-body" style="font-family: 'Plus Jakarta Sans', sans-serif;">Polished and contemporary. Slightly more productized, less editorial.</p>
+        </article>
+
+        <article class="font-specimen">
+          <div class="font-meta"><span>CJK</span><span>Chinese</span></div>
+          <div class="font-name" style="font-family: 'Noto Serif SC', serif;">思源宋体</div>
+          <div class="font-large" style="font-family: 'Noto Serif SC', serif;">让表达更像你自己</div>
+          <p class="font-body" style="font-family: 'Noto Sans SC', sans-serif;">中文说明正文建议用思源黑体或苹方；中文大标题可以少量使用思源宋体传递质感。</p>
+        </article>
+      </div>
+
+      <div class="pairing-grid">
+        <article class="pairing-card recommended" style="--pair-serif: 'Lora'; --pair-sans: 'IBM Plex Sans';">
+          <div class="pairing-kicker" style="font-family: var(--font-mono);">Recommended / Product app</div>
+          <div class="pairing-title" style="font-family: var(--pair-serif), serif;">Good to see you, Miumiu.<br><em>Keep going.</em></div>
+          <p class="pairing-body" style="font-family: var(--pair-sans), sans-serif;">Lora brings warmth and editorial softness. IBM Plex Sans adds structure, seriousness, and a precise interview-feedback tone.</p>
+          <div class="pairing-ui-row" style="font-family: var(--pair-sans), sans-serif;">
+            <span class="badge strong">Strong</span>
+            <span class="pairing-control">Start practice</span>
+          </div>
+        </article>
+
+        <article class="pairing-card" style="--pair-serif: 'Lora'; --pair-sans: 'DM Sans';">
+          <div class="pairing-kicker">Warm / Softer fallback</div>
+          <div class="pairing-title" style="font-family: var(--pair-serif), serif;">Turn your real experience into interview-ready answers.</div>
+          <p class="pairing-body" style="font-family: var(--pair-sans), sans-serif;">Lora + DM Sans is warm and safe. It feels softer and friendlier, but less rigorous than Lora + IBM Plex Sans.</p>
+          <div class="pairing-ui-row" style="font-family: var(--pair-sans), sans-serif;">
+            <span class="badge growing">Growing</span>
+            <span class="pairing-control">Polish answer</span>
+          </div>
+        </article>
+
+        <article class="pairing-card" style="--pair-serif: 'Source Serif 4'; --pair-sans: 'IBM Plex Sans';">
+          <div class="pairing-kicker">Report / Feedback-heavy</div>
+          <div class="pairing-title" style="font-family: var(--pair-serif), serif;">Feedback for your Product Manager practice</div>
+          <p class="pairing-body" style="font-family: var(--pair-sans), sans-serif;">Source Serif 4 + IBM Plex Sans feels serious, structured, and credible. Strong for feedback reports, less emotionally warm.</p>
+          <div class="pairing-ui-row" style="font-family: var(--pair-sans), sans-serif;">
+            <span class="badge role">Interviewer lens</span>
+            <span class="pairing-control">Save to Answer Bank</span>
+          </div>
+        </article>
+
+        <article class="pairing-card" style="--pair-serif: 'Fraunces'; --pair-sans: 'Plus Jakarta Sans';">
+          <div class="pairing-kicker">Brand / Landing moments</div>
+          <div class="pairing-title" style="font-family: var(--pair-serif), serif;">Calm but precise.</div>
+          <p class="pairing-body" style="font-family: var(--pair-sans), sans-serif;">Fraunces adds memorable beauty. Use it for sparse landing or brand moments, not dense app screens.</p>
+          <div class="pairing-ui-row" style="font-family: var(--pair-sans), sans-serif;">
+            <span class="badge locked">Coming soon</span>
+            <span class="pairing-control">See feedback</span>
+          </div>
+        </article>
+
+        <article class="pairing-card" style="--pair-serif: 'Cormorant Garamond'; --pair-sans: 'Manrope';">
+          <div class="pairing-kicker">Delicate / Use sparingly</div>
+          <div class="pairing-title" style="font-family: var(--pair-serif), serif;">A more careful answer.</div>
+          <p class="pairing-body" style="font-family: var(--pair-sans), sans-serif;">Cormorant is very beautiful, but fragile in product UI. It should only appear in large, low-density contexts.</p>
+          <div class="pairing-ui-row" style="font-family: var(--pair-sans), sans-serif;">
+            <span class="badge concern">Developing</span>
+            <span class="pairing-control">Next version</span>
+          </div>
+        </article>
+
+        <article class="pairing-card" style="--pair-serif: 'Noto Serif SC'; --pair-sans: 'Noto Sans SC';">
+          <div class="pairing-kicker">Chinese / Support content</div>
+          <div class="pairing-title" style="font-family: var(--pair-serif), serif;">把真实经历讲得更清楚。</div>
+          <p class="pairing-body" style="font-family: var(--pair-sans), sans-serif; line-height: 1.78;">中文内容不建议套用英文字体审美。标题可少量用思源宋体，正文和控件使用思源黑体或系统黑体，保持清晰。</p>
+          <div class="pairing-ui-row" style="font-family: var(--pair-sans), sans-serif;">
+            <span class="badge strong">已保存</span>
+            <span class="pairing-control">开始练习</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="font-note-grid">
+        <p class="font-note"><strong>Exclude by default:</strong> Arial, Helvetica, Times New Roman, Georgia-only, Roboto-only, and Inter-only as the primary brand expression. They are acceptable fallbacks, but too familiar to carry OfferUp's beauty by themselves.</p>
+        <p class="font-note"><strong>Current recommendation:</strong> use <strong>Lora + IBM Plex Sans</strong> for production app surfaces, keep <strong>Lora + DM Sans</strong> as the softer fallback, and reserve <strong>Fraunces</strong> for rare landing or brand moments.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">03 / Components</div>
+          <h2>Shared primitives, not page-local styling.</h2>
+        </div>
+        <p class="section-desc">Buttons, form fields, panels, and badges should be implemented once and reused across pages.</p>
+      </div>
+
+      <div class="component-grid">
+        <article class="panel">
+          <h3 class="panel-title">Buttons and status</h3>
+          <p class="panel-copy">Primary is limewash black. Sage is for save/success. Semantic badges stay quiet.</p>
+          <div class="button-row" style="margin-bottom: var(--space-5);">
+            <button class="btn primary">Start practice</button>
+            <button class="btn sage">Save answer</button>
+            <button class="btn">Secondary</button>
+            <button class="btn ghost">View all</button>
+            <button class="btn danger">Delete</button>
+            <button class="btn disabled">Disabled</button>
+          </div>
+          <div class="badge-row">
+            <span class="badge strong">Strong</span>
+            <span class="badge growing">Growing</span>
+            <span class="badge concern">Developing</span>
+            <span class="badge role">Interviewer lens</span>
+            <span class="badge locked">Coming soon</span>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3 class="panel-title">Inputs and textarea</h3>
+          <p class="panel-copy">Soft surface, hairline border, sage focus ring, stable text areas.</p>
+          <div class="field-stack">
+            <div>
+              <label>Target role</label>
+              <input value="Product Manager · Personio" aria-label="Target role">
+            </div>
+            <div>
+              <label>Focused answer</label>
+              <textarea class="field-focus" aria-label="Focused answer">I led the onboarding research workstream and used interview findings to prioritize the first dashboard iteration.</textarea>
+              <div class="field-helper">Focus ring uses the shared sage ring, but the surface stays warm porcelain.</div>
+            </div>
+            <div>
+              <label>Error state</label>
+              <input class="field-error" value="Missing target role" aria-label="Error state">
+              <div class="field-helper error">Add a target role before starting practice.</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="primitive-grid">
+        <article class="primitive-card">
+          <h3 class="primitive-title">ListRow</h3>
+          <p class="primitive-copy">Repeated records use rows and hairline dividers instead of chunky cards.</p>
+          <div class="list-demo">
+            <div class="list-demo-row"><div><strong>Product Manager · Personio</strong><span>Resume deep dive · Jun 18</span></div><span class="badge strong">Strong</span></div>
+            <div class="list-demo-row"><div><strong>Werkstudent PM · Celonis</strong><span>Behavioral · Jun 14</span></div><span class="badge growing">Growing</span></div>
+            <div class="list-demo-row"><div><strong>Marketing Ops · SAP</strong><span>Motivation & fit · Jun 9</span></div><span class="badge locked">Draft</span></div>
+          </div>
+        </article>
+
+        <article class="primitive-card">
+          <h3 class="primitive-title">ReportBlock</h3>
+          <p class="primitive-copy">Feedback reads like a structured report. Text insight is the center, not scores.</p>
+          <div class="report-block-demo">
+            <div class="report-mini-block"><div class="report-mini-label">Answer signal</div><div class="report-mini-text">You showed context, but ownership stayed soft.</div></div>
+            <div class="report-mini-block"><div class="report-mini-label">Interviewer heard</div><div class="report-mini-text">Useful contributor, not yet the decision maker.</div></div>
+            <div class="report-mini-block"><div class="report-mini-label">Next version</div><div class="report-mini-text">Use "I led" and add one concrete result.</div></div>
+          </div>
+        </article>
+
+        <article class="primitive-card">
+          <h3 class="primitive-title">Overlay feedback</h3>
+          <p class="primitive-copy">Modal, toast, and tooltip have distinct jobs and should not substitute for each other.</p>
+          <div class="modal-demo" style="margin-bottom: var(--space-4);">
+            <div class="panel-title" style="font-size: var(--text-lg); margin-bottom: var(--space-2);">End session?</div>
+            <div class="panel-copy" style="margin-bottom: var(--space-4);">Your answers will be saved and feedback will be generated.</div>
+            <div class="button-row"><button class="btn">Cancel</button><button class="btn primary">End session</button></div>
+          </div>
+          <div class="toast-demo" style="margin-bottom: var(--space-3);">Saved to Answer Bank</div>
+          <div><span class="tooltip-demo">Full simulation is coming soon</span></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">04 / Product Patterns</div>
+          <h2>Behavior from primitives, meaning from OfferUp modules.</h2>
+        </div>
+        <p class="section-desc">This layer decides what becomes a reusable product component and what stays as page composition.</p>
+      </div>
+
+      <div class="layer-map">
+        <div class="layer-step"><span>01</span><strong>Headless behavior: dialog, toast, tooltip, tabs, menu.</strong></div>
+        <div class="layer-step"><span>02</span><strong>OfferUp primitives: Button, Input, Badge, Panel, Row.</strong></div>
+        <div class="layer-step"><span>03</span><strong>Product modules: ModeEntry, FeedbackBlock, AnswerBankList.</strong></div>
+        <div class="layer-step"><span>04</span><strong>Page composition: screen-specific layout and ordering.</strong></div>
+      </div>
+
+      <div class="pattern-grid">
+        <article class="pattern-card">
+          <h3>Use mature primitives</h3>
+          <p>Adopt accessible behavior and focus management, then skin everything with OfferUp tokens.</p>
+          <div class="pattern-list">
+            <div class="pattern-row"><span>Dialog / Modal</span><code>headless</code></div>
+            <div class="pattern-row"><span>Toast / Tooltip</span><code>headless</code></div>
+            <div class="pattern-row"><span>Tabs / Menu</span><code>headless</code></div>
+            <div class="pattern-row"><span>Checkbox / Select</span><code>headless</code></div>
+          </div>
+        </article>
+
+        <article class="pattern-card">
+          <h3>Abstract product meaning</h3>
+          <p>Make components when they encode OfferUp-specific state, action, or feedback language.</p>
+          <div class="pattern-list">
+            <div class="pattern-row"><span>Dashboard</span><code>ModeEntry</code></div>
+            <div class="pattern-row"><span>Setup</span><code>SavedResumePicker</code></div>
+            <div class="pattern-row"><span>Interview</span><code>AnswerTextarea</code></div>
+            <div class="pattern-row"><span>Feedback</span><code>NextVersionBlock</code></div>
+          </div>
+        </article>
+
+        <article class="pattern-card">
+          <h3>Keep pages as composition</h3>
+          <p>Do not abstract one-off layout just because it exists. Extract after reuse or stable product meaning appears.</p>
+          <div class="pattern-list">
+            <div class="pattern-row"><span>Page header arrangement</span><code>compose</code></div>
+            <div class="pattern-row"><span>One-off explanatory copy</span><code>compose</code></div>
+            <div class="pattern-row"><span>Unstable experiment</span><code>wait</code></div>
+            <div class="pattern-row"><span>Repeated state model</span><code>extract</code></div>
+          </div>
+        </article>
+
+        <article class="pattern-card">
+          <h3>Dashboard modules</h3>
+          <p>Progress is rhythm and recent work, not score widgets or bulky analytics cards.</p>
+          <div class="pattern-list">
+            <div class="pattern-row"><span>Mode choice</span><code>ModeEntry</code></div>
+            <div class="pattern-row"><span>Recent practice</span><code>PracticeActivityList</code></div>
+            <div class="pattern-row"><span>Saved assets</span><code>AssetShortcut</code></div>
+          </div>
+        </article>
+
+        <article class="pattern-card">
+          <h3>Feedback modules</h3>
+          <p>The report language is a core product asset, so it should be componentized even inside one page.</p>
+          <div class="pattern-list">
+            <div class="pattern-row"><span>What the answer showed</span><code>AnswerSignalBlock</code></div>
+            <div class="pattern-row"><span>What was inferred</span><code>InterviewerHeardBlock</code></div>
+            <div class="pattern-row"><span>What to say next</span><code>NextVersionBlock</code></div>
+          </div>
+        </article>
+
+        <article class="pattern-card">
+          <h3>Answer lifecycle modules</h3>
+          <p>Original, polished, and bank answers need quiet but explicit lifecycle structure.</p>
+          <div class="pattern-list">
+            <div class="pattern-row"><span>Saved answer list</span><code>AnswerBankList</code></div>
+            <div class="pattern-row"><span>Version switch</span><code>VersionSelector</code></div>
+            <div class="pattern-row"><span>Editable bank answer</span><code>BankAnswerEditor</code></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">05 / Radius And Spacing</div>
+          <h2>Small radius, exact spacing, light shadows.</h2>
+        </div>
+        <p class="section-desc">The product should feel delicate through alignment and rhythm, not decoration.</p>
+      </div>
+
+      <div class="radius-grid" style="margin-bottom: var(--space-6);">
+        <div class="radius-box" style="--radius: var(--radius-xs)">4px</div>
+        <div class="radius-box" style="--radius: var(--radius-sm)">6px</div>
+        <div class="radius-box" style="--radius: var(--radius-md)">8px default</div>
+        <div class="radius-box" style="--radius: var(--radius-lg)">12px</div>
+        <div class="radius-box" style="--radius: var(--radius-xl)">14px</div>
+        <div class="radius-box" style="--radius: var(--radius-pill)">pill</div>
+      </div>
+
+      <div class="space-grid">
+        <div class="space-box" style="--mark: var(--space-2)"><div class="space-mark"></div>8</div>
+        <div class="space-box" style="--mark: var(--space-4)"><div class="space-mark"></div>16</div>
+        <div class="space-box" style="--mark: var(--space-6)"><div class="space-mark"></div>24</div>
+        <div class="space-box" style="--mark: var(--space-8)"><div class="space-mark"></div>32</div>
+        <div class="space-box" style="--mark: var(--space-12)"><div class="space-mark"></div>48</div>
+        <div class="space-box" style="--mark: var(--space-16)"><div class="space-mark"></div>64</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">06 / Atmosphere</div>
+          <h2>Texture and gradients as page-level material.</h2>
+        </div>
+        <p class="section-desc">Atmosphere stays behind the UI. It should never compete with content.</p>
+      </div>
+
+      <div class="atmosphere-grid">
+        <article class="atmosphere page-bg">
+          <div class="eyebrow">Page shell</div>
+          <div class="display-2xl">Warm paper with a faint sage and amber wash.</div>
+          <p class="body-sample">Use this for Dashboard, Setup, Answer Bank, and empty states.</p>
+        </article>
+        <article class="atmosphere report-bg">
+          <div class="eyebrow">Report shell</div>
+          <div class="display-2xl">Cooler report atmosphere for feedback reading.</div>
+          <p class="body-sample">Use this for Feedback pages where blue-gray and sage support the two-lens structure.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">07 / Product Surface Samples</div>
+          <h2>How tokens combine into real OfferUp screens.</h2>
+        </div>
+        <p class="section-desc">These are not final page layouts; they are quick checks for consistency and visual temperature.</p>
+      </div>
+
+      <div class="component-grid">
+        <article class="mini-shell">
+          <aside class="mini-sidebar">
+            <div class="mini-logo">OfferUp</div>
+            <nav class="mini-nav">
+              <span class="active">Home</span>
+              <span>Answer Bank</span>
+              <span>History</span>
+              <span>Question Library</span>
+            </nav>
+          </aside>
+          <div class="mini-main">
+            <div class="label-sample">Home</div>
+            <div class="mini-title">Good to see you, Miumiu.<br><em>6 sessions in. Keep going.</em></div>
+            <div class="mini-columns">
+              <div class="mini-entry">
+                <h3>Focused drill</h3>
+                <p>Targeted practice for resume deep dive, behavioral, or motivation questions.</p>
+              </div>
+              <div class="mini-entry locked">
+                <h3>Full simulation</h3>
+                <p>Multi-round interview. <span class="badge locked">Coming soon</span></p>
+              </div>
+            </div>
+            <div class="mini-list">
+              <div class="mini-row"><div><strong>Product Manager · Personio</strong><small>Resume deep dive · Jun 18</small></div><span class="badge strong">Strong</span></div>
+              <div class="mini-row"><div><strong>Werkstudent PM · Celonis</strong><small>Behavioral · Jun 14</small></div><span class="badge growing">Growing</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="report-sample">
+          <div class="report-inner">
+            <div class="eyebrow">Feedback</div>
+            <div class="report-title">Feedback for your Product Manager practice</div>
+            <div class="report-meta">Resume deep dive · Personio · 5 questions</div>
+            <div class="feedback-block">
+              <div class="feedback-label">Answer signal</div>
+              <div class="feedback-text">You showed project context and team contribution, but the ownership signal stayed soft because the answer used "we" throughout.</div>
+            </div>
+            <div class="feedback-block">
+              <div class="feedback-label">Interviewer heard</div>
+              <div class="feedback-text">A useful team member, but not yet clearly the person who made the central decision or drove the trade-off.</div>
+            </div>
+            <div class="feedback-block next">
+              <div class="feedback-label">Next version</div>
+              <div class="feedback-text">Use "I led" instead of "we built", then add one concrete decision and result.</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">08 / Implementation Contract</div>
+          <h2>Build from tokens, primitives, product modules, then pages.</h2>
+        </div>
+        <p class="section-desc">This is the handoff layer for development. It prevents pages from inventing local styles.</p>
+      </div>
+
+      <div class="contract-grid">
+        <article class="contract-panel">
+          <h3>File ownership</h3>
+          <p class="panel-copy">Each layer has a narrow job. Route pages compose; they do not create visual systems.</p>
+          <div class="contract-tree">
+            <div><strong>styles/tokens.css</strong> · all primitive, semantic, layout, state, motion, and density tokens</div>
+            <div><strong>styles/globals.css</strong> · reset, body canvas, font smoothing, page background</div>
+            <div><strong>components/ui</strong> · Button, Input, Textarea, Badge, Panel, Modal, Toast, Tooltip, ListRow, ReportBlock</div>
+            <div><strong>components/layout</strong> · MarketingShell, AppShell, ReportShell</div>
+            <div><strong>components/product</strong> · dashboard, setup, interview, feedback, answer-bank modules</div>
+            <div><strong>routes/pages</strong> · data loading, ordering, page-specific composition</div>
+          </div>
+        </article>
+
+        <article class="contract-panel">
+          <h3>Component APIs</h3>
+          <p class="panel-copy">Props should describe product meaning, not raw visual values.</p>
+          <div class="api-row"><span>Button</span><code>primary · secondary · save · ghost · danger</code></div>
+          <div class="api-row"><span>Badge</span><code>strong · growing · developing · locked · role · drill · saved · risk</code></div>
+          <div class="api-row"><span>Panel</span><code>surface · quiet · report</code></div>
+          <div class="api-row"><span>ListRow</span><code>default · selected · locked · disabled</code></div>
+          <div class="api-row"><span>Report</span><code>signal · interviewer · next · risk</code></div>
+        </article>
+
+        <article class="contract-panel">
+          <h3>Build order</h3>
+          <div class="contract-checks">
+            <div class="contract-check">Create token and global style files first.</div>
+            <div class="contract-check">Map Tailwind to CSS variables, not raw hex values.</div>
+            <div class="contract-check">Build shared UI primitives and variants.</div>
+            <div class="contract-check">Build MarketingShell, AppShell, and ReportShell.</div>
+            <div class="contract-check">Build Dashboard and Setup product modules before page routes.</div>
+            <div class="contract-check">Build Interview, Feedback, Answer Bank, and polish modules.</div>
+          </div>
+        </article>
+
+        <article class="contract-panel">
+          <h3>Review gate</h3>
+          <div class="contract-checks">
+            <div class="contract-check">No raw hex values, ad hoc shadows, local radii, or local text scales in pages.</div>
+            <div class="contract-check">No page-local button, input, card, badge, or report variants.</div>
+            <div class="contract-check">Primary actions use ink; sage stays for save, success, and completion.</div>
+            <div class="contract-check">No nested cards, score-first dashboard, or analytics-style feedback UI.</div>
+            <div class="contract-check">Feedback preserves Answer signal → Interviewer heard → Next version.</div>
+            <div class="contract-check">Locked features use the shared locked state and never look like errors.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">09 / Freeze Checklist</div>
+          <h2>What is ready, what still needs a final decision.</h2>
+        </div>
+        <p class="section-desc">Use this as the final design-system gate before production UI work starts.</p>
+      </div>
+
+      <div class="freeze-grid">
+        <article class="freeze-panel">
+          <h3>Frozen decisions</h3>
+          <div class="freeze-list">
+            <div class="freeze-item"><span class="freeze-mark">✓</span><span>Design phrase: refined editorial workspace.</span></div>
+            <div class="freeze-item"><span class="freeze-mark">✓</span><span>Philosophy: simplicity, hierarchy, warm refinement, atmosphere after structure.</span></div>
+            <div class="freeze-item"><span class="freeze-mark">✓</span><span>Palette: warm paper, limewash ink, sage, blue-gray, amber, clay red.</span></div>
+            <div class="freeze-item"><span class="freeze-mark">✓</span><span>Primary actions use ink; sage is limited to save, success, and completion.</span></div>
+            <div class="freeze-item"><span class="freeze-mark">✓</span><span>Typography direction: Lora + IBM Plex Sans with CJK and German fallbacks.</span></div>
+            <div class="freeze-item"><span class="freeze-mark">✓</span><span>App density is compact by default, with page-level atmosphere only.</span></div>
+          </div>
+        </article>
+
+        <article class="freeze-panel">
+          <h3>Still needs a call</h3>
+          <div class="freeze-list">
+            <div class="freeze-item pending"><span class="freeze-mark">?</span><span>Font delivery: Google-hosted, self-hosted, or system fallback only.</span></div>
+            <div class="freeze-item pending"><span class="freeze-mark">?</span><span>Developing status: amber-soft by default, clay-red-soft only for explicit concern.</span></div>
+            <div class="freeze-item pending"><span class="freeze-mark">?</span><span>Tablet sidebar: keep labels until 768px, or collapse earlier into icon rail.</span></div>
+            <div class="freeze-item pending"><span class="freeze-mark">?</span><span>Paper texture: CSS-only grid/grain, or a tiny generated texture asset.</span></div>
+          </div>
+        </article>
+
+        <article class="freeze-panel">
+          <h3>Development entry gate</h3>
+          <div class="freeze-list">
+            <div class="freeze-item gate"><span class="freeze-mark">1</span><span>Create `styles/tokens.css` and `styles/globals.css` from this system.</span></div>
+            <div class="freeze-item gate"><span class="freeze-mark">2</span><span>Map Tailwind to CSS variables, including fonts, radii, shadow, and colors.</span></div>
+            <div class="freeze-item gate"><span class="freeze-mark">3</span><span>Build shared UI primitives before product routes.</span></div>
+            <div class="freeze-item gate"><span class="freeze-mark">4</span><span>Build MarketingShell, AppShell, and ReportShell.</span></div>
+            <div class="freeze-item gate"><span class="freeze-mark">5</span><span>Implement Dashboard and Setup modules as the first product slice.</span></div>
+          </div>
+        </article>
+
+        <article class="freeze-panel">
+          <h3>First implementation slice</h3>
+          <div class="freeze-list">
+            <div class="freeze-item gate"><span class="freeze-mark">A</span><span>Token files and global canvas.</span></div>
+            <div class="freeze-item gate"><span class="freeze-mark">B</span><span>Button, Input, Textarea, Badge, Panel, ListRow, ReportBlock, Modal, Toast, Tooltip.</span></div>
+            <div class="freeze-item gate"><span class="freeze-mark">C</span><span>Dashboard: ModeEntry, PracticeActivityList, AssetShortcut.</span></div>
+            <div class="freeze-item gate"><span class="freeze-mark">D</span><span>Setup: SavedResumePicker, ResumeTextarea, JDInput, ModeSelector, LockedModeEntry.</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <p class="footer-note">Review note: if a token feels wrong here, change the design system token before implementing pages. New pages should not patch around this preview with local styles.</p>
+  </main>
+</body>
+</html>

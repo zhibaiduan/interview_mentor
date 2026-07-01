@@ -1,0 +1,151 @@
+:root {
+  --color-paper: #f0e9de;
+  --color-paper-soft: #ebe2d6;
+  --color-paper-deep: #ded3c4;
+  --color-surface: #fffaf2;
+  --color-surface-muted: rgba(255, 250, 242, 0.72);
+
+  --color-ink: #29241f;
+  --color-ink-2: #3a342d;
+  --color-ink-soft: #6f665e;
+  --color-muted: #8a8178;
+  --color-muted-soft: #b4aaa0;
+
+  --color-line: #ddd5ca;
+  --color-line-soft: #ebe4da;
+  --color-line-strong: #c8beb1;
+
+  --color-sage: #3f6b52;
+  --color-sage-soft: #e6f0e9;
+  --color-sage-border: #b9d3c1;
+  --color-sage-text: #2f5842;
+
+  --color-blue-gray: #4a647a;
+  --color-blue-gray-soft: #e6edf2;
+  --color-blue-gray-border: #becbd5;
+  --color-blue-gray-text: #334c60;
+
+  --color-amber: #9a6b2f;
+  --color-amber-soft: #f4eadb;
+  --color-amber-border: #dec796;
+  --color-amber-text: #6a4f28;
+
+  --color-clay-red: #9a4f4f;
+  --color-clay-red-soft: #f8eded;
+  --color-clay-red-border: #cfb1b1;
+  --color-clay-red-text: #884040;
+
+  --texture-paper-opacity: 0.035;
+  --gradient-page:
+    radial-gradient(44rem 28rem at 8% 8%, rgba(255, 253, 248, 0.48), transparent 64%),
+    radial-gradient(34rem 24rem at 92% 18%, rgba(230, 240, 233, 0.30), transparent 68%),
+    radial-gradient(30rem 22rem at 86% 86%, rgba(226, 211, 190, 0.34), transparent 70%);
+  --gradient-report:
+    radial-gradient(36rem 24rem at 90% 12%, rgba(230, 237, 242, 0.44), transparent 70%),
+    radial-gradient(30rem 20rem at 14% 88%, rgba(230, 240, 233, 0.36), transparent 72%);
+
+  --font-display: var(--font-lora), "Iowan Old Style", "Palatino", "Times New Roman", serif;
+  --font-ui: var(--font-plex-sans), "Avenir Next", "SF Pro Text", "Inter", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --font-cjk: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+  --font-de: "IBM Plex Sans", "Avenir Next", "SF Pro Text", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "DM Mono", "SF Mono", "Menlo", "Consolas", ui-monospace, monospace;
+
+  --text-label: 11px;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-3xl: 48px;
+
+  --leading-tight: 1.08;
+  --leading-heading: 1.18;
+  --leading-body: 1.62;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --density-section-y: 32px;
+  --density-panel-pad: 18px;
+  --density-card-min: 150px;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-pill: 999px;
+
+  --shadow-panel: none;
+  --shadow-float: none;
+
+  --text-primary: var(--color-ink);
+  --text-secondary: var(--color-ink-soft);
+  --text-muted: var(--color-muted);
+  --text-inverse: var(--color-paper);
+  --text-success: var(--color-sage-text);
+  --text-info: var(--color-blue-gray-text);
+  --text-warning: var(--color-amber-text);
+  --text-danger: var(--color-clay-red-text);
+
+  --bg-page: var(--color-paper);
+  --bg-page-soft: var(--color-paper-soft);
+  --bg-surface: var(--color-surface);
+  --bg-surface-muted: var(--color-surface-muted);
+  --bg-shell-surface: rgba(255, 252, 246, 0.84);
+  --bg-success: var(--color-sage-soft);
+  --bg-info: var(--color-blue-gray-soft);
+  --bg-warning: var(--color-amber-soft);
+  --bg-danger: var(--color-clay-red-soft);
+
+  --border-default: var(--color-line);
+  --border-subtle: var(--color-line-soft);
+  --border-strong: var(--color-line-strong);
+  --border-success: var(--color-sage-border);
+  --border-info: var(--color-blue-gray-border);
+  --border-warning: var(--color-amber-border);
+  --border-danger: var(--color-clay-red-border);
+
+  --accent-primary: var(--color-ink);
+  --accent-action: var(--color-ink);
+  --accent-save: var(--color-sage);
+  --accent-role: var(--color-blue-gray);
+  --accent-drill: var(--color-amber);
+  --accent-risk: var(--color-clay-red);
+
+  --layout-sidebar: 224px;
+  --layout-sidebar-collapsed: 76px;
+  --layout-content-max: 1080px;
+  --layout-report-max: 960px;
+  --layout-landing-max: 1160px;
+  --layout-topbar: 64px;
+  --layout-page-x: 48px;
+  --layout-page-y: 64px;
+  --layout-panel-padding: 24px;
+  --layout-row-padding: 16px;
+  --layout-shell-radius: var(--radius-md);
+  --measure-readable: 680px;
+
+  --state-hover-bg: rgba(255, 253, 248, 0.58);
+  --state-active-bg: var(--color-surface);
+  --state-selected-bg: var(--color-sage-soft);
+  --state-disabled-opacity: 0.46;
+  --state-locked-opacity: 0.58;
+  --state-skeleton-bg: rgba(221, 213, 202, 0.46);
+  --focus-ring: 0 0 0 4px rgba(63, 107, 82, 0.10);
+
+  --motion-fast: 140ms;
+  --motion-base: 180ms;
+  --motion-slow: 260ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-enter: cubic-bezier(0.22, 0.68, 0, 1);
+}

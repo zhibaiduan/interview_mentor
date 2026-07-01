@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OfferUp Setup Flow B - Modal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Lora:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f7f2e8;
+      --surface: #fffaf0;
+      --surface-2: #f1eadc;
+      --ink: #24231f;
+      --muted: #6f6a60;
+      --line: #ded4c3;
+      --line-soft: #ebe2d2;
+      --sage: #80956f;
+      --sage-soft: #e3eadc;
+      --amber-soft: #f3e4ca;
+      --overlay: rgba(36, 35, 31, .28);
+      --shadow: 0 24px 70px rgba(36, 35, 31, .18);
+      --serif: "Lora", Georgia, serif;
+      --sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: var(--sans);
+      background:
+        linear-gradient(rgba(36,35,31,.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(36,35,31,.02) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+    }
+
+    .dashboard {
+      min-height: 100vh;
+      padding: 30px clamp(18px, 5vw, 64px);
+      filter: blur(1.5px);
+    }
+
+    .brand {
+      font-family: var(--serif);
+      font-size: 25px;
+      margin-bottom: 32px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+
+    .crumb {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    h1 {
+      margin: 6px 0 0;
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.08;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .button {
+      border: 0;
+      border-radius: 8px;
+      min-height: 40px;
+      padding: 0 14px;
+      background: var(--ink);
+      color: var(--surface);
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 16px;
+    }
+
+    .panel {
+      min-height: 210px;
+      padding: 18px;
+      background: rgba(255,250,240,.8);
+      border-radius: 8px;
+    }
+
+    .rows {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .row {
+      height: 52px;
+      border-radius: 8px;
+      background: rgba(255,253,247,.72);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: var(--overlay);
+    }
+
+    .modal {
+      width: min(880px, 100%);
+      max-height: min(760px, calc(100vh - 48px));
+      overflow: auto;
+      background: var(--surface);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-head {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      padding: 20px 22px 16px;
+      background: rgba(255,250,240,.96);
+    }
+
+    .modal h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .close {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 0;
+      background: #fffdf7;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 14px;
+      padding: 18px 22px 22px;
+    }
+
+    .modal-step {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px 0;
+    }
+
+    .modal-step + .modal-step { margin-top: 8px; }
+
+    .label {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    textarea,
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdf7;
+      color: var(--ink);
+      font: inherit;
+      padding: 12px 13px;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea { min-height: 96px; }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: rgba(255,253,247,.74);
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .chip.active {
+      color: var(--ink);
+      background: var(--amber-soft);
+    }
+
+    .picker-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      padding: 11px;
+      border-radius: 8px;
+      background: rgba(255,253,247,.72);
+    }
+
+    .ghost {
+      border: 0;
+      border-radius: 8px;
+      min-height: 36px;
+      padding: 0 12px;
+      background: #fffdf7;
+      box-shadow: inset 0 0 0 1px rgba(36, 35, 31, .11);
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    .footer {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 22px;
+      background: rgba(255,250,240,.96);
+    }
+
+    .note {
+      max-width: 420px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .save {
+      border: 0;
+      border-radius: 8px;
+      min-height: 40px;
+      padding: 0 14px;
+      background: var(--sage);
+      color: white;
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero { align-items: start; flex-direction: column; }
+      .modal-step { grid-template-columns: 1fr; gap: 9px; }
+      .field-grid { grid-template-columns: 1fr; }
+      .footer { align-items: stretch; flex-direction: column; }
+      .save { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard" aria-hidden="true">
+    <div class="brand">OfferUp</div>
+    <section class="hero">
+      <div>
+        <div class="crumb">Option B · Dashboard modal</div>
+        <h1>Welcome back, Xiaoyan.</h1>
+        <p>The dashboard stays visible behind the setup modal.</p>
+      </div>
+      <button class="button">Start practice</button>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <strong>Recent practice</strong>
+        <div class="rows">
+          <div class="row"></div>
+          <div class="row"></div>
+          <div class="row"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <strong>Assets</strong>
+        <div class="rows">
+          <div class="row"></div>
+          <div class="row"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="overlay" aria-label="Setup modal preview">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h2>Start a focused interview</h2>
+          <p>Compact, but the setup content has to share one scrollable modal.</p>
+        </div>
+        <button class="close" aria-label="Close">x</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-step">
+          <div>
+            <div class="label">Resume</div>
+            <p>Saved assets need to fit inside the same modal.</p>
+          </div>
+          <div>
+            <div class="picker-row">
+              <span>PM resume · June</span>
+              <button class="ghost">Use saved</button>
+            </div>
+            <textarea>Product manager with experience in AI spreadsheet workflows...</textarea>
+          </div>
+        </div>
+
+        <div class="modal-step">
+          <div>
+            <div class="label">Target role</div>
+            <p>Manual fields plus JD history compete for vertical space.</p>
+          </div>
+          <div>
+            <div class="field-grid">
+              <input value="AI Product Manager">
+              <input value="Berlin startup">
+            </div>
+            <textarea>Own discovery, define product requirements, coordinate with engineering...</textarea>
+          </div>
+        </div>
+
+        <div class="modal-step">
+          <div>
+            <div class="label">Mode</div>
+            <p>Good for a quick start, less good for careful setup.</p>
+          </div>
+          <div class="chips">
+            <div class="chip active">Resume Deep Dive</div>
+            <div class="chip">Behavioral</div>
+            <div class="chip">Motivation</div>
+            <div class="chip">Mode 2 · locked</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="note">Flow feeling: fast entry, but heavier content makes the modal feel like a page trapped inside a box.</div>
+        <button class="save">Start interview</button>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
