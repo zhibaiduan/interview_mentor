@@ -3,16 +3,12 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react"
 import {
   ArrowRight,
-  BriefcaseBusiness,
   Check,
   CheckCircle2,
   ChevronRight,
   FileText,
-  Home,
-  Library,
   Loader2,
   Lock,
-  RefreshCcw,
   ShieldCheck,
   Sparkles,
   Trash2,
@@ -22,6 +18,18 @@ import { useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  buildSessionConfig,
+  isSupportedResumeFile,
+  parseResumeSignals,
+  validateResumeText,
+  validateTargetRole,
+  type FollowUpIntensity,
+  type ResumeSignals,
+  type RoleMode,
+  type SetupFocusType,
+  type SetupLevel
+} from "@/lib/product/setup-validation"
 import { cn } from "@/lib/utils"
 
 type ResumeAsset = {
@@ -34,9 +42,8 @@ type ResumeAsset = {
 
 type SetupStep = "resume" | "role" | "settings"
 type ParsePhase = "idle" | "uploading" | "extracting"
-type RoleMode = "jd" | "quick"
 type FocusType = {
-  id: string
+  id: SetupFocusType
   label: string
   description: string
   interviewer: string
@@ -170,16 +177,9 @@ const focusTypes: FocusType[] = [
 ]
 
 const levels = [
-  { id: "junior", label: "Junior", years: "0-2 yrs" },
-  { id: "mid", label: "Mid", years: "2-5 yrs" },
-  { id: "senior", label: "Senior", years: "5+ yrs" }
-]
-
-const intensities = [
-  { id: "off", label: "Off", sub: "No follow-ups", duration: "~8 min" },
-  { id: "low", label: "Low", sub: "0-1 / question", duration: "~10 min" },
-  { id: "medium", label: "Mid", sub: "0-3 / question", duration: "~12-18 min" },
-  { id: "high", label: "High", sub: "0-5 / question", duration: "~20-30 min" }
+  { id: "junior" as const, label: "Junior", years: "0-2 yrs" },
+  { id: "mid" as const, label: "Mid", years: "2-5 yrs" },
+  { id: "senior" as const, label: "Senior", years: "5+ yrs" }
 ]
 
 const parseSteps = [
@@ -194,31 +194,31 @@ export function SetupFlow() {
   const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [resumes, setResumes] = useState(defaultResumes)
-  const [selectedResumeId, setSelectedResumeId] = useState(defaultResumes[0].id)
+  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null)
   const [resumePickerOpen, setResumePickerOpen] = useState(searchParams.get("panel") === "resumes")
   const [jdPickerOpen, setJdPickerOpen] = useState(searchParams.get("panel") === "jd-history")
   const [parsePhase, setParsePhase] = useState<ParsePhase>("idle")
   const [parseStep, setParseStep] = useState(parseSteps.length - 1)
   const [step, setStep] = useState<SetupStep>("resume")
   const [resumeConfirmed, setResumeConfirmed] = useState(false)
-  const [roleConfirmed, setRoleConfirmed] = useState(false)
   const [roleMode, setRoleMode] = useState<RoleMode>("jd")
   const [jdText, setJdText] = useState("")
   const [companyName, setCompanyName] = useState("")
   const [quickRole, setQuickRole] = useState("")
-  const [focusType, setFocusType] = useState("resume")
-  const [level, setLevel] = useState("junior")
-  const [intensity, setIntensity] = useState("medium")
+  const [focusType, setFocusType] = useState<SetupFocusType>("resume")
+  const [level, setLevel] = useState<SetupLevel>("junior")
   const [notice, setNotice] = useState("")
 
-  const selectedResume = resumes.find((resume) => resume.id === selectedResumeId) ?? resumes[0]
-  const resumeSignals = useMemo(() => parseResumeSignals(selectedResume.content), [selectedResume.content])
+  const selectedResume = resumes.find((resume) => resume.id === selectedResumeId)
+  const resumeSignals = useMemo(() => selectedResume ? parseResumeSignals(selectedResume.content) : null, [selectedResume])
+  const resumeValidation = useMemo(() => selectedResume ? validateResumeText(selectedResume.content) : null, [selectedResume])
   const selectedFocus = focusTypes.find((focus) => focus.id === focusType) ?? focusTypes[0]
   const selectedLevel = levels.find((item) => item.id === level) ?? levels[0]
-  const selectedIntensity = intensities.find((item) => item.id === intensity) ?? intensities[2]
   const isParsing = parsePhase !== "idle"
-  const roleValid = roleMode === "quick" ? quickRole.length > 0 : jdText.trim().length >= 50
-  const canStart = resumeConfirmed && roleConfirmed
+  const roleValidation = validateTargetRole(roleMode, jdText, quickRole)
+  const roleValid = roleValidation.valid
+  const roleConfirmed = resumeConfirmed && roleValid
+  const canStart = resumeConfirmed && roleValid
 
   useEffect(() => {
     if (!notice) return
@@ -229,16 +229,37 @@ export function SetupFlow() {
   async function handleUpload(file: File | undefined) {
     if (!file) return
 
+    setResumePickerOpen(false)
+    setNotice("")
+
+    if (!isSupportedResumeFile(file.name, file.type)) {
+      setParsePhase("idle")
+      setParseStep(parseSteps.length - 1)
+      setResumeConfirmed(false)
+      setStep("resume")
+      setNotice("Unsupported file type. Upload PDF, .txt, or .md.")
+      return
+    }
+
     setParsePhase("uploading")
     setParseStep(0)
     setResumeConfirmed(false)
     setStep("resume")
 
-    const content = await readResumeFile(file)
+    let content = ""
+    try {
+      content = await readResumeFile(file)
+    } catch {
+      setParsePhase("idle")
+      setParseStep(parseSteps.length - 1)
+      setNotice("Resume upload failed. Try another PDF, plain text, or Markdown file.")
+      return
+    }
+
     const uploadedResume: ResumeAsset = {
       id: `uploaded-${Date.now()}`,
       title: file.name.replace(/\.[^.]+$/, "") || "Uploaded resume",
-      meta: "Uploaded just now",
+      meta: /\.pdf$/i.test(file.name) || file.type === "application/pdf" ? "PDF parsed just now" : "Uploaded just now",
       source: "uploaded",
       content
     }
@@ -284,41 +305,52 @@ export function SetupFlow() {
   }
 
   function deleteUploadedResume() {
-    if (selectedResume.source !== "uploaded") return
+    if (!selectedResume || selectedResume.source !== "uploaded") return
     setResumes((existing) => existing.filter((resume) => resume.id !== selectedResume.id))
-    setSelectedResumeId(defaultResumes[0].id)
+    setSelectedResumeId(null)
     setResumeConfirmed(false)
     setStep("resume")
-    setNotice("Uploaded resume removed. Last used resume is selected again.")
+    setNotice("Uploaded resume removed. Add a resume to continue.")
   }
 
   function confirmResume() {
     if (isParsing) return
+    if (!selectedResume || !resumeValidation) {
+      setResumeConfirmed(false)
+      setNotice("Add a resume before continuing.")
+      return
+    }
+    if (!resumeValidation.valid) {
+      setResumeConfirmed(false)
+      setNotice(resumeValidation.errors[0] ?? "Review your resume before continuing.")
+      return
+    }
     setResumeConfirmed(true)
     setStep("role")
   }
 
-  function confirmRole() {
-    if (!roleValid) return
-    setRoleConfirmed(true)
-    setStep("settings")
-  }
-
   function startInterview() {
-    if (!canStart) return
-    setNotice("Setup ready. Session creation and credit spend will connect in the next API slice.")
+    if (!canStart || !selectedResume) return
+    const sessionConfig = buildSessionConfig({
+      resumeText: selectedResume.content,
+      roleMode,
+      jdText,
+      companyName,
+      quickRole,
+      focusType,
+      level,
+      intensity: "medium"
+    })
+    setNotice(`Setup ready. Config validated for ${sessionConfig.main_question_count} focused questions.`)
   }
 
   return (
-    <div className="-mx-5 -my-8 min-h-[calc(100vh-2rem)] pb-24 sm:-mx-8 md:-mx-10 md:-my-10">
+    <div className="-mx-5 -my-8 min-h-[calc(100vh-2rem)] pb-36 sm:-mx-8 md:-mx-10 md:-my-10">
       <div className="mx-auto w-full max-w-[640px] px-6 pb-12 pt-12 sm:px-8 md:pt-16">
         <header className="mb-10">
           <h1 className="font-display text-2xl italic leading-heading text-[var(--text-primary)]">
             Set up your session.
           </h1>
-          <p className="mt-2 text-sm font-medium text-[var(--text-secondary)]">
-            Two things needed. Everything else is pre-set.
-          </p>
         </header>
 
         <div className="grid gap-0">
@@ -333,12 +365,13 @@ export function SetupFlow() {
             }}
           />
           <div className="pl-0 sm:pl-10">
-            {resumeConfirmed ? (
+            {resumeConfirmed && selectedResume ? (
               <ConfirmedSummary icon={FileText} title={selectedResume.title} label="Ready" />
             ) : (
               <ResumeStep
                 selectedResume={selectedResume}
                 resumeSignals={resumeSignals}
+                resumeValidation={resumeValidation}
                 isParsing={isParsing}
                 parsePhase={parsePhase}
                 parseStep={parseStep}
@@ -360,18 +393,11 @@ export function SetupFlow() {
             complete={roleConfirmed}
             disabled={!resumeConfirmed}
             onChange={() => {
-              setRoleConfirmed(false)
               setStep("role")
             }}
           />
           <div className={cn("pl-0 transition-opacity duration-slow sm:pl-10", resumeConfirmed ? "opacity-100" : "pointer-events-none opacity-35")}>
-            {roleConfirmed ? (
-              <ConfirmedSummary
-                icon={BriefcaseBusiness}
-                title={roleMode === "quick" ? quickRole : companyName ? `${companyName} - JD` : "Custom JD"}
-                label="Ready"
-              />
-            ) : step !== "resume" ? (
+            {step !== "resume" ? (
               <TargetRoleStep
                 roleMode={roleMode}
                 jdText={jdText}
@@ -382,13 +408,11 @@ export function SetupFlow() {
                   setRoleMode(mode)
                   setJdText("")
                   setQuickRole("")
-                  setRoleConfirmed(false)
                 }}
                 onJdTextChange={setJdText}
                 onCompanyNameChange={setCompanyName}
                 onQuickRoleChange={setQuickRole}
                 onOpenJdPicker={() => setJdPickerOpen(true)}
-                onConfirm={confirmRole}
               />
             ) : null}
           </div>
@@ -399,17 +423,16 @@ export function SetupFlow() {
             number={3}
             title="Session settings"
             active={step === "settings"}
-            disabled={!roleConfirmed}
+            disabled={!roleValid}
+            onChange={() => setStep("settings")}
           />
-          <div className={cn("pl-0 transition-opacity duration-slow sm:pl-10", step === "settings" ? "opacity-100" : "pointer-events-none opacity-35")}>
-            {step === "settings" ? (
+          <div className={cn("pl-0 transition-opacity duration-slow sm:pl-10", roleValid ? "opacity-100" : "pointer-events-none opacity-35")}>
+            {roleValid ? (
               <SessionSettingsStep
                 focusType={focusType}
                 level={level}
-                intensity={intensity}
                 onFocusTypeChange={setFocusType}
                 onLevelChange={setLevel}
-                onIntensityChange={setIntensity}
               />
             ) : null}
           </div>
@@ -420,12 +443,6 @@ export function SetupFlow() {
             </p>
           ) : null}
 
-          <Button asChild variant="ghost" className="mt-6 w-fit justify-start">
-            <a href="/home">
-              <Home aria-hidden="true" size={16} />
-              Return home
-            </a>
-          </Button>
         </div>
       </div>
 
@@ -433,8 +450,8 @@ export function SetupFlow() {
         canStart={canStart}
         focus={selectedFocus.label}
         level={selectedLevel.label}
-        duration={selectedIntensity.duration}
-        disabledReason={!resumeConfirmed ? "Confirm your resume first" : !roleConfirmed ? "Confirm target role to continue" : ""}
+        duration="~12-18 min"
+        disabledReason={!resumeConfirmed ? "Confirm your resume first" : !roleValid ? "Add a target role to continue" : ""}
         onStart={startInterview}
       />
 
@@ -453,7 +470,6 @@ export function SetupFlow() {
         onSelect={(content) => {
           setRoleMode("jd")
           setJdText(content)
-          setRoleConfirmed(false)
           setStep("role")
           setJdPickerOpen(false)
         }}
@@ -536,6 +552,7 @@ function ConfirmedSummary({
 function ResumeStep({
   selectedResume,
   resumeSignals,
+  resumeValidation,
   isParsing,
   parsePhase,
   parseStep,
@@ -545,8 +562,9 @@ function ResumeStep({
   onDelete,
   onConfirm
 }: {
-  selectedResume: ResumeAsset
-  resumeSignals: ReturnType<typeof parseResumeSignals>
+  selectedResume?: ResumeAsset
+  resumeSignals: ResumeSignals | null
+  resumeValidation: ReturnType<typeof validateResumeText> | null
   isParsing: boolean
   parsePhase: ParsePhase
   parseStep: number
@@ -556,54 +574,71 @@ function ResumeStep({
   onDelete: () => void
   onConfirm: () => void
 }) {
+  const hasResume = Boolean(selectedResume && resumeSignals && resumeValidation)
+
   return (
     <div className="grid gap-3">
-      <div className="flex items-center justify-between gap-4 rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] px-4 py-4">
+      <div className={cn(
+        "flex items-center justify-between gap-4 rounded-md border px-4 py-4",
+        isParsing ? "border-[var(--border-info)] bg-[var(--bg-info)]" : hasResume ? "border-[var(--border-default)] bg-[var(--bg-surface)]" : "border-dashed border-[var(--border-default)] bg-[var(--bg-page-soft)]"
+      )}>
         <div className="flex min-w-0 items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[var(--bg-success)] text-[var(--text-success)]">
-            <FileText aria-hidden="true" size={17} />
+          <span className={cn(
+            "flex size-10 shrink-0 items-center justify-center rounded-md",
+            isParsing ? "bg-[var(--bg-surface)] text-[var(--text-info)]" : hasResume ? "bg-[var(--bg-success)] text-[var(--text-success)]" : "bg-[var(--bg-surface)] text-[var(--text-secondary)]"
+          )}>
+            {isParsing ? <Loader2 aria-hidden="true" className="animate-spin" size={17} /> : <FileText aria-hidden="true" size={17} />}
           </span>
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">{selectedResume.title}</span>
-            <span className="mt-1 block font-mono text-[10px] text-[var(--text-muted)]">{selectedResume.meta}</span>
+            <span className="block truncate text-sm font-semibold text-[var(--text-primary)]">
+              {isParsing ? "Processing resume" : selectedResume?.title ?? "No resume selected"}
+            </span>
+            <span className="mt-1 block font-mono text-[10px] text-[var(--text-muted)]">
+              {isParsing ? parseSteps[parseStep] : selectedResume?.meta ?? "PDF, .txt, or .md"}
+            </span>
           </span>
         </div>
-        <Button type="button" variant="secondary" size="sm" onClick={onOpenPicker} disabled={isParsing}>
-          {isParsing ? "Processing" : "Change"}
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button type="button" variant="secondary" size="sm" onClick={onOpenPicker} disabled={isParsing}>
+            {hasResume ? "Change" : "Add resume"}
+          </Button>
+          {selectedResume?.source === "uploaded" ? (
+            <Button type="button" variant="danger" size="sm" onClick={onDelete} disabled={isParsing}>
+              <Trash2 aria-hidden="true" size={15} />
+              Remove
+            </Button>
+          ) : null}
+        </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
-          <RefreshCcw aria-hidden="true" size={15} />
-          Upload new
-        </Button>
-        <Button type="button" variant="secondary" size="sm" onClick={onOpenPicker}>
-          <Library aria-hidden="true" size={15} />
-          Resume history
-        </Button>
-        {selectedResume.source === "uploaded" ? (
-          <Button type="button" variant="danger" size="sm" onClick={onDelete}>
-            <Trash2 aria-hidden="true" size={15} />
-            Remove
-          </Button>
-        ) : null}
-        <input
-          ref={fileInputRef}
-          className="sr-only"
-          type="file"
-          accept=".txt,.md,.pdf,.doc,.docx"
-          onChange={(event) => onUpload(event.target.files?.[0])}
-        />
-      </div>
+      <input
+        ref={fileInputRef}
+        className="sr-only"
+        type="file"
+        accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown"
+        onChange={(event) => {
+          onUpload(event.target.files?.[0])
+          event.currentTarget.value = ""
+        }}
+      />
+      {hasResume ? (
+        <p className="text-xs leading-body text-[var(--text-muted)]">
+          Contact details are removed before the AI preview.
+        </p>
+      ) : null}
+      {resumeValidation && resumeValidation.errors.length > 0 ? (
+        <p className="rounded-md bg-[var(--bg-danger)] px-3 py-2 text-xs leading-body text-[var(--text-danger)]">
+          {resumeValidation.errors[0]}
+        </p>
+      ) : null}
 
       {isParsing ? (
         <ParsingSteps phase={parsePhase} parseStep={parseStep} />
-      ) : (
+      ) : resumeSignals ? (
         <ResumeSignalCard resumeSignals={resumeSignals} />
-      )}
+      ) : null}
 
-      <Button type="button" className="w-fit px-6" disabled={isParsing} onClick={onConfirm}>
+      <Button type="button" className="w-fit px-6" disabled={isParsing || !resumeValidation?.valid} onClick={onConfirm}>
         Confirm resume
         <ChevronRight aria-hidden="true" size={15} />
       </Button>
@@ -649,35 +684,35 @@ function ParsingSteps({
   )
 }
 
-function ResumeSignalCard({ resumeSignals }: { resumeSignals: ReturnType<typeof parseResumeSignals> }) {
-  const rows = [
-    { label: "Roles", values: resumeSignals.roles },
-    { label: "Companies", values: resumeSignals.companies },
-    { label: "Key skills", values: resumeSignals.skills },
-    { label: "Projects", values: resumeSignals.projects }
-  ]
+function ResumeSignalCard({
+  resumeSignals
+}: {
+  resumeSignals: ResumeSignals
+}) {
+  const previewLines = formatResumePreviewLines(resumeSignals.sanitizedText)
 
   return (
     <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4">
       <div className="mb-4 font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
-        Extracted for AI - what the interviewer will know about you
+        AI resume material - private fields removed
       </div>
-      <div className="grid gap-3">
-        {rows.map((row) => (
-          <div key={row.label} className="grid gap-2 sm:grid-cols-[86px_1fr]">
-            <span className="pt-0.5 text-sm text-[var(--text-secondary)]">{row.label}</span>
-            <span className="flex flex-wrap gap-1.5">
-              {row.values.map((value) => (
-                <span
-                  key={value}
-                  className="rounded-[var(--radius-xs)] bg-[var(--color-paper-deep)] px-2 py-1 text-sm leading-none text-[var(--text-primary)]"
-                >
-                  {value}
-                </span>
-              ))}
-            </span>
-          </div>
-        ))}
+      <div className="max-h-[420px] overflow-y-auto rounded-md border border-[var(--border-subtle)] bg-[var(--bg-page-soft)] px-4 py-3">
+        <div className="space-y-2 text-sm leading-body text-[var(--text-secondary)]">
+          {previewLines.map((line, index) => (
+            line.type === "heading" ? (
+              <p
+                key={`${line.text}-${index}`}
+                className={cn(index === 0 ? "pt-0" : "pt-3", "font-semibold text-[var(--text-primary)]")}
+              >
+                {line.text}
+              </p>
+            ) : (
+              <p key={`${line.text}-${index}`} className="whitespace-pre-wrap">
+                {line.text}
+              </p>
+            )
+          ))}
+        </div>
       </div>
 
       <div className="mt-4 grid gap-3 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-page-soft)] p-4 sm:grid-cols-[auto_1fr]">
@@ -702,6 +737,34 @@ function ResumeSignalCard({ resumeSignals }: { resumeSignals: ReturnType<typeof 
   )
 }
 
+function formatResumePreviewLines(text: string) {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => ({
+      text: isResumeSectionHeading(line) ? toSectionTitle(line) : line,
+      type: isResumeSectionHeading(line) ? "heading" as const : "body" as const
+    }))
+}
+
+function isResumeSectionHeading(line: string) {
+  return /^(profile summary|summary|professional summary|work experience|professional experience|experience|employment|work history|selected projects|projects|project experience|education|skills|technical skills|core skills|results|certifications|languages)$/i.test(line)
+}
+
+function toSectionTitle(value: string) {
+  const normalized = value.replace(/\s+/g, " ").trim().toLowerCase()
+  if (normalized === "profile summary" || normalized === "professional summary") return "Summary"
+  if (normalized === "work experience" || normalized === "experience" || normalized === "employment" || normalized === "work history") {
+    return "Professional Experience"
+  }
+
+  return normalized
+    .split(" ")
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ")
+}
+
 function TargetRoleStep({
   roleMode,
   jdText,
@@ -712,8 +775,7 @@ function TargetRoleStep({
   onJdTextChange,
   onCompanyNameChange,
   onQuickRoleChange,
-  onOpenJdPicker,
-  onConfirm
+  onOpenJdPicker
 }: {
   roleMode: RoleMode
   jdText: string
@@ -725,7 +787,6 @@ function TargetRoleStep({
   onCompanyNameChange: (value: string) => void
   onQuickRoleChange: (value: string) => void
   onOpenJdPicker: () => void
-  onConfirm: () => void
 }) {
   return (
     <div className="grid gap-3">
@@ -797,10 +858,11 @@ function TargetRoleStep({
         </div>
       )}
 
-      <Button type="button" className="w-fit px-6" disabled={!roleValid} onClick={onConfirm}>
-        Confirm role
-        <ChevronRight aria-hidden="true" size={15} />
-      </Button>
+      {!roleValid ? (
+        <p className="text-xs leading-body text-[var(--text-muted)]">
+          {roleMode === "quick" ? "Choose a role to continue." : "Paste at least 50 characters from the job description."}
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -808,20 +870,14 @@ function TargetRoleStep({
 function SessionSettingsStep({
   focusType,
   level,
-  intensity,
   onFocusTypeChange,
-  onLevelChange,
-  onIntensityChange
+  onLevelChange
 }: {
-  focusType: string
-  level: string
-  intensity: string
-  onFocusTypeChange: (value: string) => void
-  onLevelChange: (value: string) => void
-  onIntensityChange: (value: string) => void
+  focusType: SetupFocusType
+  level: SetupLevel
+  onFocusTypeChange: (value: SetupFocusType) => void
+  onLevelChange: (value: SetupLevel) => void
 }) {
-  const selectedFocus = focusTypes.find((focus) => focus.id === focusType) ?? focusTypes[0]
-
   return (
     <div className="grid gap-3">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -912,38 +968,6 @@ function SessionSettingsStep({
           })}
         </div>
       </div>
-
-      <div className="rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[var(--text-muted)]">
-            Follow-up intensity
-          </span>
-          <span className="text-xs text-[var(--text-secondary)]">{selectedFocus.interviewer}</span>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-4">
-          {intensities.map((item) => {
-            const selected = intensity === item.id
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className={cn(
-                  "rounded-md border px-3 py-3 text-left transition-colors",
-                  selected
-                    ? "border-[var(--accent-action)] bg-[var(--accent-action)] text-[var(--text-inverse)]"
-                    : "border-[var(--border-default)] hover:bg-[var(--state-hover-bg)]"
-                )}
-                onClick={() => onIntensityChange(item.id)}
-              >
-                <span className="block text-sm font-semibold">{item.label}</span>
-                <span className={cn("mt-1 block text-xs", selected ? "text-[rgba(240,233,222,0.58)]" : "text-[var(--text-muted)]")}>
-                  {item.sub}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
     </div>
   )
 }
@@ -971,7 +995,7 @@ function SetupSummaryBar({
   ]
 
   return (
-    <div className="sticky bottom-0 z-20 border-t border-[var(--border-default)] bg-[var(--bg-page-soft)] px-5 py-4 sm:px-8">
+    <div className="fixed bottom-2 left-[calc(44px+1rem)] right-2 z-20 rounded-b-[var(--layout-shell-radius)] border-t border-[var(--border-default)] bg-[var(--bg-page-soft)] px-5 py-4 shadow-[0_-10px_24px_rgba(41,36,31,0.05)] sm:px-8 md:bottom-3 md:left-[calc(208px+1.5rem)] md:right-3">
       <div className="mx-auto flex w-full max-w-[760px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:flex sm:items-center sm:gap-8">
           {items.map((item) => (
@@ -1007,7 +1031,7 @@ function ResumePickerModal({
 }: {
   open: boolean
   resumes: ResumeAsset[]
-  selectedResumeId: string
+  selectedResumeId: string | null
   onClose: () => void
   onSelect: (resumeId: string) => void
   onUpload: () => void
@@ -1056,7 +1080,7 @@ function ResumePickerModal({
         </div>
 
         <Button type="button" variant="secondary" className="mt-4 w-full border border-dashed border-[var(--border-default)]" onClick={onUpload}>
-          Upload new resume
+          Upload PDF, .txt, or .md resume
         </Button>
       </div>
     </div>
@@ -1104,97 +1128,19 @@ function JdPickerModal({
   )
 }
 
-function parseResumeSignals(content: string) {
-  const extractedText = buildExtractedText(content)
-  const skills = extractSkillTags(extractedText)
-  const projects = extractProjectTags(extractedText)
-  const roles = extractRoleTags(extractedText)
-  const companies = extractCompanyTags(extractedText)
-
-  return {
-    roles: roles.length > 0 ? roles.slice(0, 3) : ["Product-minded builder"],
-    companies: companies.length > 0 ? companies.slice(0, 3) : ["OfferUp", "Semester project"],
-    skills: skills.length > 0 ? skills.slice(0, 6) : ["Product discovery", "AI product strategy", "React"],
-    projects: projects.length > 0 ? projects.slice(0, 4) : ["Interview practice workflow"],
-    stripped: ["Email address", "Phone number", "Home address", "Social profile URLs"]
-  }
-}
-
-function buildExtractedText(content: string) {
-  return content
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter((line) => !/(email|phone|tel|address|linkedin|github|portfolio|@)/i.test(line))
-    .join("\n")
-}
-
-function extractSkillTags(text: string) {
-  const skillLine = linesBetween(text, ["SKILLS"], ["RESULTS", "EDUCATION", "WORK EXPERIENCE"]).join(" ")
-  const source = skillLine || text
-  return source
-    .split(/,|·|;|\n/)
-    .map((skill) => skill.replace(/^-\s*/, "").trim())
-    .filter((skill) => /(product|research|strategy|react|typescript|figma|analysis|communication|design|stakeholder|workflow|data)/i.test(skill))
-    .slice(0, 8)
-}
-
-function extractProjectTags(text: string) {
-  return linesBetween(text, ["SELECTED PROJECTS", "PROJECTS"], ["EDUCATION", "SKILLS", "RESULTS"])
-    .filter((line) => !line.startsWith("-"))
-    .slice(0, 5)
-}
-
-function extractRoleTags(text: string) {
-  const matches = text.match(/\b(Product Manager|UX Researcher|Product Designer|Frontend Engineer|Backend Engineer|Data Analyst|Operations)\b/gi) ?? []
-  return Array.from(new Set(matches.map((match) => titleCase(match))))
-}
-
-function extractCompanyTags(text: string) {
-  const candidates = ["OfferUp", "Figma", "Personio", "Alibaba Cloud", "WPS Office"]
-  return candidates.filter((company) => text.toLowerCase().includes(company.toLowerCase()))
-}
-
-function linesBetween(text: string, startHeadings: string[], endHeadings: string[]) {
-  const lines = text.split("\n").map((line) => line.trim()).filter(Boolean)
-  const startIndex = lines.findIndex((line) => startHeadings.some((heading) => line.toUpperCase() === heading))
-
-  if (startIndex === -1) return []
-
-  const endIndex = lines.findIndex((line, index) => (
-    index > startIndex && endHeadings.some((heading) => line.toUpperCase() === heading)
-  ))
-
-  return lines.slice(startIndex + 1, endIndex === -1 ? lines.length : endIndex)
-}
-
-function titleCase(value: string) {
-  return value
-    .toLowerCase()
-    .split(" ")
-    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(" ")
-}
-
 async function readResumeFile(file: File) {
-  if (file.type.includes("text") || /\.(txt|md)$/i.test(file.name)) {
-    return file.text()
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const response = await fetch("/api/setup/parse-resume", {
+    method: "POST",
+    body: formData
+  })
+  const payload = await response.json() as { text?: string; error?: string }
+
+  if (!response.ok || !payload.text) {
+    throw new Error(payload.error ?? "Resume upload failed.")
   }
 
-  return `PROFILE SUMMARY
-Uploaded resume file: ${file.name}
-
-WORK EXPERIENCE
-- Add or confirm extracted work experience from this uploaded resume.
-- OfferUp will use role, project, responsibility, and outcome information for interview questions.
-
-SELECTED PROJECTS
-- Uploaded material is ready for review after parsing.
-
-EDUCATION
-- Add education background, degree, school, or training if relevant.
-
-SKILLS
-- Add skills, tools, methods, and strengths from the uploaded resume.
-`
+  return payload.text
 }
