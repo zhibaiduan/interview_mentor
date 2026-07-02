@@ -14,7 +14,7 @@ import {
   Trash2,
   X
 } from "lucide-react"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -191,6 +191,7 @@ const parseSteps = [
 ]
 
 export function SetupFlow() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [resumes, setResumes] = useState(defaultResumes)
@@ -208,6 +209,8 @@ export function SetupFlow() {
   const [focusType, setFocusType] = useState<SetupFocusType>("resume")
   const [level, setLevel] = useState<SetupLevel>("junior")
   const [notice, setNotice] = useState("")
+  const [isStarting, setIsStarting] = useState(false)
+  const setupRequestIdRef = useRef(`setup-${Date.now()}-${Math.random().toString(36).slice(2)}`)
 
   const selectedResume = resumes.find((resume) => resume.id === selectedResumeId)
   const resumeSignals = useMemo(() => selectedResume ? parseResumeSignals(selectedResume.content) : null, [selectedResume])
@@ -221,10 +224,10 @@ export function SetupFlow() {
   const canStart = resumeConfirmed && roleValid
 
   useEffect(() => {
-    if (!notice) return
+    if (!notice || isStarting) return
     const timer = window.setTimeout(() => setNotice(""), 3000)
     return () => window.clearTimeout(timer)
-  }, [notice])
+  }, [isStarting, notice])
 
   async function handleUpload(file: File | undefined) {
     if (!file) return
@@ -329,8 +332,8 @@ export function SetupFlow() {
     setStep("role")
   }
 
-  function startInterview() {
-    if (!canStart || !selectedResume) return
+  async function startInterview() {
+    if (!canStart || !selectedResume || isStarting) return
     const sessionConfig = buildSessionConfig({
       resumeText: selectedResume.content,
       roleMode,
@@ -341,7 +344,50 @@ export function SetupFlow() {
       level,
       intensity: "medium"
     })
-    setNotice(`Setup ready. Config validated for ${sessionConfig.main_question_count} focused questions.`)
+
+    setIsStarting(true)
+    setNotice("Creating your interview session...")
+
+    try {
+      const createResponse = await fetch("/api/session/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          setup_request_id: setupRequestIdRef.current,
+          resume_title: selectedResume.title,
+          session_config: sessionConfig
+        })
+      })
+      const createPayload = await createResponse.json()
+
+      if (!createResponse.ok) {
+        throw new Error(createPayload.error ?? "Could not create session.")
+      }
+
+      setNotice("Writing your personalized questions...")
+
+      const questionsResponse = await fetch("/api/session/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          session_id: createPayload.session_id
+        })
+      })
+      const questionsPayload = await questionsResponse.json()
+
+      if (!questionsResponse.ok) {
+        throw new Error(questionsPayload.error ?? "Could not generate questions.")
+      }
+
+      router.push(`/session/${createPayload.session_id}/prep`)
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Session creation failed.")
+      setIsStarting(false)
+    }
   }
 
   return (
@@ -448,6 +494,7 @@ export function SetupFlow() {
 
       <SetupSummaryBar
         canStart={canStart}
+        isStarting={isStarting}
         focus={selectedFocus.label}
         level={selectedLevel.label}
         duration="~12-18 min"
@@ -974,6 +1021,7 @@ function SessionSettingsStep({
 
 function SetupSummaryBar({
   canStart,
+  isStarting,
   focus,
   level,
   duration,
@@ -981,6 +1029,7 @@ function SetupSummaryBar({
   onStart
 }: {
   canStart: boolean
+  isStarting: boolean
   focus: string
   level: string
   duration: string
@@ -1008,9 +1057,9 @@ function SetupSummaryBar({
           ))}
         </div>
         <div className="flex flex-col items-start gap-1 sm:items-end">
-          <Button type="button" className="h-12 px-7" disabled={!canStart} onClick={onStart}>
-            <Sparkles aria-hidden="true" size={16} />
-            Start interview
+          <Button type="button" className="h-12 px-7" disabled={!canStart || isStarting} onClick={onStart}>
+            {isStarting ? <Loader2 aria-hidden="true" className="animate-spin" size={16} /> : <Sparkles aria-hidden="true" size={16} />}
+            {isStarting ? "Preparing..." : "Start interview"}
           </Button>
           {!canStart ? (
             <span className="text-xs text-[var(--text-secondary)]">{disabledReason}</span>

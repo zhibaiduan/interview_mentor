@@ -148,4 +148,19 @@
   --motion-slow: 260ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-enter: cubic-bezier(0.22, 0.68, 0, 1);
+
+  --interview-bg: #16120d;
+  --interview-surface: #1e1a14;
+  --interview-raised: #28221b;
+  --interview-border: #332b22;
+  --interview-text: #ede8df;
+  --interview-text-secondary: #9a8f82;
+  --interview-text-muted: #564e45;
+  --interview-sage: #4a7d60;
+  --interview-sage-dim: #243b2e;
+  --interview-danger: #c15a50;
+  --interview-danger-bg: #351818;
+  --interview-glow:
+    radial-gradient(34rem 34rem at 50% 42%, rgba(74, 125, 96, 0.08), transparent 66%),
+    radial-gradient(28rem 24rem at 14% 82%, rgba(154, 107, 47, 0.06), transparent 70%);
 }
