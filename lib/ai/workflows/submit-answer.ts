@@ -5,7 +5,47 @@ export type FollowUpDecision = {
   followupQuestion: string | null
 }
 
-export function decideFollowUp({
+export async function decideFollowUp({
+  answerText,
+  questionIntent,
+  exchanges,
+  chainIndex,
+  totalChains,
+  maxFollowUps
+}: {
+  answerText: string
+  questionIntent: string | null
+  exchanges: SessionExchange[]
+  chainIndex: number
+  totalChains: number
+  maxFollowUps: number
+}): Promise<FollowUpDecision> {
+  if (process.env.DEEPSEEK_API_KEY && process.env.DEMO_MODE !== "true") {
+    const aiDecision = await decideFollowUpWithDeepSeek({
+      answerText,
+      questionIntent,
+      exchanges,
+      chainIndex,
+      totalChains,
+      maxFollowUps
+    }).catch(() => null)
+
+    if (aiDecision) {
+      return aiDecision
+    }
+  }
+
+  return decideFollowUpDeterministic({
+    answerText,
+    questionIntent,
+    exchanges,
+    chainIndex,
+    totalChains,
+    maxFollowUps
+  })
+}
+
+function decideFollowUpDeterministic({
   answerText,
   questionIntent,
   exchanges,
@@ -44,6 +84,104 @@ export function decideFollowUp({
     nextAction: "next_question",
     followupQuestion: null
   }
+}
+
+async function decideFollowUpWithDeepSeek({
+  answerText,
+  questionIntent,
+  exchanges,
+  chainIndex,
+  totalChains,
+  maxFollowUps
+}: {
+  answerText: string
+  questionIntent: string | null
+  exchanges: SessionExchange[]
+  chainIndex: number
+  totalChains: number
+  maxFollowUps: number
+}): Promise<FollowUpDecision | null> {
+  const followUpCount = exchanges.filter((exchange) => exchange.role === "interviewer" && exchange.is_followup).length
+
+  if (maxFollowUps <= 0 || followUpCount >= maxFollowUps) {
+    return chainIndex >= totalChains - 1
+      ? { nextAction: "end", followupQuestion: null }
+      : { nextAction: "next_question", followupQuestion: null }
+  }
+
+  const response = await fetch(`${normalizeDeepSeekBaseUrl()}/chat/completions`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: process.env.DEEPSEEK_MODEL || "deepseek-chat",
+      temperature: 0.35,
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a realistic interview follow-up decider. Decide whether the interviewer should ask one concise follow-up question. Return strict JSON only."
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            question_intent: questionIntent,
+            current_question_index: chainIndex,
+            total_questions: totalChains,
+            follow_up_count: followUpCount,
+            max_follow_ups: maxFollowUps,
+            latest_answer: answerText,
+            conversation: exchanges.map((exchange) => ({
+              role: exchange.role,
+              content: exchange.content,
+              is_followup: exchange.is_followup
+            })),
+            rubric: [
+              "Ask a follow-up only if it would reveal missing ownership, impact, decision logic, tradeoff reasoning, or role fit.",
+              "Do not ask generic coaching questions.",
+              "If the answer is specific enough, move on.",
+              "A follow-up must sound like a human interviewer, one sentence, no preamble."
+            ],
+            output_schema: {
+              next_action: "follow_up | next_question | end",
+              followup_question: "string or null"
+            }
+          })
+        }
+      ]
+    })
+  })
+
+  if (!response.ok) {
+    return null
+  }
+
+  const payload = await response.json() as {
+    choices?: Array<{ message?: { content?: string } }>
+  }
+  const content = payload.choices?.[0]?.message?.content
+  if (!content) return null
+
+  const parsed = JSON.parse(content) as {
+    next_action?: string
+    followup_question?: unknown
+  }
+
+  if (parsed.next_action === "follow_up" && typeof parsed.followup_question === "string") {
+    const followup = parsed.followup_question.trim()
+    if (followup.length > 0) {
+      return { nextAction: "follow_up", followupQuestion: followup.slice(0, 240) }
+    }
+  }
+
+  if (parsed.next_action === "end" || chainIndex >= totalChains - 1) {
+    return { nextAction: "end", followupQuestion: null }
+  }
+
+  return { nextAction: "next_question", followupQuestion: null }
 }
 
 export function createExchange({
@@ -95,4 +233,8 @@ function buildFollowUpQuestion({
   }
 
   return "What was the hardest part of that example, and what would your manager say you contributed?"
+}
+
+function normalizeDeepSeekBaseUrl() {
+  return (process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com").replace(/\/+$/, "")
 }

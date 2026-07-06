@@ -67,3 +67,14 @@ select:disabled {
 .font-display {
   font-family: var(--font-display);
 }
+
+@keyframes voice-bar {
+  from {
+    transform: scaleY(0.58);
+    opacity: 0.52;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}

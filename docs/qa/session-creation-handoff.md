@@ -1,9 +1,9 @@
 # Session Creation Handoff
 
-**Last updated:** 2026-07-02  
+**Last updated:** 2026-07-05
 **Branch:** `codex/meeting-session-part`  
 **Scope:** Slice 5 - Session Creation And Question Generation, Slice 6 text-answer loop foundation, and Slice 7 feedback generation/viewing foundation  
-**Status:** Production-shaped setup-to-feedback flow implemented locally. Verification passes. Runtime still needs authenticated Supabase smoke testing with real project data.
+**Status:** Production-shaped setup-to-feedback flow implemented locally. Verification passes. Authenticated local Supabase API smoke testing with real rows now passes. Runtime still needs browser-level regression coverage and a separate cloud Supabase smoke before deployment.
 
 ## What Is Done
 
@@ -97,20 +97,67 @@ styles/tokens.css
 ## Verification Already Run
 
 ```text
+npm run test:setup
 npm run lint
 npm run typecheck
-npm run test:setup
 npm run build
 ```
 
 All passed after Slice 7.
 
+Authenticated local API smoke also passed on 2026-07-05 using a `codex-smoke-*` test user against the local Supabase project from `.env.local`.
+
+Verified:
+
+- Auth user creation and app sign-in.
+- Authenticated `/setup` access.
+- `POST /api/session/create`.
+- Duplicate `POST /api/session/create` with the same `setup_request_id` returns the same `session_id`.
+- `POST /api/session/questions` returns and persists 3 questions.
+- Three `POST /api/session/answer` calls persist exchanges.
+- `POST /api/session/end` completes the session.
+- `POST /api/session/feedback` persists ready feedback.
+- `GET /api/session/[id]/result` returns 3 feedback question results.
+- Credit balance changed from `10` to `7`.
+- Exactly one `interview_start` ledger row was written for the duplicate create attempt.
+
+Browser smoke partially passed on 2026-07-05 using gstack browse and `codex-ui-qa-*` test users.
+
+Verified in the browser:
+
+- Sign up redirects to authenticated `/setup`.
+- Resume picker opens from `Add resume`.
+- Selecting `Product / AI resume` runs the parsing state and enables `Confirm resume`.
+- Confirming the resume advances to target role input.
+- Pasting a valid JD enables `Start interview`.
+- Starting the interview calls `POST /api/session/create` and `POST /api/session/questions`, then routes to `/session/[id]/call`.
+- `Accept interview call` routes to `/session/[id]/interview`.
+- Submitting a text answer persists it and renders the next interviewer follow-up.
+- No console errors were observed in the checked browser steps.
+
+Observed browser QA concern:
+
+- After confirming the resume and moving to the target role step, the sticky summary still includes wording that says to confirm extracted interview signals. The main flow continues correctly, but this copy/state should be cleaned up during setup polish.
+
+Voice-first interview UI update on 2026-07-05:
+
+- Reworked `/session/[id]/interview` around spoken answers rather than text input.
+- Added toggle-to-talk microphone control, Space key recording affordance, live transcript preview where browser speech recognition is available, text fallback, and replay control.
+- Added `POST /api/session/transcribe` for OpenAI STT with deterministic local fallback when OpenAI is unavailable or demo mode is enabled.
+- Added `POST /api/session/speech` for OpenAI TTS with local disabled response when OpenAI is unavailable or demo mode is enabled.
+- Added DeepSeek-backed follow-up decision support behind `lib/ai/workflows/submit-answer.ts`, with deterministic fallback on missing key or API failure.
+- Browser smoke reached the new interview screen and confirmed voice controls, Space hint, replay, text fallback, and no console errors.
+- On 2026-07-06, voice input changed from hold-to-speak to toggle-to-talk: press Space or the mic button once to start, press again to send. Live browser speech preview now accumulates text across brief pauses/restarts; OpenAI STT remains the final submitted transcript source.
+- Later on 2026-07-06, the fixed-console interview layout was tightened: the conversation log scrolls inside the viewport and auto-centers the active dialogue, voice controls were compressed, replay/playing was removed, candidate speech remains visible as a pending bubble during transcribing/submitting, and OpenAI TTS defaults were tuned to `cedar` with professional interviewer delivery instructions.
+- Real microphone permission/recording, paid OpenAI TTS/STT, and paid DeepSeek follow-up quality still need manual QA in a visible browser.
+
 ## What Is Left
 
-1. Run an authenticated browser smoke test against the real Supabase project.
-2. Confirm `spend_credits` idempotency and insufficient-credit behavior with real rows.
-3. Add DeepSeek-backed `fit_map` and question generation behind the existing workflow boundary.
-4. Harden Slice 6 answer loop with browser regression tests and real authenticated Supabase smoke testing.
-5. Replace deterministic follow-up decision with DeepSeek-backed follow-up workflow behind `lib/ai/workflows/submit-answer.ts`.
-6. Replace deterministic feedback generation with DeepSeek-backed interviewer/mentor workflows behind `lib/ai/workflows/generate-feedback.ts`.
-7. Add browser-level regression coverage for setup -> prep -> call -> interview -> wrap -> feedback.
+1. Manually QA real microphone recording: press Space once to start, press again to send, STT transcript, persisted answer, fixed-console auto-scroll, pending candidate bubble, TTS tone/pace, and follow-up rendering.
+2. Run one paid OpenAI TTS/STT + DeepSeek follow-up quality test and note latency/quality.
+3. Finish browser smoke for interview -> wrap -> feedback.
+4. Confirm insufficient-credit behavior with real rows.
+5. Add DeepSeek-backed `fit_map` and question generation behind the existing workflow boundary.
+6. Harden Slice 6/9 answer loop with browser regression tests.
+7. Replace deterministic feedback generation with DeepSeek-backed interviewer/mentor workflows behind `lib/ai/workflows/generate-feedback.ts`.
+8. Repeat the authenticated smoke test against cloud Supabase before deployment.

@@ -190,7 +190,9 @@ const parseSteps = [
   "Ready"
 ]
 
-export function SetupFlow() {
+const focusedInterviewCreditCost = 3
+
+export function SetupFlow({ initialCreditBalance }: { initialCreditBalance: number | null }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -221,7 +223,15 @@ export function SetupFlow() {
   const roleValidation = validateTargetRole(roleMode, jdText, quickRole)
   const roleValid = roleValidation.valid
   const roleConfirmed = resumeConfirmed && roleValid
-  const canStart = resumeConfirmed && roleValid
+  const hasEnoughCredits = initialCreditBalance === null || initialCreditBalance >= focusedInterviewCreditCost
+  const canStart = resumeConfirmed && roleValid && hasEnoughCredits
+  const disabledReason = !resumeConfirmed
+    ? "Confirm your resume first"
+    : !roleValid
+      ? "Add a target role to continue"
+      : !hasEnoughCredits
+        ? `You need ${focusedInterviewCreditCost} credits to start this interview. You have ${initialCreditBalance ?? 0}.`
+        : ""
 
   useEffect(() => {
     if (!notice || isStarting) return
@@ -495,10 +505,12 @@ export function SetupFlow() {
       <SetupSummaryBar
         canStart={canStart}
         isStarting={isStarting}
+        creditBalance={initialCreditBalance}
+        requiredCredits={focusedInterviewCreditCost}
         focus={selectedFocus.label}
         level={selectedLevel.label}
         duration="~12-18 min"
-        disabledReason={!resumeConfirmed ? "Confirm your resume first" : !roleValid ? "Add a target role to continue" : ""}
+        disabledReason={disabledReason}
         onStart={startInterview}
       />
 
@@ -1022,6 +1034,8 @@ function SessionSettingsStep({
 function SetupSummaryBar({
   canStart,
   isStarting,
+  creditBalance,
+  requiredCredits,
   focus,
   level,
   duration,
@@ -1030,12 +1044,15 @@ function SetupSummaryBar({
 }: {
   canStart: boolean
   isStarting: boolean
+  creditBalance: number | null
+  requiredCredits: number
   focus: string
   level: string
   duration: string
   disabledReason: string
   onStart: () => void
 }) {
+  const creditBlocked = creditBalance !== null && creditBalance < requiredCredits
   const items = [
     { label: "Mode", value: "Focused Practice" },
     { label: "Focus", value: focus },
@@ -1062,7 +1079,9 @@ function SetupSummaryBar({
             {isStarting ? "Preparing..." : "Start interview"}
           </Button>
           {!canStart ? (
-            <span className="text-xs text-[var(--text-secondary)]">{disabledReason}</span>
+            <span className={cn("max-w-[240px] text-left text-xs leading-body sm:text-right", creditBlocked ? "text-[var(--text-info)]" : "text-[var(--text-secondary)]")}>
+              {disabledReason}
+            </span>
           ) : null}
         </div>
       </div>

@@ -1,8 +1,8 @@
 # OfferUp — Dev Handoff
 
-**Last updated:** 2026-07-01  
-**Current branch:** `codex/database`  
-**Current status:** Production rebuild started. Current focus is Slice 2 database setup: the initial Supabase schema migration exists, but no actual Supabase project/local database has been initialized, linked, or verified yet.
+**Last updated:** 2026-07-06
+**Current branch:** `codex/meeting-session-part`
+**Current status:** Production-shaped setup-to-feedback flow is implemented locally through Slice 7, and the interview module has started Slice 9 voice-first work. Local Supabase authenticated API smoke testing has passed for sign-in, session creation, credit spend idempotency, question generation, text answer submission, session completion, feedback generation, and feedback result retrieval. The interview UI now prioritizes spoken answers with toggle-to-talk controls, OpenAI STT/TTS route handlers, and DeepSeek-backed follow-up decision support with deterministic fallback.
 
 ---
 
@@ -35,7 +35,7 @@ Implemented production stack:
 - shadcn-style local components
 - Radix UI behavior primitives where needed
 - lucide-react icons
-- Supabase wrappers and initial schema migration
+- Supabase wrappers, local Supabase config, schema migrations, RLS, and credit RPCs
 
 Important files/directories:
 
@@ -53,6 +53,22 @@ docs/product_spec/
 ```
 
 Do not continue production work inside `demo-mvp/`.
+
+Implemented production flow:
+
+- `/home`
+- `/setup`
+- `/session/[id]/prep`
+- `/session/[id]/call`
+- `/session/[id]/interview`
+- `/session/[id]/wrap`
+- `/session/[id]/feedback`
+- Session route handlers under `app/api/session/*`
+- Deterministic workflow boundaries under `lib/ai/workflows/*`
+- Voice-first interview UI in `components/product/interview/interview-room.tsx`
+- OpenAI audio route handlers:
+  - `POST /api/session/transcribe`
+  - `POST /api/session/speech`
 
 ---
 
@@ -215,13 +231,16 @@ Supabase:
 - `lib/supabase/server.ts`
 - `lib/supabase/admin.ts`
 - `supabase/migrations/202606190001_initial_schema.sql`
+- `supabase/migrations/202607011113_api_grants.sql`
+- `supabase/config.toml`
 
 Important database status:
 
-- The repository has a schema migration file.
-- The repository does not currently have `supabase/config.toml`.
-- The repository does not currently have `.env.local` or `.env` with Supabase values.
-- Therefore the database has not yet been created/applied for this project. Treat the SQL migration as planned schema, not as proof that a local or cloud database exists.
+- Local Supabase project config exists.
+- `.env.local` exists locally and remains gitignored.
+- Both migrations have been applied and reset-tested locally.
+- Auth bootstrap, RLS, credit account bootstrap, credit ledger bootstrap, and credit RPCs have been smoke-tested locally.
+- On 2026-07-05, an authenticated API smoke test completed the full local Supabase setup-to-feedback path and confirmed `spend_credits` idempotency for session creation.
 
 Landing page:
 
@@ -266,15 +285,16 @@ If continuing work, check whether the session is still running before starting a
 Done:
 
 - Landing page has been migrated from the polished old demo into new Next.js/Tailwind architecture.
+- `/home` has a production dashboard shell and modules.
+- `/setup` has the production setup flow with resume upload/parsing, privacy filtering, target role/JD input, and session creation wiring.
+- `/session/[id]/prep`, `/call`, `/interview`, `/wrap`, and `/feedback` exist as the first production text-answer loop.
 
-Still temporary / needs replacement:
+Still needs hardening:
 
-- `/home`
-- `/setup`
-
-These two routes currently contain scaffolded or newly-created placeholder modules. They should be replaced with migrated old demo content/structure.
-
-Do not treat the current `/home` and `/setup` as product-approved.
+- Browser-level regression coverage for the full setup-to-feedback path.
+- Product acceptance review for setup spec deviations documented in `docs/qa/setup-module-handoff.md`.
+- Real microphone QA for toggle-to-talk, OpenAI STT, OpenAI TTS playback, and AI follow-up quality.
+- Answer polish / save-to-bank flow is not complete.
 
 ---
 
@@ -297,7 +317,7 @@ Reuse priorities:
    - Source: `demo-mvp/public/landing.html`.
 
 2. Dashboard/Home
-   - Status: next to migrate.
+   - Status: production shell implemented; needs product acceptance and browser QA.
    - Source: old `index.html` / dashboard state in `landing.html`.
    - Keep the existing dashboard information structure:
      - greeting
@@ -308,7 +328,7 @@ Reuse priorities:
      - credit balance can be added without taking over the page
 
 3. Setup
-   - Status: migrate after Dashboard.
+   - Status: production setup flow implemented; needs product acceptance on deliberate spec deviations and browser QA.
    - Source: `demo-mvp/public/setup.html` and setup modal in `landing.html`.
    - Keep:
      - resume material section
@@ -321,7 +341,7 @@ Reuse priorities:
      - full simulation -> locked/later unless user says otherwise
 
 4. Interview session
-   - Status: after Dashboard/Setup.
+   - Status: first production text-answer loop implemented; voice-first UI and STT/TTS route handlers added; real microphone/TTS QA still pending.
    - Source: `demo-mvp/public/interview.html`.
    - Keep:
      - incoming/live interview structure
@@ -335,7 +355,7 @@ Reuse priorities:
      - no cheap browser TTS as primary interviewer voice
 
 5. Feedback
-   - Status: after Interview.
+   - Status: first production feedback report implemented with deterministic feedback generation.
    - Source: `demo-mvp/public/feedback.html`.
    - Keep:
      - overall feedback
@@ -357,18 +377,21 @@ This section maps to `OfferUp-Implementation-Plan.md` Slice 2: Supabase Schema, 
 Current branch:
 
 ```text
-codex/database
+codex/meeting-session-part
 ```
 
-Current user intent:
+Current database status:
 
-- Plan the database work clearly before execution.
-- Maintain the work plan and status in this handoff document.
-- Avoid confusing "migration file exists" with "database has been created."
+- Local-first Supabase path is initialized, migrated, and smoke-tested.
+- `.env.local` exists locally and remains gitignored.
+- Cloud Supabase is not confirmed linked/pushed from this repository.
+- Treat local Supabase as verified for development, but do a separate cloud smoke before deployment.
 
 Already present:
 
 - Initial migration: `supabase/migrations/202606190001_initial_schema.sql`.
+- API grants migration: `supabase/migrations/202607011113_api_grants.sql`.
+- Local Supabase config: `supabase/config.toml`.
 - Supabase client wrappers:
   - `lib/supabase/env.ts`
   - `lib/supabase/client.ts`
@@ -379,12 +402,13 @@ Already present:
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_ROLE_KEY`
 
-Not done yet:
+Still not done:
 
 - No cloud Supabase project has been linked.
 - Auth settings such as email confirmation and Google OAuth have not been configured in Supabase Dashboard.
 - No cloud migration push has been run.
 - No production/staging Supabase env values have been added.
+- No browser-level authenticated regression test has been added to the repo.
 
 Done locally:
 
@@ -406,45 +430,13 @@ Done locally:
   - authenticated user cannot directly update `credit_accounts`
   - authenticated user can read `question_library`
 
-Execution plan:
+Next database-related work:
 
-1. Confirm target database mode.
-   - Local-first option: initialize Supabase locally, start the local stack, apply migrations, and verify schema/RLS locally.
-   - Cloud option: create or select a Supabase cloud project, add local `.env.local`, link the project, push migrations, and verify in Dashboard/SQL.
-
-2. Initialize project config.
-   - Run Supabase CLI initialization if `supabase/config.toml` is absent.
-   - Keep generated config minimal and review before committing.
-   - Do not commit real secrets.
-
-3. Apply and verify migration.
-   - Apply `202606190001_initial_schema.sql` to the selected target.
-   - Verify tables, indexes, RLS policies, triggers, and RPC functions exist.
-   - Specifically verify `handle_new_user`, `spend_credits`, and `grant_credits`.
-
-4. Verify auth bootstrap behavior.
-   - Create a test user in the selected environment.
-   - Confirm a matching `profiles` row is created.
-   - Confirm a `credit_accounts` row is created with default balance `10`.
-   - Confirm a `credit_ledger` row is created with reason `signup_grant`.
-
-5. Verify RLS behavior.
-   - Confirm authenticated users can read their own rows.
-   - Confirm cross-user access is blocked.
-   - Confirm users can read their own credit account, credit ledger, and skill signals.
-   - Confirm users cannot directly mutate credit or skill signal tables from the client role.
-   - Confirm `question_library` is readable by authenticated users and not client-writable.
-
-6. Connect Next.js.
-   - Create `.env.local` locally with real Supabase values.
-   - Keep `.env.local` uncommitted.
-   - Run `npm run lint`, `npm run typecheck`, and `npm run build`.
-   - Start the app and smoke test auth/database-dependent routes once auth UI is ready.
-
-Open decision before execution:
-
-- Choose local Supabase first or cloud Supabase first.
-- If cloud: the user/project owner must provide or create the Supabase project and supply the required env values locally.
+1. Before deployment, choose or create the cloud Supabase project.
+2. Link the project and push/replay migrations there.
+3. Configure auth settings in Supabase Dashboard, especially email confirmation and Google OAuth.
+4. Add production/staging env values outside git.
+5. Repeat the authenticated setup-to-feedback smoke test against cloud.
 
 Safety notes:
 
@@ -470,54 +462,24 @@ Verification record:
 - 2026-07-01: Re-ran smoke checks after reset: 11 public tables, 11 RLS-enabled tables, 12 policies, 4 public helper/RPC functions.
 - 2026-07-01: Recreated a local smoke-test auth user after reset; confirmed profile bootstrap, `credit_accounts` balance `10`, `signup_grant` ledger row, own-row reads, and direct credit update denial.
 - 2026-07-01: Ran `npm run lint`, `npm run typecheck`, and `npm run build`; all passed. Build still reports a Supabase package Edge Runtime warning, but completes successfully.
+- 2026-07-05: Ran `npm run test:setup`, `npm run lint`, `npm run typecheck`, and `npm run build`; all passed.
+- 2026-07-05: Started local Next.js dev server and ran authenticated local Supabase API smoke with a `codex-smoke-*` test user. Verified `/setup` authenticated access, `POST /api/session/create`, duplicate create idempotency, `POST /api/session/questions`, three `POST /api/session/answer` calls, `POST /api/session/end`, `POST /api/session/feedback`, `GET /api/session/[id]/result`, credit balance `10 -> 7`, and exactly one `interview_start` ledger spend row.
+- 2026-07-05: Ran partial authenticated browser smoke with gstack browse and `codex-ui-qa-*` users. Verified sign-up -> setup, resume picker, resume parsing/confirm, JD input, Start interview, call page, Accept call, interview page, text answer submit, and follow-up rendering. No console errors were observed. Full browser wrap/feedback pass is still pending.
+- 2026-07-05: Added voice-first interview UI, OpenAI STT/TTS route handlers, call-page ringtone, live browser speech-recognition preview where supported, and DeepSeek follow-up decision support with fallback. Ran `npm run lint`, `npm run typecheck`, `npm run test:setup`, and `npm run build`; all passed. Browser smoke reached the new interview UI and showed voice controls, Space hint, replay, text fallback, and no console errors. Real microphone and paid API quality testing still pending.
+- 2026-07-06: Changed voice input from hold-to-speak to toggle-to-talk: press Space or the mic button once to start, press again to send. Live browser speech preview now accumulates confirmed transcript across brief pauses/restarts while OpenAI STT remains the final submitted transcript source. Ran `npm run lint`, `npm run typecheck`, and `npm run build`; all passed.
+- 2026-07-06: Tightened the interview room layout for the fixed bottom console: conversation content now scrolls inside the visible viewport and auto-centers the active dialogue. The voice console was compressed into a single prompt line plus one compact action row, and the old replay/playing control was removed. Candidate speech now remains visible as a pending bubble through transcribing/submitting until the saved exchange returns. TTS defaults were tuned to `cedar` with professional interviewer instructions for a steadier, more natural pace. Ran `npm run lint`, `npm run typecheck`, and `npm run build`; all passed.
 
 ---
 
 ## 11. Exact Next Step
 
-First, execute the database work plan above. After the target database is initialized, migrated, and verified, continue with Dashboard/Home migration.
+Next engineering step:
 
-Target route:
-
-```text
-app/home/page.tsx
-```
-
-Existing temporary components that may be edited/replaced:
-
-```text
-components/product/dashboard/credit-balance.tsx
-components/product/dashboard/mode-entry.tsx
-components/product/dashboard/practice-activity-list.tsx
-components/product/dashboard/asset-shortcut.tsx
-```
-
-Migration goal:
-
-- Make `/home` feel like the old polished dashboard, not a newly invented admin panel.
-- Keep the old copy/information architecture where still valid.
-- Rename `Question Bank` to `Answer Bank`.
-- Add credit balance carefully as a small operational affordance, not the main narrative.
-- Show full simulation as locked/later for MVP unless user confirms it should be active.
-
-After `/home`, migrate `/setup`.
-
-Target route:
-
-```text
-app/setup/page.tsx
-```
-
-Existing temporary components that may be edited/replaced:
-
-```text
-components/product/setup/mode-selector.tsx
-components/product/setup/locked-mode-entry.tsx
-components/product/setup/resume-textarea.tsx
-components/product/setup/jd-input.tsx
-components/product/setup/saved-resume-picker.tsx
-components/product/setup/jd-history-picker.tsx
-```
+1. Move into Feedback page hardening: compare the current `/session/[id]/feedback` implementation against `docs/product_spec/OfferUp-Feedback-Module-Spec.md` and the legacy `demo-mvp/public/feedback.html` reuse map.
+2. Manually QA real microphone recording in Chrome/Safari when doing the next full setup-to-feedback pass: press Space once to start, press again to send, STT transcript, answer persistence, follow-up rendering, and fixed-console auto-scroll.
+3. Run one paid OpenAI TTS/STT + DeepSeek follow-up quality test with a short session and record observed latency/quality.
+4. Add browser-level regression coverage for the authenticated setup-to-feedback path, or run a manual browser QA pass if a test framework is still deferred.
+5. Replace deterministic `fit_map` and question generation with DeepSeek-backed logic behind `lib/ai/workflows/create-session.ts` and `lib/ai/workflows/generate-questions.ts`.
 
 ---
 
